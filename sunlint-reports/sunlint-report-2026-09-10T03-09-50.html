@@ -1,0 +1,946 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunlint AI Review Report</title>
+    <style>
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8fafc;
+        }
+        
+        .metric-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .metric-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #1e293b;
+        }
+        
+        .metric-number.success { color: #22c55e; }
+        .metric-number.warning { color: #f59e0b; }
+        .metric-number.error { color: #ef4444; }
+        .metric-number.info { color: #3b82f6; }
+        
+        .metric-label {
+            color: #64748b;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .chart-container {
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .chart-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #1e293b;
+            font-weight: 600;
+        }
+        
+        .category-bars {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .category-bar {
+            display: flex;
+            align-items: stretch;
+            height: 50px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+            background: white;
+        }
+        
+        .category-label {
+            padding: 15px 20px;
+            font-weight: 600;
+            color: #334155;
+            width: 180px;
+            background: white;
+            border-right: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .category-progress {
+            flex: 1;
+            height: 100%;
+            position: relative;
+            background: #f1f5f9;
+        }
+        
+        .category-fill {
+            height: 100%;
+            border-radius: 0;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 15px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: width 0.6s ease;
+            position: relative;
+            min-width: 80px;
+        }
+
+        /* Category colors (file-based) */
+        .category-fill.common { background: #f59e0b; color: white; }
+        .category-fill.typescript { background: #3b82f6; color: white; }
+        .category-fill.reactjs { background: #06b6d4; color: white; }
+        .category-fill.dart { background: #0175c2; color: white; }
+        .category-fill.java { background: #ed8b00; color: white; }
+        .category-fill.kotlin { background: #7c6fe0; color: white; }
+        .category-fill.php { background: #777bb4; color: white; }
+        .category-fill.python { background: #3776ab; color: white; }
+        .category-fill.ruby { background: #cc342d; color: white; }
+        .category-fill.swift { background: #fa7343; color: white; }
+        
+        /* Principle colors (business-based) */
+        .category-fill.code_quality { background: #2563eb; color: white; }
+        .category-fill.security { background: #dc2626; color: white; }
+        .category-fill.performance { background: #16a34a; color: white; }
+        .category-fill.maintainability { background: #ca8a04; color: white; }
+        .category-fill.design_patterns { background: #9333ea; color: white; }
+        .category-fill.testability { background: #c2410c; color: white; }
+        .category-fill.reliability { background: #0891b2; color: white; }
+        .category-fill.integration { background: #be123c; color: white; }
+        .category-fill.other { background: #65a30d; color: white; }
+        .category-fill.unknown { background: #6b7280; color: white; }
+        
+        .results-section {
+            padding: 30px;
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            color: #1e293b;
+            font-weight: 600;
+            border-bottom: 3px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+        
+        .file-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .file-card:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border-color: #cbd5e1;
+        }
+        
+        .file-header {
+            padding: 20px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .file-path {
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-weight: 600;
+            color: #334155;
+        }
+        
+        .issue-count {
+            background: #ef4444;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .issue-count.clean {
+            background: #22c55e;
+        }
+        
+        .issues-list {
+            padding: 20px;
+        }
+        
+        .issue-item {
+            padding: 15px;
+            border-left: 4px solid #e2e8f0;
+            margin-bottom: 15px;
+            background: #f8fafc;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .issue-item.error { border-left-color: #ef4444; }
+        .issue-item.warning { border-left-color: #f59e0b; }
+        
+        .issue-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            gap: 15px;
+        }
+        
+        .issue-title {
+            font-weight: 600;
+            color: #1e293b;
+            flex: 1;
+            word-wrap: break-word;
+        }
+        
+        .issue-meta {
+            font-size: 0.85rem;
+            color: #64748b;
+            flex-shrink: 0;
+            white-space: nowrap;
+            min-width: fit-content;
+        }
+        
+        .file-link {
+            color: #3b82f6;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        
+        .file-link:hover {
+            color: #1d4ed8;
+            text-decoration: underline;
+        }
+        
+        .issue-message {
+            color: #475569;
+            line-height: 1.5;
+            margin-top: 8px;
+        }
+        
+        /* Suggestion styling */
+        .suggestion-container {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .suggestion-text {
+            color: #059669;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .suggestion-examples {
+            margin-top: 8px;
+            color: #64748b;
+        }
+        
+        .suggestion-examples ul {
+            margin: 4px 0 0 16px;
+            padding: 0;
+        }
+        
+        .suggestion-examples li {
+            margin: 2px 0;
+            line-height: 1.4;
+        }
+        
+        .suggestion-confidence {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-top: 8px;
+            font-style: italic;
+        }
+        
+        .footer {
+            background: #1e293b;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .toggle-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.3s ease;
+        }
+        
+        .toggle-btn:hover {
+            background: #2563eb;
+        }
+        
+        /* New layout styles for smart file display */
+        .issues-section {
+            margin-bottom: 30px;
+        }
+        
+        .priority-note {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            color: #92400e;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .no-issues-message {
+            text-align: center;
+            padding: 40px 20px;
+            background: #f0fdf4;
+            border: 2px solid #22c55e;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+        
+        .celebration {
+            font-size: 1.5rem;
+            color: #16a34a;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .quality-note {
+            color: #166534;
+            font-size: 1rem;
+        }
+        
+        .clean-section {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+        
+        .clean-summary {
+            padding: 16px 20px;
+            background: #f1f5f9;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: #334155;
+            transition: background 0.2s ease;
+        }
+        
+        .clean-summary:hover {
+            background: #e2e8f0;
+        }
+        
+        .clean-title {
+            color: #059669;
+            font-size: 1rem;
+        }
+        
+        .expand-hint {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: normal;
+        }
+        
+        .clean-files-grid {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .clean-file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+        
+        .clean-file-item:hover {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+        
+        .clean-badge {
+            color: #059669;
+            font-size: 0.8rem;
+        }
+        
+        .issue-file {
+            border-left: 4px solid #ef4444;
+        }
+        
+        .has-issues {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .file-card {
+            animation: fadeIn 0.5s ease forwards;
+        }
+    
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <div class="header">
+            <h1>🔍 Sunlint AI Review</h1>
+            <div class="subtitle">Code Quality Analysis Report</div>
+            <div class="subtitle">Generated: 9/10/2026, 10:09:50 AM • Duration: 46.7s</div>
+        </div>
+    
+        
+        <div class="summary-grid">
+            <div class="metric-card">
+                <div class="metric-number info">4</div>
+                <div class="metric-label">Files Analyzed</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-number error">14</div>
+                <div class="metric-label">Total Issues</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-number warning">0</div>
+                <div class="metric-label">Categories with Issues</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-number info">4</div>
+                <div class="metric-label">Clean Files</div>
+            </div>
+        </div>
+    
+        
+        <div class="chart-container">
+            <h2 class="chart-title">📊 Issues by Principles</h2>
+            <div class="category-bars">
+                
+        <div class="category-bar">
+            <div class="category-label">Code Quality</div>
+            <div class="category-progress">
+                <div class="category-fill code_quality" style="width: 100%;">
+                    12 issues
+                </div>
+            </div>
+        </div>
+      
+        <div class="category-bar">
+            <div class="category-label">Security</div>
+            <div class="category-progress">
+                <div class="category-fill security" style="width: 83.33333333333334%;">
+                    10 issues
+                </div>
+            </div>
+        </div>
+      
+            </div>
+        </div>
+    
+        
+        <div class="results-section">
+            <h2 class="section-title">📁 File Analysis Results</h2>
+            
+        <div class="issues-section">
+            <h2 class="section-title">� Files with Issues (4 files)</h2>
+            <div class="priority-note">Focus on these files first - they need attention</div>
+            
+        <div class="file-card issue-file" style="animation-delay: 0s">
+            <div class="file-header">
+                <div class="file-path">
+                    <a href="vscode://file/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/main.ts" class="file-link" title="Open in VS Code">
+                        📄 nestjs-tutorial/src/main.ts
+                    </a>
+                </div>
+                <div class="issue-count has-issues">2 issues</div>
+            </div>
+            <div class="issues-list" id="issues-0" style="display: none;">
+                
+        <div class="issue-item warning">
+            <div class="issue-header">
+                <div class="issue-title">Variable name 'app' is not descriptive enough.</div>
+                <div class="issue-meta">
+                    <a href="vscode://file/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/main.ts:5:1" class="file-link" title="Open in VS Code">
+                        📍 Line 5
+                    </a>
+                </div>
+            </div>
+            <div class="issue-message">
+                <strong>Code Quality</strong> • C003 • warning
+            </div>
+            <div class="suggestion-container">
+      <div class="suggestion-text">💡 <strong>Suggestion:</strong> Apply code quality best practices to improve maintainability</div><div class="suggestion-examples">
+        <strong>Implementation ideas:</strong>
+        <ul><li>Follow SOLID principles</li><li>Improve code documentation</li><li>Add unit tests for coverage</li></ul></div><div class="suggestion-confidence">Confidence: 70%</div></div>
+        </div>
+      
+        <div class="issue-item warning">
+            <div class="issue-header">
+                <div class="issue-title">Access control checks may not fail securely.</div>
+                <div class="issue-meta">
+                    <a href="vscode://file/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/main.ts:6:1" class="file-link" title="Open in VS Code">
+                        📍 Line 6
+                    </a>
+                </div>
+            </div>
+            <div class="issue-message">
+                <strong>Code Quality</strong> • S001 • warning
+            </div>
+            <div class="suggestion-container">
+      <div class="suggestion-text">💡 <strong>Suggestion:</strong> Apply code quality best practices to improve maintainability</div><div class="suggestion-examples">
+        <strong>Implementation ideas:</strong>
+        <ul><li>Follow SOLID principles</li><li>Improve code documentation</li><li>Add unit tests for coverage</li></ul></div><div class="suggestion-confidence">Confidence: 70%</div></div>
+        </div>
+      
+            </div>
+            <div style="padding: 0 20px 20px;">
+                <button class="toggle-btn" onclick="toggleIssues(0)">
+                    Show Issues
+                </button>
+            </div>
+        </div>
+      
+        <div class="file-card issue-file" style="animation-delay: 0.1s">
+            <div class="file-header">
+                <div class="file-path">
+                    <a href="vscode://file/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/app.service.ts" class="file-link" title="Open in VS Code">
+                        📄 nestjs-tutorial/src/app.service.ts
+                    </a>
+                </div>
+                <div class="issue-count has-issues">5 issues</div>
+            </div>
+            <div class="issues-list" id="issues-1" style="display: none;">
+                
+        <div class="issue-item warning">
+            <div class="issue-header">
+                <div class="issue-title">Function name 'getHello' is not a verb or verb-noun combination.</div>
+                <div class="issue-meta">
+                    <a href="vscode://file/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/app.service.ts:3:1" class="file-link" title="Open in VS Code">
+                        📍 Line 3
+                    </a>
+                </div>
+            </div>
+            <div class="issue-message">
+                <strong>Code Quality</strong> • C006 • warning
+            </div>
+            <div class="suggestion-container">
+      <div class="suggestion-text">💡 <strong>Suggestion:</strong> Apply code quality best practices to improve maintainability</div><div class="suggestion-examples">
+        <strong>Implementation ideas:</strong>
+        <ul><li>Follow SOLID principles</li><li>Improve code documentation</li><li>Add unit tests for coverage</li></ul></div><div class="suggestion-confidence">Confidence: 70%</div></div>
+        </div>
+      
+        <div class="issue-item warning">
+            <div class="issue-header">
+                <div class="issue-title">Access control checks are not implemented, potential for default permissions.</div>
+                <div class="issue-meta">
+                    <a href="vscode://file/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/app.service.ts:4:1" class="file-link" title="Open in VS Code">
+                        📍 Line 4
+                    </a>
+                </div>
+            </div>
+            <div class="issue-message">
+                <strong>Code Quality</strong> • S001 • warning
+            </div>
+            <div class="suggestion-container">
+      <div class="suggestion-text">💡 <strong>Suggestion:</strong> Apply code quality best practices to improve maintainability</div><div class="suggestion-examples">
+        <strong>Implementation ideas:</strong>
+        <ul><li>Follow SOLID principles</li><li>Improve code documentation</li><li>Add unit tests for coverage</li></ul></div><div class="suggestion-confidence">Confidence: 70%</div></div>
+        </div>
+      
+        <div class="issue-item warning">
+            <div class="issue-header">
+                <div class="issue-title">No ownership verification for resources, potential IDOR vulnerability.</div>
+                <div class="issue-meta">
+                    <a href="vscode://file/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/app.service.ts:4:1" class="file-link" title="Open in VS Code">
+                        📍 Line 4
+                    </a>
+                </div>
+            </div>
+            <div class="issue-message">
+                <strong>Code Quality</strong> • S002 • warning
+            </div>
+            <div class="suggestion-container">
+      <div class="suggestion-text">💡 <strong>Suggestion:</strong> Apply code quality best practices to improve maintainability</div><div class="suggestion-examples">
+        <strong>Implementation ideas:</strong>
+        <ul><li>Follow SOLID principles</li><li>Improve code documentation</li><li>Add unit tests for coverage</li></ul></div><div class="suggestion-confidence">Confidence: 70%</div></div>
+        </div>
+      
+        <div class="issue-item warning">
+            <div class="issue-header">
+                <div class="issue-title">No URL redirect validation implemented.</div>
+                <div class="issue-meta">
+                    <a href="vscode://file/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/app.service.ts:4:1" class="file-link" title="Open in VS Code">
+                        📍 Line 4
+                    </a>
+                </div>
+            </div>
+            <div class="issue-message">
+                <strong>Code Quality</strong> • S003 • warning
+            </div>
+            <div class="suggestion-container">
+      <div class="suggestion-text">💡 <strong>Suggestion:</strong> Apply code quality best practices to improve maintainability</div><div class="suggestion-examples">
+        <strong>Implementation ideas:</strong>
+        <ul><li>Follow SOLID principles</li><li>Improve code documentation</li><li>Add unit tests for coverage</li></ul></div><div class="suggestion-confidence">Confidence: 70%</div></div>
+        </div>
+      
+        <div class="issue-item warning">
+            <div class="issue-header">
+                <div class="issue-title">Origin header usage not validated for authentication.</div>
+                <div class="issue-meta">
+                    <a href="vscode://file/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/app.service.ts:4:1" class="file-link" title="Open in VS Code">
+                        📍 Line 4
+                    </a>
+                </div>
+            </div>
+            <div class="issue-message">
+                <strong>Code Quality</strong> • S005 • warning
+            </div>
+            <div class="suggestion-container">
+      <div class="suggestion-text">💡 <strong>Suggestion:</strong> Apply code quality best practices to improve maintainability</div><div class="suggestion-examples">
+        <strong>Implementation ideas:</strong>
+        <ul><li>Follow SOLID principles</li><li>Improve code documentation</li><li>Add unit tests for coverage</li></ul></div><div class="suggestion-confidence">Confidence: 70%</div></div>
+        </div>
+      
+            </div>
+            <div style="padding: 0 20px 20px;">
+                <button class="toggle-btn" onclick="toggleIssues(1)">
+                    Show Issues
+                </button>
+            </div>
+        </div>
+      
+        <div class="file-card issue-file" style="animation-delay: 0.2s">
+            <div class="file-header">
+                <div class="file-path">
+                    <a href="vscode://file/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/app.controller.ts" class="file-link" title="Open in VS Code">
+                        📄 nestjs-tutorial/src/app.controller.ts
+                    </a>
+                </div>
+                <div class="issue-count has-issues">5 issues</div>
+            </div>
+            <div class="issues-list" id="issues-2" style="display: none;">
+                
+        <div class="issue-item warning">
+            <div class="issue-header">
+                <div class="issue-title">Function name 'getHello' should be more descriptive.</div>
+                <div class="issue-meta">
+                    <a href="vscode://file/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/app.controller.ts:6:1" class="file-link" title="Open in VS Code">
+                        📍 Line 6
+                    </a>
+                </div>
+            </div>
+            <div class="issue-message">
+                <strong>Code Quality</strong> • C006 • warning
+            </div>
+            <div class="suggestion-container">
+      <div class="suggestion-text">💡 <strong>Suggestion:</strong> Apply code quality best practices to improve maintainability</div><div class="suggestion-examples">
+        <strong>Implementation ideas:</strong>
+        <ul><li>Follow SOLID principles</li><li>Improve code documentation</li><li>Add unit tests for coverage</li></ul></div><div class="suggestion-confidence">Confidence: 70%</div></div>
+        </div>
+      
+        <div class="issue-item warning">
+            <div class="issue-header">
+                <div class="issue-title">Access control checks do not fail securely.</div>
+                <div class="issue-meta">
+                    <a href="vscode://file/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/app.controller.ts:9:1" class="file-link" title="Open in VS Code">
+                        📍 Line 9
+                    </a>
+                </div>
+            </div>
+            <div class="issue-message">
+                <strong>Code Quality</strong> • S001 • warning
+            </div>
+            <div class="suggestion-container">
+      <div class="suggestion-text">💡 <strong>Suggestion:</strong> Apply code quality best practices to improve maintainability</div><div class="suggestion-examples">
+        <strong>Implementation ideas:</strong>
+        <ul><li>Follow SOLID principles</li><li>Improve code documentation</li><li>Add unit tests for coverage</li></ul></div><div class="suggestion-confidence">Confidence: 70%</div></div>
+        </div>
+      
+        <div class="issue-item warning">
+            <div class="issue-header">
+                <div class="issue-title">Potential IDOR vulnerability due to lack of resource ownership verification.</div>
+                <div class="issue-meta">
+                    <a href="vscode://file/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/app.controller.ts:9:1" class="file-link" title="Open in VS Code">
+                        📍 Line 9
+                    </a>
+                </div>
+            </div>
+            <div class="issue-message">
+                <strong>Code Quality</strong> • S002 • warning
+            </div>
+            <div class="suggestion-container">
+      <div class="suggestion-text">💡 <strong>Suggestion:</strong> Apply code quality best practices to improve maintainability</div><div class="suggestion-examples">
+        <strong>Implementation ideas:</strong>
+        <ul><li>Follow SOLID principles</li><li>Improve code documentation</li><li>Add unit tests for coverage</li></ul></div><div class="suggestion-confidence">Confidence: 70%</div></div>
+        </div>
+      
+        <div class="issue-item warning">
+            <div class="issue-header">
+                <div class="issue-title">URL redirects are not validated against an allow list.</div>
+                <div class="issue-meta">
+                    <a href="vscode://file/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/app.controller.ts:9:1" class="file-link" title="Open in VS Code">
+                        📍 Line 9
+                    </a>
+                </div>
+            </div>
+            <div class="issue-message">
+                <strong>Code Quality</strong> • S003 • warning
+            </div>
+            <div class="suggestion-container">
+      <div class="suggestion-text">💡 <strong>Suggestion:</strong> Apply code quality best practices to improve maintainability</div><div class="suggestion-examples">
+        <strong>Implementation ideas:</strong>
+        <ul><li>Follow SOLID principles</li><li>Improve code documentation</li><li>Add unit tests for coverage</li></ul></div><div class="suggestion-confidence">Confidence: 70%</div></div>
+        </div>
+      
+        <div class="issue-item warning">
+            <div class="issue-header">
+                <div class="issue-title">Using Origin header for access control is insecure.</div>
+                <div class="issue-meta">
+                    <a href="vscode://file/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/app.controller.ts:9:1" class="file-link" title="Open in VS Code">
+                        📍 Line 9
+                    </a>
+                </div>
+            </div>
+            <div class="issue-message">
+                <strong>Code Quality</strong> • S005 • warning
+            </div>
+            <div class="suggestion-container">
+      <div class="suggestion-text">💡 <strong>Suggestion:</strong> Apply code quality best practices to improve maintainability</div><div class="suggestion-examples">
+        <strong>Implementation ideas:</strong>
+        <ul><li>Follow SOLID principles</li><li>Improve code documentation</li><li>Add unit tests for coverage</li></ul></div><div class="suggestion-confidence">Confidence: 70%</div></div>
+        </div>
+      
+            </div>
+            <div style="padding: 0 20px 20px;">
+                <button class="toggle-btn" onclick="toggleIssues(2)">
+                    Show Issues
+                </button>
+            </div>
+        </div>
+      
+        <div class="file-card issue-file" style="animation-delay: 0.30000000000000004s">
+            <div class="file-header">
+                <div class="file-path">
+                    <a href="vscode://file/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/app.module.ts" class="file-link" title="Open in VS Code">
+                        📄 nestjs-tutorial/src/app.module.ts
+                    </a>
+                </div>
+                <div class="issue-count has-issues">2 issues</div>
+            </div>
+            <div class="issues-list" id="issues-3" style="display: none;">
+                
+        <div class="issue-item warning">
+            <div class="issue-header">
+                <div class="issue-title">Using 'error' log level for non-critical issues.</div>
+                <div class="issue-meta">
+                    <a href="vscode://file/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/app.module.ts:21:1" class="file-link" title="Open in VS Code">
+                        📍 Line 21
+                    </a>
+                </div>
+            </div>
+            <div class="issue-message">
+                <strong>Code Quality</strong> • C019 • warning
+            </div>
+            <div class="suggestion-container">
+      <div class="suggestion-text">💡 <strong>Suggestion:</strong> Apply code quality best practices to improve maintainability</div><div class="suggestion-examples">
+        <strong>Implementation ideas:</strong>
+        <ul><li>Follow SOLID principles</li><li>Improve code documentation</li><li>Add unit tests for coverage</li></ul></div><div class="suggestion-confidence">Confidence: 70%</div></div>
+        </div>
+      
+        <div class="issue-item warning">
+            <div class="issue-header">
+                <div class="issue-title">Access control errors may not fail securely.</div>
+                <div class="issue-meta">
+                    <a href="vscode://file/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/app.module.ts:11:1" class="file-link" title="Open in VS Code">
+                        📍 Line 11
+                    </a>
+                </div>
+            </div>
+            <div class="issue-message">
+                <strong>Code Quality</strong> • S001 • warning
+            </div>
+            <div class="suggestion-container">
+      <div class="suggestion-text">💡 <strong>Suggestion:</strong> Apply code quality best practices to improve maintainability</div><div class="suggestion-examples">
+        <strong>Implementation ideas:</strong>
+        <ul><li>Follow SOLID principles</li><li>Improve code documentation</li><li>Add unit tests for coverage</li></ul></div><div class="suggestion-confidence">Confidence: 70%</div></div>
+        </div>
+      
+            </div>
+            <div style="padding: 0 20px 20px;">
+                <button class="toggle-btn" onclick="toggleIssues(3)">
+                    Show Issues
+                </button>
+            </div>
+        </div>
+      
+        </div>
+    
+            
+        </div>
+    
+        
+        <div class="footer">
+            <p>Generated by <strong>Sunlint AI Review v1.0.3</strong></p>
+            <p style="margin-top: 5px; opacity: 0.8;">Powered by GitHub Copilot AI</p>
+        </div>
+    
+    </div>
+    
+    <script>
+        
+        function toggleIssues(index) {
+            const issuesDiv = document.getElementById('issues-' + index);
+            const button = event.target;
+            
+            if (issuesDiv.style.display === 'none') {
+                issuesDiv.style.display = 'block';
+                button.textContent = 'Hide Issues';
+            } else {
+                issuesDiv.style.display = 'none';
+                button.textContent = 'Show Issues';
+            }
+        }
+        
+        // Animate category bars on load
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                const fills = document.querySelectorAll('.category-fill');
+                fills.forEach(fill => {
+                    const width = fill.style.width;
+                    fill.style.width = '0%';
+                    setTimeout(() => {
+                        fill.style.width = width;
+                    }, 100);
+                });
+            }, 500);
+        });
+
+        // SonarQube-style interactions
+        function dismissSonarIssue(issueId) {
+            const issueElement = document.querySelector(`[data-issue-id="${issueId}"]`);
+            if (issueElement) {
+                issueElement.style.opacity = '0.5';
+                issueElement.style.textDecoration = 'line-through';
+            }
+        }
+
+        function markSonarFalsePositive(issueId) {
+            const issueElement = document.querySelector(`[data-issue-id="${issueId}"]`);
+            if (issueElement) {
+                issueElement.style.backgroundColor = '#f0f9ff';
+                issueElement.style.border = '1px solid #0ea5e9';
+            }
+        }
+
+        function openInVSCode(filePath, line = null) {
+            const uri = line ? `vscode://file${filePath}:${line}` : `vscode://file${filePath}`;
+            window.open(uri);
+        }
+
+        function showSonarFile(fileIndex) {
+            // Hide all file views
+            document.querySelectorAll('.sonar-file-view').forEach(view => {
+                view.classList.remove('active');
+            });
+            
+            // Show selected file
+            const targetView = document.getElementById(`sonar-file-${fileIndex}`);
+            if (targetView) {
+                targetView.classList.add('active');
+            }
+
+            // Update nav
+            document.querySelectorAll('.sonar-nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`[data-file-index="${fileIndex}"]`).classList.add('active');
+        }
+    
+    </script>
+</body>
+</html>
