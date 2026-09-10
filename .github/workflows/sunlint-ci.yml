@@ -1,0 +1,20 @@
+# sunlint-ci.yml
+name: Sunlint Code Quality Check
+on: [push, pull_request]
+jobs:
+    sunlint:
+        runs-on: ubuntu-latest
+        # permissions are required for uploading report to Dashboard
+        permissions:
+            id-token: write
+            contents: read
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
+                with:
+                    node-version: '21' # support node 18+
+            # Install Sunlint globally
+            - run: npm install -g @sun-asterisk/sunlint
+            # Run Sunlint with the specified options and upload the report to the Dashboard
+            # --output-summary=report.json --upload-report are required for Dashboard integration
+            - run: sunlint --all --input=src --output-summary=report.json --upload-report
