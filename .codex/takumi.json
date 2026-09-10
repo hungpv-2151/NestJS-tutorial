@@ -1,0 +1,516 @@
+{
+  "kits": {
+    "core": {
+      "version": "v6.0.0",
+      "installedAt": "2026-09-09T09:45:14.074Z",
+      "installState": "complete",
+      "files": [
+        {
+          "path": "agents/brainstormer_lite.toml",
+          "checksum": "f0c23a5cf030c36f21d76324672bb4b932a1b3e959ed45e282872b99f7af4e63",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.073Z"
+        },
+        {
+          "path": "agents/brainstormer_max.toml",
+          "checksum": "5c94c72c19267ff1337538141ff2fb860175fdc84da978e028f528e3d6e1d7b1",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.073Z"
+        },
+        {
+          "path": "agents/brainstormer.toml",
+          "checksum": "9b3d194edbdbdc9e48f63c59ca9eedc730801d56ac0519f5cae3bdd8a4df8d5d",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.073Z"
+        },
+        {
+          "path": "agents/code_simplifier.toml",
+          "checksum": "d34a22ae001338ab951f61b90c8f7c7321223bac08cc05b6b3591ed7b09b3a56",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.073Z"
+        },
+        {
+          "path": "agents/debugger.toml",
+          "checksum": "d08c7f156bdfb6239b743c8123d0c0da55dff3c31b4d8311632d6ed4ae4327e0",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.073Z"
+        },
+        {
+          "path": "agents/delivery_tracker.toml",
+          "checksum": "4a6eac1e486e5425365c8061ce1a9d04d39b0e89cc8844743fdf49b2a1d7195a",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.073Z"
+        },
+        {
+          "path": "agents/deployer.toml",
+          "checksum": "08ccbcde034d2d8fc3a400e4bc642f760a3c4144ecfb97c3caec20e27d96d4c7",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.073Z"
+        },
+        {
+          "path": "agents/doc_writer.toml",
+          "checksum": "ba92777397ee3d7fec1011e12571ab28b508ff1de2b3b12f95c4f359b7370fe8",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.073Z"
+        },
+        {
+          "path": "agents/git_manager.toml",
+          "checksum": "e39f89d1f62aa03f1cbe02c55d0083ca49e09681fd628b406f750c46b030b6dd",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.073Z"
+        },
+        {
+          "path": "agents/implementer.toml",
+          "checksum": "80ac1953a775db2125cf46b90bc6d8a449cceb785898ac107fc4352463b297ce",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.073Z"
+        },
+        {
+          "path": "agents/journal_writer.toml",
+          "checksum": "41c442b87ec7535a48dd8a6e1adc9bd14e60d1f988da9871e8670b24aa649685",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.073Z"
+        },
+        {
+          "path": "agents/planner_lite.toml",
+          "checksum": "dda92dd66f695a52cea85ec2554dcb2d313a7a20b4850730f2ead5fd25d97385",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.073Z"
+        },
+        {
+          "path": "agents/planner_max.toml",
+          "checksum": "fb72629a73e0995d64ea2bf51b4e151080494238adf451117d16cc2ba4c512b8",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.073Z"
+        },
+        {
+          "path": "agents/planner.toml",
+          "checksum": "894d84310e49a436edcb9709e6cd59c2421e54861853ab5515b5ddab1c4740b5",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.073Z"
+        },
+        {
+          "path": "agents/researcher.toml",
+          "checksum": "569971162b605946d98db95b13aa62059f58a34df4a567cb89cffd48c0275925",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.073Z"
+        },
+        {
+          "path": "agents/reviewer.toml",
+          "checksum": "70fc1ffb6691a0696f19f59d0ede3f5be15ab0de2cbc817a29bd10219a62a997",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.073Z"
+        },
+        {
+          "path": "agents/tester.toml",
+          "checksum": "b5c3a6353557325cdfad6ea9aed9343e355cadb160c5fe42cc63d847686931fa",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.073Z"
+        },
+        {
+          "path": "agents/translator.toml",
+          "checksum": "ee1ff126829c950d9f51a24c2a36b0d2f8e46439ee49d748c700e1f544b4b221",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.073Z"
+        },
+        {
+          "path": "agents/ui_ux_designer.toml",
+          "checksum": "702d61cf7d2f247d187dc4ca3d7a23f4739c0ee6048fa64babf21c2cce95c517",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.073Z"
+        },
+        {
+          "path": "hooks/descriptive-name.cjs",
+          "checksum": "e91fcf78a85dec46963f41e4dd0e3e8dffd10195d5985680052338a06eaa6e11",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.058Z"
+        },
+        {
+          "path": "hooks/destructive-command-guard.cjs",
+          "checksum": "5d2a1d2fed28ece1bfc6f36b9b9fa9828de2316952cf5be9f9567e644c005187",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.057Z"
+        },
+        {
+          "path": "hooks/dev-rules-reminder.cjs",
+          "checksum": "298b9b8e4eb3538adc17780050bc17b69177a3bc591a19927cb4593c998fd2a8",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.058Z"
+        },
+        {
+          "path": "hooks/evidence-gate-guard.cjs",
+          "checksum": "7f2f4a87e6456986ae95373dd8677413e3dd191dcd2e8c297fbf20d86f097f60",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.058Z"
+        },
+        {
+          "path": "hooks/graph-reindex-sync.cjs",
+          "checksum": "8786164b85c0a700141dc7fe45b6f26fab44a527f499c4f064c672b733093d2c",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.058Z"
+        },
+        {
+          "path": "hooks/guardrail-realtime.cjs",
+          "checksum": "2207732f8ea4e578bd18b7081f288272be15db88b560fa981adc3f5eeced5135",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.058Z"
+        },
+        {
+          "path": "hooks/iron-laws-guard.cjs",
+          "checksum": "b38539524565e5f1bf93c2f758fa90906770e5896ceb95699db60e057b0ac296",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.058Z"
+        },
+        {
+          "path": "hooks/memory-graph-nudge.cjs",
+          "checksum": "6b7939c11be8121f505718247193b5c83df1243b7c707e9ad787e6b666f02163",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.058Z"
+        },
+        {
+          "path": "hooks/memory-graph-queue.cjs",
+          "checksum": "bb44d6d9d8cbfb75e7d2279c3ec2866e3f570e5f529507f80a7ceda98ce266c7",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.058Z"
+        },
+        {
+          "path": "hooks/plan-format-kanban.cjs",
+          "checksum": "b1bf132ad4893310e98afd41b099559df5d3c3e1bdade783716550e3f4b89e38",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.058Z"
+        },
+        {
+          "path": "hooks/post-edit-simplify-reminder.cjs",
+          "checksum": "3d2d76e939a97617a3448779901d69081a92bcc4af1abdad2d44aad5c58dfaa6",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.058Z"
+        },
+        {
+          "path": "hooks/precompact-guard.cjs",
+          "checksum": "479852d0dc1601c1c936ba6472e8d6a951661ef7a1bb0c6d10d2a06a14039c97",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.058Z"
+        },
+        {
+          "path": "hooks/privacy-block.cjs",
+          "checksum": "3e2b5f514b3a22ee5b37270899b8dda264d0de789431cfcff92ebe161208d24d",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.058Z"
+        },
+        {
+          "path": "hooks/scout-block.cjs",
+          "checksum": "422bb395ecc39edd8b16c0108fcbf436c23f5bfe334975d05ca4d58b6d07b5b1",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.058Z"
+        },
+        {
+          "path": "hooks/session-init.cjs",
+          "checksum": "fc54f4f9b31b393e8fe7506828fcf3ddeecca66aef58ce8d5bbc6cdeacd6bdd9",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.058Z"
+        },
+        {
+          "path": "hooks/session-state.cjs",
+          "checksum": "3e86746c1e87ce17280267040cea54673a2df42de509ab777b473138b8517af9",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.058Z"
+        },
+        {
+          "path": "hooks/skill-extension-loader.cjs",
+          "checksum": "612e3cd8879cc9d6982aaea07e487d2d36cb7053c59c03ad1e94a7ed6dc708b3",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.058Z"
+        },
+        {
+          "path": "hooks/subagent-init.cjs",
+          "checksum": "03b786344ef77ae5f175156f8a7b7a7160d97f74ff0f509fd6138b2ceb4d8050",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.058Z"
+        },
+        {
+          "path": "hooks/takumi-after-plan-reminder.cjs",
+          "checksum": "56692353d16f09cb33e4ae976734ba180c6504e3b38799c652767b7ae8fb670a",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.058Z"
+        },
+        {
+          "path": "hooks/takumi-bootstrap.cjs",
+          "checksum": "8483332aa36f40ad76dc544ec625e59b4eb4c99423e5ada361cc693414133b49",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.058Z"
+        },
+        {
+          "path": "hooks/task-completed-handler.cjs",
+          "checksum": "d0c7a62e9f858f9252b234eb7955b2c50260b5305be37a1cb2d60c0f549566cb",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.058Z"
+        },
+        {
+          "path": "hooks/team-context-inject.cjs",
+          "checksum": "3591d3855d226351252d527abd5f47cdb6ec0c0f0eb734af717870d2030b9fa7",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.058Z"
+        },
+        {
+          "path": "hooks/teammate-idle-handler.cjs",
+          "checksum": "6df8bf4148cdf5235d886e7048a37af720d62d9c06956bb9d6963f78557dc871",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.058Z"
+        },
+        {
+          "path": "hooks/telemetry.cjs",
+          "checksum": "036967c2401a55f65bc31eb71fc2cbbc9ce028a60257c90f892eb56915479fab",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.058Z"
+        },
+        {
+          "path": "hooks/usage-context-awareness.cjs",
+          "checksum": "aa0b795644eba1da85147075e4056539b9d3b18b10ffe3db2e9eef8532d92018",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.058Z"
+        },
+        {
+          "path": "hooks/usage-quota-cache-refresh.cjs",
+          "checksum": "e47758ff6f30cab5a7662fca798cbfe43d278b4edbca3a5f7c2b7757b4be33b5",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.058Z"
+        },
+        {
+          "path": "hooks/workflow-opt-in-guard.cjs",
+          "checksum": "ebc17b7a10e376b24fb6e1174072c439c83cee650cc100ac58b3761a3e5673ad",
+          "ownership": "takumi",
+          "installedVersion": "v6.0.0",
+          "installedAt": "2026-09-09T09:45:14.058Z"
+        }
+      ]
+    },
+    "extras": {
+      "version": "v0.16.0",
+      "installedAt": "2026-09-09T09:51:39.950Z",
+      "installState": "complete",
+      "files": [
+        {
+          "path": "agents/brainstormer_lite.toml",
+          "checksum": "f0c23a5cf030c36f21d76324672bb4b932a1b3e959ed45e282872b99f7af4e63",
+          "ownership": "takumi",
+          "installedVersion": "v0.16.0",
+          "installedAt": "2026-09-09T09:51:39.945Z"
+        },
+        {
+          "path": "agents/brainstormer_max.toml",
+          "checksum": "5c94c72c19267ff1337538141ff2fb860175fdc84da978e028f528e3d6e1d7b1",
+          "ownership": "takumi",
+          "installedVersion": "v0.16.0",
+          "installedAt": "2026-09-09T09:51:39.945Z"
+        },
+        {
+          "path": "agents/brainstormer.toml",
+          "checksum": "9b3d194edbdbdc9e48f63c59ca9eedc730801d56ac0519f5cae3bdd8a4df8d5d",
+          "ownership": "takumi",
+          "installedVersion": "v0.16.0",
+          "installedAt": "2026-09-09T09:51:39.944Z"
+        },
+        {
+          "path": "agents/business_analyst.toml",
+          "checksum": "eb14dc0289d65891e2d2e8b123dddca41ba3e29270ed976bb7729621fd3aa705",
+          "ownership": "takumi",
+          "installedVersion": "v0.16.0",
+          "installedAt": "2026-09-09T09:51:39.945Z"
+        },
+        {
+          "path": "agents/code_simplifier.toml",
+          "checksum": "d34a22ae001338ab951f61b90c8f7c7321223bac08cc05b6b3591ed7b09b3a56",
+          "ownership": "takumi",
+          "installedVersion": "v0.16.0",
+          "installedAt": "2026-09-09T09:51:39.945Z"
+        },
+        {
+          "path": "agents/debugger.toml",
+          "checksum": "d08c7f156bdfb6239b743c8123d0c0da55dff3c31b4d8311632d6ed4ae4327e0",
+          "ownership": "takumi",
+          "installedVersion": "v0.16.0",
+          "installedAt": "2026-09-09T09:51:39.945Z"
+        },
+        {
+          "path": "agents/delivery_tracker.toml",
+          "checksum": "4a6eac1e486e5425365c8061ce1a9d04d39b0e89cc8844743fdf49b2a1d7195a",
+          "ownership": "takumi",
+          "installedVersion": "v0.16.0",
+          "installedAt": "2026-09-09T09:51:39.945Z"
+        },
+        {
+          "path": "agents/deployer.toml",
+          "checksum": "08ccbcde034d2d8fc3a400e4bc642f760a3c4144ecfb97c3caec20e27d96d4c7",
+          "ownership": "takumi",
+          "installedVersion": "v0.16.0",
+          "installedAt": "2026-09-09T09:51:39.945Z"
+        },
+        {
+          "path": "agents/doc_writer.toml",
+          "checksum": "ba92777397ee3d7fec1011e12571ab28b508ff1de2b3b12f95c4f359b7370fe8",
+          "ownership": "takumi",
+          "installedVersion": "v0.16.0",
+          "installedAt": "2026-09-09T09:51:39.945Z"
+        },
+        {
+          "path": "agents/git_manager.toml",
+          "checksum": "e39f89d1f62aa03f1cbe02c55d0083ca49e09681fd628b406f750c46b030b6dd",
+          "ownership": "takumi",
+          "installedVersion": "v0.16.0",
+          "installedAt": "2026-09-09T09:51:39.945Z"
+        },
+        {
+          "path": "agents/implementer.toml",
+          "checksum": "80ac1953a775db2125cf46b90bc6d8a449cceb785898ac107fc4352463b297ce",
+          "ownership": "takumi",
+          "installedVersion": "v0.16.0",
+          "installedAt": "2026-09-09T09:51:39.945Z"
+        },
+        {
+          "path": "agents/journal_writer.toml",
+          "checksum": "41c442b87ec7535a48dd8a6e1adc9bd14e60d1f988da9871e8670b24aa649685",
+          "ownership": "takumi",
+          "installedVersion": "v0.16.0",
+          "installedAt": "2026-09-09T09:51:39.945Z"
+        },
+        {
+          "path": "agents/momorph_ui_implementer.toml",
+          "checksum": "abce511f80b0c7f4ad1e59f4bebd0c5bbc56b04136de61688fb88a37248881ae",
+          "ownership": "takumi",
+          "installedVersion": "v0.16.0",
+          "installedAt": "2026-09-09T09:51:39.945Z"
+        },
+        {
+          "path": "agents/planner_lite.toml",
+          "checksum": "dda92dd66f695a52cea85ec2554dcb2d313a7a20b4850730f2ead5fd25d97385",
+          "ownership": "takumi",
+          "installedVersion": "v0.16.0",
+          "installedAt": "2026-09-09T09:51:39.945Z"
+        },
+        {
+          "path": "agents/planner_max.toml",
+          "checksum": "fb72629a73e0995d64ea2bf51b4e151080494238adf451117d16cc2ba4c512b8",
+          "ownership": "takumi",
+          "installedVersion": "v0.16.0",
+          "installedAt": "2026-09-09T09:51:39.946Z"
+        },
+        {
+          "path": "agents/planner.toml",
+          "checksum": "894d84310e49a436edcb9709e6cd59c2421e54861853ab5515b5ddab1c4740b5",
+          "ownership": "takumi",
+          "installedVersion": "v0.16.0",
+          "installedAt": "2026-09-09T09:51:39.945Z"
+        },
+        {
+          "path": "agents/project_manager.toml",
+          "checksum": "cd4bfed06b64ce113701d18604c6d5f9789445fc3bf6ab36b944bffcd3ff5dcc",
+          "ownership": "takumi",
+          "installedVersion": "v0.16.0",
+          "installedAt": "2026-09-09T09:51:39.946Z"
+        },
+        {
+          "path": "agents/researcher.toml",
+          "checksum": "569971162b605946d98db95b13aa62059f58a34df4a567cb89cffd48c0275925",
+          "ownership": "takumi",
+          "installedVersion": "v0.16.0",
+          "installedAt": "2026-09-09T09:51:39.946Z"
+        },
+        {
+          "path": "agents/reviewer.toml",
+          "checksum": "70fc1ffb6691a0696f19f59d0ede3f5be15ab0de2cbc817a29bd10219a62a997",
+          "ownership": "takumi",
+          "installedVersion": "v0.16.0",
+          "installedAt": "2026-09-09T09:51:39.946Z"
+        },
+        {
+          "path": "agents/tester.toml",
+          "checksum": "b5c3a6353557325cdfad6ea9aed9343e355cadb160c5fe42cc63d847686931fa",
+          "ownership": "takumi",
+          "installedVersion": "v0.16.0",
+          "installedAt": "2026-09-09T09:51:39.946Z"
+        },
+        {
+          "path": "agents/translator.toml",
+          "checksum": "ee1ff126829c950d9f51a24c2a36b0d2f8e46439ee49d748c700e1f544b4b221",
+          "ownership": "takumi",
+          "installedVersion": "v0.16.0",
+          "installedAt": "2026-09-09T09:51:39.946Z"
+        },
+        {
+          "path": "agents/ui_ux_designer.toml",
+          "checksum": "702d61cf7d2f247d187dc4ca3d7a23f4739c0ee6048fa64babf21c2cce95c517",
+          "ownership": "takumi",
+          "installedVersion": "v0.16.0",
+          "installedAt": "2026-09-09T09:51:39.946Z"
+        },
+        {
+          "path": "hooks/iac-routing-guard.cjs",
+          "checksum": "e6a50c07f5fb8cce9a615f0590a130215c7cff5811dfcfe7cd369d520351429b",
+          "ownership": "takumi",
+          "installedVersion": "v0.16.0",
+          "installedAt": "2026-09-09T09:51:39.941Z"
+        }
+      ],
+      "skillSelection": {
+        "mode": "all"
+      }
+    }
+  },
+  "scope": "local",
+  "name": "Core",
+  "version": "v6.0.0",
+  "installedAt": "2026-09-09T09:45:14.074Z",
+  "userConfigFiles": [
+    ".gitignore",
+    ".repomixignore",
+    ".mcp.json",
+    ".tkmignore",
+    "takumi.json",
+    ".takumi.json"
+  ]
+}

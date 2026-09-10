@@ -1,0 +1,95 @@
+
+# --- tkm-managed-agents-start ---
+[agents.brainstormer]
+description = "Consultation agent for the stage before anything is built. Reads the real material, interrogates the commission until the wanted outcome is concrete, puts two or three genuinely different paths on the bench with measured trade-offs, and leaves a recorded direction behind. Runs on an engineering lens by default or an executive lens on request, and takes non-technical commissions too (pricing, budget, ops load, positioning, product priority, documents). Examines and advises; writes no project code"
+config_file = "agents/brainstormer.toml"
+
+[agents.brainstormer_lite]
+description = "Fast, low-cost capability tier of the brainstormer consultation agent, for `--level low`: quick trade-off passes, a smaller lens board, condensed output. Same consultation craft as `brainstormer`, run on a lighter model / lower reasoning effort. Examines and advises; writes no project code. Prefer the default `brainstormer` for standard depth, or `brainstormer-max` for exhaustive, high-stakes decisions.\n"
+config_file = "agents/brainstormer_lite.toml"
+
+[agents.brainstormer_max]
+description = "Top-tier capability variant of the brainstormer consultation agent, for `--level max`: exhaustive exploration, one parallel sub-agent per lens then a synthesis pass, adversarial probing of every path. Same consultation craft as `brainstormer`, run on the strongest model / highest reasoning effort. Reach for it on high-stakes, judgment-heavy, or irreversible decisions. Examines and advises; writes no project code. Prefer the default `brainstormer` for standard depth, or `brainstormer-lite` for a "
+config_file = "agents/brainstormer_max.toml"
+
+[agents.business_analyst]
+description = "Business analyst persona. Owns the depth and traceability of requirements: what each feature in the function list actually means, how it flows, which business rules govern it and when it can be called done. On activation it automatically loads the requirements documents (function-list.md / role-list.md / glossary.md / non-function-list.md / system-overview.md / qa.md) and its own working notes (plans/business-analysis/ba-memory.md), reports how much of the function list has been analyzed in dept"
+config_file = "agents/business_analyst.toml"
+
+[agents.code_simplifier]
+description = "Refines just-written code for clarity and consistency with zero change to behavior — flattens nesting into guard clauses, retires duplication and abstractions that earn nothing, renames for intent, and brings the code in line with the project's own conventions. Verifies with whatever the repo provides (typecheck, lint, tests) and stops short of clever compression. Reach for it after a feature lands and before review.\n<example>\nContext: A batch of edits just landed in the portable reconciler and "
+config_file = "agents/code_simplifier.toml"
+
+[agents.debugger]
+description = "Proves the root cause of a fault before anything is changed. Gathers logs,\ntraces, CI output, database state, and metrics first, builds a timeline, then\ntests two or three rival hypotheses and eliminates them on evidence. Reach for\nit for production errors, silent failures, wrong-but-not-crashing behavior,\nred GitHub Actions jobs, flaky or platform-specific test failures, slow queries,\nand performance regressions — anywhere the answer to \"why\" matters more than a\nquick patch. Ends with the evide"
+config_file = "agents/debugger.toml"
+
+[agents.delivery_tracker]
+description = "Tracks delivery against the plan of record and reports status by evidence, not by effort: which phases actually meet their done-criteria, what is blocked and who owns clearing it, where scope drifted and what it cost. Reach for it for a progress check across `plans/`, to hydrate or reconcile tasks, to write a status report, or to pick work back up after a gap between sessions.\n<example>\nContext: A plan directory is marked completed in its frontmatter but its phase files were never reconciled.\nus"
+config_file = "agents/delivery_tracker.toml"
+
+[agents.deployer]
+description = "Deployment operator -- sets up hosting, deploys, and verifies production readiness"
+config_file = "agents/deployer.toml"
+
+[agents.doc_writer]
+description = "The documentation owner in this kit: every delivery routes its docs step here, and no other agent is\nthe docs authority. Keeps documentation true to the code, and turns it into Word and Excel deliverables\nwhen someone needs those. Reach for it whenever the docs are stale, out of date, or simply wrong and want to be updated, refreshed, reconciled, or audited back in line with the code — a README describing a shape the project outgrew, an onboarding or setup page nobody can follow any more, a trou"
+config_file = "agents/doc_writer.toml"
+
+[agents.git_manager]
+description = "Handles staging, conventional commits, pushes, and pull requests in a few decisive tool calls — splitting mixed work by type and scope and scanning for secrets before anything lands. Reach for it on \"commit this\", \"push\", or \"open the PR\".\n<example>\nContext: One working tree holds a new skill plus an unrelated hook fix.\nuser: \"Commit all of this.\"\nassistant: \"I'll use the git-manager agent to split it into separate conventional commits by scope rather than one mixed commit.\"\n<commentary>\nAuto-sp"
+config_file = "agents/git_manager.toml"
+
+[agents.implementer]
+description = "Executes one assigned implementation phase as production code: failing test first, minimal code to pass, then typecheck and the suite green before it reports done. Honors the file-ownership list in the task and stops rather than guessing when the plan leaves an architectural decision open. Reach for it to build a phase from an existing plan, to add real behavior to a specific module, or to run parallel implementation work with hard file boundaries.\n<example>\nContext: A plan phase file specifies "
+config_file = "agents/implementer.toml"
+
+[agents.journal_writer]
+description = "Writes the dated engineering journal entry into `docs/journals/` — what broke, the error string or metric that proves it, the root cause, the decision taken, and the lesson the next reader can act on. Reach for it after a hard debugging cycle, a failed refactor, a discovered defect, or an architectural call that aged badly, when the history is worth more than a status line. It records honestly, including what was tried and did not work.\n<example>\nContext: The rebuild-spec validator only went gre"
+config_file = "agents/journal_writer.toml"
+
+[agents.momorph_ui_implementer]
+description = "Coordinates or implements MoMorph/Figma UI work under an explicit screen, section, or polish mode. A Takumi screen task activates tkm:momorph-implement-design in screen mode; that workflow delegates bounded section/polish work back to this agent. Every task requires fileKey, screenId, file ownership, and a declared visual-contract or e2e-red-first policy."
+config_file = "agents/momorph_ui_implementer.toml"
+
+[agents.planner]
+description = "Turns a fuzzy or risky piece of work into a sealed, phased blueprint written to\nplans/ — data flows, dependency order, per-phase risk with countermeasures, a\ncompatibility and migration path, the test matrix, rollback, file ownership so\nparallel phases never collide, and observable done criteria. Reach for it for\narchitecture decisions, multi-phase features, cross-repo or breaking changes,\nrefactors that need a staged path, and anything a team will execute in parallel.\nIt researches and designs;"
+config_file = "agents/planner.toml"
+
+[agents.planner_lite]
+description = "Fast, low-cost capability tier of the planner blueprint agent, for `--level low`: lean phased plans for small, well-understood work where a full research-and-red-team blueprint would be overkill. Same blueprint craft and seal checklist as `planner`, run on a lighter model / lower reasoning effort. It designs and hands back the plan path; it does not implement. Prefer the default `planner` for standard architecture work, or `planner-max` for cross-repo, breaking, or high-risk plans.\n"
+config_file = "agents/planner_lite.toml"
+
+[agents.planner_max]
+description = "Top-tier capability variant of the planner blueprint agent, for `--level max`: exhaustive, adversarially stress-tested blueprints for cross-repo, breaking, security-sensitive, or high-blast-radius work. Same blueprint craft and seal checklist as `planner`, run on the strongest model / highest reasoning effort — deeper failure-mode analysis, more thorough dependency and rollback design. It designs and hands back the plan path; it does not implement. Prefer the default `planner` for standard archi"
+config_file = "agents/planner_max.toml"
+
+[agents.project_manager]
+description = "Offshore PM persona (project manager for JP outsourced development). Owns QCD, delivery quality and the customer relationship across the whole project lifecycle. On activation it automatically loads the management documents (overview.md / system-overview.md / progress.md) and its own working notes (plans/project-management/pm-memory.md), reports today's progress plus what was left unfinished in the previous session (what to do next), and then presents the work menu. Every time a piece of work is"
+config_file = "agents/project_manager.toml"
+
+[agents.researcher]
+description = "Runs multi-source technical research and ends on a ranked recommendation, not a shelf of options. Compares libraries, frameworks, and architectural routes against the measures that matter — performance, complexity, maintenance cost, license, adoption risk — and judges fit against the stack already in the repo. Reach for it to evaluate a dependency, pull current API documentation for a pinned version, or stress-test an approach before anyone writes code.\n<example>\nContext: takumi-cli bundles to a"
+config_file = "agents/researcher.toml"
+
+[agents.reviewer]
+description = "Code review of work that is about to be seen by someone else — the pending diff, a branch heading for\na pull request, a commit already pushed, or a module you want read end to end. Reads it the way a staff\nengineer reads a change the day before it takes live traffic, hunting the defects that clear CI and\nbreak anyway: races and async ordering, unhandled error propagation, a sensitive path missing its\nauthorization check, N+1 and unindexed filters, a silent break in an exported contract or a data"
+config_file = "agents/reviewer.toml"
+
+[agents.tester]
+description = "Executes the project's real test suites and reports the truth about them: which\ntests a diff actually touches, what coverage is missing, which failures are\nflaky, and whether the build and CI gates still pass. Diff-aware by default —\nmaps changed files to their tests and escalates to the full suite when config,\ntest helpers, or high-fan-out modules move. Reach for it to run tests, check\ncoverage thresholds, reproduce a red CI job locally, or verify a build before a\nPR; it records real exit codes"
+config_file = "agents/tester.toml"
+
+[agents.translator]
+description = "Prose-only file translator. Mirrors a source document into a target language: translates ONLY prose, copies every non-prose token (the \"skeleton\") byte-identical, one source line per output line. Runs on Haiku — translation is mechanical and gated by the caller's skeleton-identity + body-size checks, so the cheap model is the right tool. The caller supplies source/target roots, target language, the artifact list, which tokens count as skeleton, and (optionally) a contract file + validator. Use O"
+config_file = "agents/translator.toml"
+
+[agents.ui_ux_designer]
+description = "Designs and builds the surface users touch: interface and landing design,\nwireframes, design systems and tokens, typography and font pairing (including\nfull Vietnamese diacritic support), mobile-first responsive layouts,\nmicro-interactions and motion, Three.js/WebGL scenes, and accessibility to WCAG\n2.1 AA. Reach for it to create or restyle a page or component, replicate a design\nor screenshot, audit visual consistency across pages, fix contrast, focus states,\ntouch targets or reduced-motion han"
+config_file = "agents/ui_ux_designer.toml"
+# --- tkm-managed-agents-end ---
+
+# --- tkm-managed-features-start ---
+[features]
+hooks = true
+# --- tkm-managed-features-end ---
