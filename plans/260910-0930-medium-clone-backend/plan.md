@@ -1,7 +1,7 @@
 ---
 title: "Medium clone backend implementation"
 description: "Implement the NestJS RealWorld API contract with PostgreSQL persistence and JWT authentication."
-status: in-progress
+status: completed
 priority: P1
 effort: 52h
 branch: master
@@ -27,7 +27,7 @@ Implement only the NestJS API required by `spec/api`: users/JWT, profiles/follow
 | 2 | [Authentication, users and profiles](./phase-02-auth-users-profiles.md) | Complete |
 | 3 | [Articles, tags and listing](./phase-03-articles-tags-listing.md) | Complete |
 | 4 | [Social actions, comments and feed](./phase-04-social-comments-feed.md) | Complete |
-| 5 | [Contract tests and readiness](./phase-05-contract-testing-readiness.md) | Next (Pending) |
+| 5 | [Contract tests and readiness](./phase-05-contract-testing-readiness.md) | Complete |
 
 ## Dependencies
 
@@ -50,8 +50,14 @@ Implement only the NestJS API required by `spec/api`: users/JWT, profiles/follow
 - Phase 02 complete on 2026-09-11. Evidence: [tester report](../reports/tester-260910-1629-phase02.md) and [final remediation review](../reports/reviewer-260910-1629-phase02.md).
 - Phase 03 complete on 2026-09-11. Evidence: [tester report](../reports/tester-260911-0658-phase03.md) and [final remediation review](../reports/reviewer-260911-0658-phase03.md).
 - Phase 04 complete on 2026-09-11. Evidence: [tester report](../reports/tester-260911-0935-phase04.md) and [final remediation review](../reports/reviewer-260911-0957-phase04.md).
-- Phase 05 is next; the plan remains in progress for full Hurl acceptance, readiness orchestration, and documentation reconciliation.
-- Overall plan remains in progress; no project-wide completion claim is made.
+- Phase 05 complete on 2026-09-11. Evidence: [tester report](../reports/tester-260911-1136-phase05.md) and [final lifecycle review](../reports/reviewer-260911-1136-phase05.md). Build, lint, unit, live API E2E, and the full sequential Hurl contract suite passed; the reviewer addendum closed the runner lifecycle blocker.
+- Overall plan complete on 2026-09-11. All five phases are complete and the final contract gates are recorded in Phase 05. Browser Playwright execution remains intentionally outside this API plan.
+
+### Final contract decisions
+
+- Hurl acceptance passed 13/13 files and 154/154 requests after a visible transient Prisma P1002 advisory-lock timeout on the first attempt; the retry passed against the dedicated migrated test database.
+- Token invalidation after password update remains a live E2E regression in `test/auth.e2e-spec.ts`; no duplicate Hurl fixture was added because Hurl remains the published contract suite while stateful token-version behavior is covered by the API E2E suite.
+- The contract runner now handles early child exit/error, readiness failure, normal completion, and SIGINT/SIGTERM cleanup idempotently. No unresolved Phase 05 blocker remains.
 
 ## Red Team Review
 
