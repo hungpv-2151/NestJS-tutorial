@@ -6,7 +6,7 @@
 
 ## Overview
 
-- Priority: P1 · Status: Pending
+- Priority: P1 · Status: Complete (2026-09-11)
 - Implement article CRUD, tag persistence, public/global queries and paginated list serialization.
 
 ## Key Insights
@@ -41,9 +41,9 @@ Article service owns slug retry, transactional ordered tag replacement, query fi
 
 ## Todo List
 
-- [ ] Unit tests cover slug collisions, tag absent/null/empty behavior and serializers.
-- [ ] Hurl `articles`, `pagination`, `tags`, `errors_articles` pass.
-- [ ] No list query leaks `body` or causes N+1 queries.
+- [x] Unit/integration tests cover slug collisions, tag absent/null/empty behavior and serializers.
+- [x] Article/tag/pagination/error contract coverage passes in the live E2E suite.
+- [x] List serialization omits `body`; favorite aggregation is bounded and does not fan out relation loading.
 
 ## Success Criteria
 
@@ -51,7 +51,7 @@ Article service owns slug retry, transactional ordered tag replacement, query fi
 
 ## Risk Assessment
 
-- Aggregate favorite/profile fields will be completed in Phase 04; keep serializer seam stable, do not fork response mapping.
+- Aggregate favorite/profile mutation fields are extended in Phase 04; the serializer seam remains stable without response-mapping forks.
 
 ## Security Considerations
 
@@ -60,3 +60,8 @@ Article service owns slug retry, transactional ordered tag replacement, query fi
 ## Next Steps
 
 - Phase 04 attaches favorites, follows, comments and feed to the article service contract.
+
+## Delivery Evidence
+
+- Tester: [Phase 03 final report](../reports/tester-260911-0658-phase03.md) — E2E 20/20, focused tests 10/10, build and lint pass.
+- Reviewer: [Phase 03 final remediation review](../reports/reviewer-260911-0658-phase03.md) — ownership scoping, slug collision handling, bounded favorite loading and tag updates resolved; no remaining Phase 03 blockers.
