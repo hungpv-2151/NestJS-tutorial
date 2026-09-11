@@ -5,6 +5,7 @@ import type { Response } from 'express';
 type ErrorKey = 'article' | 'comment' | 'email' | 'profile' | 'username';
 type NotFoundResource = Extract<ErrorKey, 'article' | 'comment' | 'profile'>;
 type DuplicateField = Extract<ErrorKey, 'email' | 'username'>;
+const validationFields = new Set(['username', 'email', 'password', 'title', 'description', 'body', 'tagList']);
 
 const prismaUniqueFields = new Map<string, DuplicateField>([
   ['username', 'username'],
@@ -66,10 +67,18 @@ export class ApiExceptionFilter implements ExceptionFilter {
     return messages.reduce<Record<string, string[]>>((errors, message) => {
       if (typeof message !== 'string') return errors;
       const [field, ...parts] = message.split(' ');
-      const key = field.includes('.') ? field.split('.').at(-1) ?? 'request' : field || 'request';
+      const key = this.validationKey(field, message);
       errors[key] = [parts.join(' ') || 'is invalid'];
       return errors;
     }, {});
+  }
+
+  private validationKey(field: string, message: string): string {
+    const segments = field.replace(/[\[\]]/g, '.').split('.').filter(Boolean);
+    const known = [...segments].reverse().find((segment) => validationFields.has(segment));
+    if (known) return known;
+    const match = /\b(username|email|password|title|description|body|tagList)\b/.exec(message);
+    return match?.[1] ?? segments.at(-1) ?? 'request';
   }
 
   private isErrors(value: unknown): value is Record<string, string[]> {

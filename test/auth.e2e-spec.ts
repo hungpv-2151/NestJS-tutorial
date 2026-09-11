@@ -35,7 +35,7 @@ describe('authentication and users (live e2e)', () => {
 
   it('registers, logs in, and reads the current user', async () => {
     const created = await register('current');
-    const login = await request(app.getHttpServer()).post('/api/users/login').send({ user: { email: created.email, password } }).expect(201);
+    const login = await request(app.getHttpServer()).post('/api/users/login').send({ user: { email: created.email, password } }).expect(200);
     expect(login.body.user.username).toBe(created.username);
     await request(app.getHttpServer()).get('/api/user').set('Authorization', `Token ${login.body.user.token}`).expect(200).expect(({ body }) => {
       expect(body.user.email).toBe(created.email);
@@ -62,7 +62,7 @@ describe('authentication and users (live e2e)', () => {
     const nextPassword = 'new correct horse battery staple';
     const update = await request(app.getHttpServer()).put('/api/user').set('Authorization', `Token ${created.token}`).send({ user: { password: nextPassword } }).expect(200);
     await request(app.getHttpServer()).get('/api/user').set('Authorization', `Token ${created.token}`).expect(401);
-    await request(app.getHttpServer()).post('/api/users/login').send({ user: { email: created.email, password: nextPassword } }).expect(201);
+    await request(app.getHttpServer()).post('/api/users/login').send({ user: { email: created.email, password: nextPassword } }).expect(200);
     expect(update.body.user.token).not.toBe(created.token);
   });
 

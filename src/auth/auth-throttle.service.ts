@@ -1,10 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { environmentKeys } from '../config/environment.validation.js';
 
 type Attempt = { count: number; resetAt: number };
 const MAX_ATTEMPTS = 10_000;
 @Injectable()
 export class AuthThrottleService {
   private readonly attempts = new Map<string, Attempt>();
+  constructor(private readonly config?: ConfigService) {}
   check(kind: 'login' | 'register', clientAddress: string, account = clientAddress): void {
     const now = Date.now();
     this.evict(now);
@@ -14,7 +17,7 @@ export class AuthThrottleService {
 
   private record(kind: 'login' | 'register', scope: 'client' | 'account', key: string, now: number): void {
     this.evict(now);
-    const limit = kind === 'login' ? 5 : 3;
+    const limit = this.config?.get<number>(kind === 'login' ? environmentKeys.loginThrottleLimit : environmentKeys.registerThrottleLimit) ?? (kind === 'login' ? 5 : 3);
     const window = kind === 'login' ? 60_000 : 3_600_000;
     const id = `${kind}:${scope}:${key}`;
     const attempt = this.attempts.get(id);
