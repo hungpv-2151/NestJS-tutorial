@@ -1,7 +1,7 @@
 ---
 title: "Medium clone backend implementation"
 description: "Implement the NestJS RealWorld API contract with PostgreSQL persistence and JWT authentication."
-status: pending
+status: in-progress
 priority: P1
 effort: 52h
 branch: master
@@ -23,10 +23,10 @@ Implement only the NestJS API required by `spec/api`: users/JWT, profiles/follow
 
 | Phase | Name | Status |
 |---|---|---|
-| 1 | [Foundation and data model](./phase-01-foundation-data.md) | Pending |
-| 2 | [Authentication, users and profiles](./phase-02-auth-users-profiles.md) | Pending |
-| 3 | [Articles, tags and listing](./phase-03-articles-tags-listing.md) | Pending |
-| 4 | [Social actions, comments and feed](./phase-04-social-comments-feed.md) | Pending |
+| 1 | [Foundation and data model](./phase-01-foundation-data.md) | Complete |
+| 2 | [Authentication, users and profiles](./phase-02-auth-users-profiles.md) | Complete |
+| 3 | [Articles, tags and listing](./phase-03-articles-tags-listing.md) | Complete |
+| 4 | [Social actions, comments and feed](./phase-04-social-comments-feed.md) | Next (Pending) |
 | 5 | [Contract tests and readiness](./phase-05-contract-testing-readiness.md) | Pending |
 
 ## Dependencies
@@ -43,6 +43,14 @@ Implement only the NestJS API required by `spec/api`: users/JWT, profiles/follow
 - Use database uniqueness and transactions as the concurrency authority. Never log passwords, hashes, JWTs, or secrets.
 - Supplied malformed, expired, forged, wrong-issuer/audience, or wrong-algorithm tokens return 401. An absent token on a public read stays anonymous.
 - Future implementation updates `docs/development-roadmap.md`, `docs/project-changelog.md`, `docs/system-architecture.md`, and `docs/code-standards.md` after verified delivery.
+
+## Delivery Status
+
+- Phase 01 complete on 2026-09-10. Evidence: [tester final retest](../reports/tester-260910-1629-phase01-final.md) and [reviewer final review](../reports/reviewer-260910-1629-phase01-final.md).
+- Phase 02 complete on 2026-09-11. Evidence: [tester report](../reports/tester-260910-1629-phase02.md) and [final remediation review](../reports/reviewer-260910-1629-phase02.md).
+- Phase 03 complete on 2026-09-11. Evidence: [tester report](../reports/tester-260911-0658-phase03.md) and [final remediation review](../reports/reviewer-260911-0658-phase03.md).
+- Phase 04 is next; Phase 05 remains pending.
+- Overall plan remains in progress; no project-wide completion claim is made.
 
 ## Red Team Review
 
