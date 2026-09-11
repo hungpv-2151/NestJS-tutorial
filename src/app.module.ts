@@ -9,6 +9,7 @@ import { UsersModule } from './users/users.module.js';
 import { ProfilesModule } from './profiles/profiles.module.js';
 import { ArticlesModule } from './articles/articles.module.js';
 import { TagsModule } from './tags/tags.module.js';
+import { CommentsModule } from './comments/comments.module.js';
 
 prepareRuntimeEnvironment();
 
@@ -21,6 +22,7 @@ prepareRuntimeEnvironment();
     ProfilesModule,
     ArticlesModule,
     TagsModule,
+    CommentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

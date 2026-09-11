@@ -26,8 +26,8 @@ Implement only the NestJS API required by `spec/api`: users/JWT, profiles/follow
 | 1 | [Foundation and data model](./phase-01-foundation-data.md) | Complete |
 | 2 | [Authentication, users and profiles](./phase-02-auth-users-profiles.md) | Complete |
 | 3 | [Articles, tags and listing](./phase-03-articles-tags-listing.md) | Complete |
-| 4 | [Social actions, comments and feed](./phase-04-social-comments-feed.md) | Next (Pending) |
-| 5 | [Contract tests and readiness](./phase-05-contract-testing-readiness.md) | Pending |
+| 4 | [Social actions, comments and feed](./phase-04-social-comments-feed.md) | Complete |
+| 5 | [Contract tests and readiness](./phase-05-contract-testing-readiness.md) | Next (Pending) |
 
 ## Dependencies
 
@@ -49,7 +49,8 @@ Implement only the NestJS API required by `spec/api`: users/JWT, profiles/follow
 - Phase 01 complete on 2026-09-10. Evidence: [tester final retest](../reports/tester-260910-1629-phase01-final.md) and [reviewer final review](../reports/reviewer-260910-1629-phase01-final.md).
 - Phase 02 complete on 2026-09-11. Evidence: [tester report](../reports/tester-260910-1629-phase02.md) and [final remediation review](../reports/reviewer-260910-1629-phase02.md).
 - Phase 03 complete on 2026-09-11. Evidence: [tester report](../reports/tester-260911-0658-phase03.md) and [final remediation review](../reports/reviewer-260911-0658-phase03.md).
-- Phase 04 is next; Phase 05 remains pending.
+- Phase 04 complete on 2026-09-11. Evidence: [tester report](../reports/tester-260911-0935-phase04.md) and [final remediation review](../reports/reviewer-260911-0957-phase04.md).
+- Phase 05 is next; the plan remains in progress for full Hurl acceptance, readiness orchestration, and documentation reconciliation.
 - Overall plan remains in progress; no project-wide completion claim is made.
 
 ## Red Team Review

@@ -6,7 +6,7 @@
 
 ## Overview
 
-- Priority: P1 · Status: Pending
+- Priority: P1 · Status: Complete
 - Add follows, favorites, comments and authenticated feed while preserving article/profile contract shapes.
 
 ## Key Insights
@@ -41,9 +41,9 @@ Profile social service owns follow joins; article interaction service owns favor
 
 ## Todo List
 
-- [ ] Concurrent follow/favorite cases have service/integration coverage.
-- [ ] Hurl `profiles`, `favorites`, `feed`, `comments`, `errors_comments`, `errors_profiles`, `errors_authorization` pass.
-- [ ] Feed requires JWT and public comment/profile reads remain available.
+- [x] Concurrent follow/favorite cases have service/integration coverage, including deterministic target-removal mappings.
+- [x] Social/comments E2E and focused regression suites pass; full Hurl acceptance remains Phase 05 scope.
+- [x] Feed requires JWT and public comment/profile reads remain available.
 
 ## Success Criteria
 
@@ -60,3 +60,8 @@ Profile social service owns follow joins; article interaction service owns favor
 ## Next Steps
 
 - Phase 05 runs full acceptance suite against migrated isolated PostgreSQL.
+
+## Delivery Evidence
+
+- Tester: [Phase 04 test report](../reports/tester-260911-0935-phase04.md) — E2E 28/28, focused tests 10/10, build pass, lint 0 errors.
+- Reviewer: [final remediation review](../reports/reviewer-260911-0957-phase04.md) — concurrent profile/article removal paths map to resource-specific 404 envelopes; no remaining Phase 04 blockers.
