@@ -10,6 +10,8 @@ export const environmentKeys = {
   jwtSecret: name('JWT', 'SECRET'),
   jwtIssuer: name('JWT', 'ISSUER'),
   jwtAudience: name('JWT', 'AUDIENCE'),
+  loginThrottleLimit: name('AUTH', 'LOGIN', 'THROTTLE', 'LIMIT'),
+  registerThrottleLimit: name('AUTH', 'REGISTER', 'THROTTLE', 'LIMIT'),
 } as const;
 
 export function prepareRuntimeEnvironment(): void {
@@ -28,6 +30,8 @@ export function validateEnvironment(config: Record<string, unknown>): Record<str
     [environmentKeys.jwtSecret]: Joi.string().min(32).required(),
     [environmentKeys.jwtIssuer]: Joi.string().min(1).default('realworld-api'),
     [environmentKeys.jwtAudience]: Joi.string().min(1).default('realworld-client'),
+    [environmentKeys.loginThrottleLimit]: Joi.number().integer().min(1).default(5),
+    [environmentKeys.registerThrottleLimit]: Joi.number().integer().min(1).default(3),
   }).unknown(true);
   const { error, value } = schema.validate(config, { abortEarly: false });
   if (error) throw new Error(`Invalid environment configuration: ${error.details.map((detail) => detail.message).join('; ')}`);

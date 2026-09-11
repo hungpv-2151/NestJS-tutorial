@@ -3,7 +3,7 @@ import { IsDefined, IsNotEmpty, IsString, MaxLength, ValidateNested } from 'clas
 
 class CommentFields {
   @IsString()
-  @IsNotEmpty({ message: "can't be blank" })
+  @IsNotEmpty({ message: "body can't be blank" })
   @MaxLength(10_000)
   body!: string;
 }
