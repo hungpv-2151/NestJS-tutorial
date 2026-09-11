@@ -6,7 +6,7 @@
 
 ## Overview
 
-- Priority: P1 · Status: Pending
+- Priority: P1 · Status: Complete (2026-09-10)
 - Replace the starter-only app with configuration, database access, migrations and contract-wide HTTP error/validation foundations.
 
 ## Key Insights
@@ -43,12 +43,21 @@ Schema constraints: unique email/username/slug; unique follow/favorite/article-t
 5. Configure explicit body-size limits, field/array maxima, capped `limit`/offset work budget, and a public readiness endpoint; over-bound values return the established 422 envelope.
 6. Extract reusable HTTP bootstrap configuration (prefix, pipes, filter, config) for `main.ts` and E2E setup; configure graceful Prisma disconnect.
 
+## Delivery Evidence
+
+- Prisma schema validation passed.
+- Nest compilation passed.
+- Lint exited 0 with five non-blocking existing warnings.
+- Focused Vitest: 6/6 tests passed; Phase 01 E2E: 2/2 tests passed.
+- Isolated test-database migration was applied successfully; `.env.example` contains placeholders only.
+- Final tester: [tester-260910-1629-phase01-final.md](../reports/tester-260910-1629-phase01-final.md). Final reviewer: [reviewer-260910-1629-phase01-final.md](../reports/reviewer-260910-1629-phase01-final.md).
+
 ## Todo List
 
-- [ ] Schema and migration reviewed against every relation.
-- [ ] Runtime config has no committed secret.
-- [ ] Error and validation contract has unit coverage.
-- [ ] `pnpm run build` and `pnpm run lint` pass.
+- [x] Schema and migration reviewed against every relation.
+- [x] Runtime config has no committed secret.
+- [x] Error and validation contract has unit coverage.
+- [x] Compilation and lint gates pass.
 
 ## Success Criteria
 
@@ -64,6 +73,10 @@ Schema constraints: unique email/username/slug; unique follow/favorite/article-t
 
 - Secrets stay env/runtime-store only. Parameters are ORM-bound; error output never includes stack traces/database details.
 
+## Risk Closure
+
+- Phase 01 risks are closed by schema review, Prisma validation, migration evidence, compilation/lint gates, and focused contract tests. The separate default Vitest Playwright discovery issue remains scoped to Phase 05.
+
 ## Next Steps
 
-- Phase 02 owns auth/users/profile modules on this schema.
+- Phase 02 owns auth/users/profile modules on this verified schema and is now unblocked.
