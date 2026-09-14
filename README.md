@@ -25,6 +25,49 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+## API bootstrap
+
+Install dependencies and start the local server:
+
+```bash
+pnpm install
+pnpm start:dev
+```
+
+The service listens on `http://localhost:3000` by default. No environment
+variables are required for this bootstrap. Set overrides in the process
+environment used to start the service:
+
+| Variable | Default | Valid values and behavior |
+| --- | --- | --- |
+| `PORT` | `3000` | Integer from `1` to `65535`. |
+| `BODY_LIMIT` | `100kb` | Positive integer followed by `kb` or `mb`, such as `2mb`. |
+| `NODE_ENV` | unset | Set to `production` to apply production Swagger behavior. |
+| `SWAGGER_ENABLED` | unset | Set to the exact value `true` to enable Swagger in production. |
+
+`GET /api/hello` returns a localized greeting. `Accept-Language: vi` and
+`vi-*` values select Vietnamese; a missing, English, or unsupported locale
+uses English.
+
+```json
+{ "message": "Hello!", "locale": "en" }
+```
+
+For example, request Vietnamese with:
+
+```bash
+curl --header 'Accept-Language: vi-VN,vi;q=0.9' http://localhost:3000/api/hello
+```
+
+```json
+{ "message": "Xin chào!", "locale": "vi" }
+```
+
+Swagger UI is available at `http://localhost:3000/docs`, with its OpenAPI JSON
+at `http://localhost:3000/docs-json`. Both routes are enabled outside
+production. When `NODE_ENV=production`, both return `404` unless
+`SWAGGER_ENABLED=true` is set explicitly.
+
 ## Project setup
 
 ```bash

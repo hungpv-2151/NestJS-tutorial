@@ -1,7 +1,7 @@
 ---
 title: "NestJS RealWorld backend learning roadmap"
 description: "Triển khai backend RealWorld theo 6 pull request tuần tự, từ bootstrap đến E2E C2."
-status: pending
+status: in-progress
 priority: P1
 effort: 80h
 branch: master
@@ -30,7 +30,7 @@ Xây backend NestJS/PostgreSQL theo đúng 6 PR có thể review và rollback đ
 
 | PR | Deliverable | Effort | Blocked by | Status |
 |---|---|---:|---|---|
-| 1 | [Bootstrap, i18n và Swagger](./phase-01-project-bootstrap-docs.md) | 6h | — | Pending |
+| 1 | [Bootstrap, i18n và Swagger](./phase-01-project-bootstrap-docs.md) | 6h | — | Complete |
 | 2 | [Migration, auth và background jobs](./phase-02-database-auth-background-jobs.md) | 20h | PR1 | Pending |
 | 3 | [User, profile và private avatar](./phase-03-user-profile-private-avatar.md) | 14h | PR2 | Pending |
 | 4 | [Articles, search/filter/pagination](./phase-04-articles-search-pagination.md) | 18h | PR3 | Pending |
