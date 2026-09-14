@@ -6,13 +6,13 @@
 
 ## Overview
 
-- Priority: P1 · Status: Pending
+- Priority: P1 · Status: Complete (2026-09-11)
 - Prove the integrated API against unit, Nest E2E and Hurl contract tests, then record the delivered architecture/docs.
 
 ## Key Insights
 
-- Hurl is sequential but Vitest files may parallelize: test database/schema isolation must not rely on cleanup at test end.
-- The supplied Hurl suite is source of truth, but misses invalid optional token/empty wrapper/idempotency repetitions; add regression tests for those gaps.
+- Hurl is sequential but Vitest files may parallelize: the contract runner uses a dedicated migrated test database and generated run identifiers; isolation does not rely on cleanup at test end.
+- The supplied Hurl suite remains the HTTP contract source of truth. Invalid optional token, empty-wrapper, idempotency, and token-version invalidation gaps are covered by live E2E regression tests.
 
 ## Requirements
 
@@ -41,14 +41,28 @@
 
 ## Todo List
 
-- [ ] Test isolation survives parallel Vitest execution.
-- [ ] Full Hurl suite passes from clean migrated database.
-- [ ] Compile/lint/unit/E2E gates pass with recorded commands.
-- [ ] Docs reflect verified implementation, not planned claims.
+- [x] Test isolation survives parallel Vitest execution.
+- [x] Full Hurl suite passes from clean migrated database.
+- [x] Compile/lint/unit/E2E gates pass with recorded commands.
+- [x] Docs and plan artifacts reflect verified implementation, not planned claims.
 
 ## Success Criteria
 
 - All four project gates and all Hurl files return zero; no credentials/tokens appear in output or committed files.
+
+## Final Verification — 2026-09-11
+
+- `pnpm run build` — exit 0; Nest compilation passed.
+- `pnpm run lint` — exit 0; 39 source files, 0 errors, 63 warnings.
+- `pnpm run test` — exit 0; 4 files, 10/10 tests passed.
+- `pnpm run test:e2e` — exit 0; 8 files, 30/30 live API tests passed.
+- `pnpm run test:contract` — first attempt exposed a transient Prisma P1002 advisory-lock timeout; retry passed after the database lock cleared.
+- Hurl acceptance — 13/13 files and 154/154 requests passed with `--jobs 1` against a clean migrated test database; the runner readiness poll and idempotent signal-safe shutdown were reviewed and sealed.
+- No credentials or token values were printed or committed. Browser Playwright suites remain intentionally outside this API gate.
+
+### Explicit token invalidation fixture decision
+
+No additional Hurl fixture was added for password-update token invalidation. The behavior is already asserted end-to-end in `test/auth.e2e-spec.ts` (old token returns 401, new password login succeeds, and a fresh token is issued). Hurl remains focused on the published HTTP contract fixtures; the live E2E suite owns this stateful token-version regression.
 
 ## Risk Assessment
 

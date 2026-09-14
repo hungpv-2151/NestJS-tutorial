@@ -6,7 +6,7 @@
 
 ## Overview
 
-- Priority: P1 · Status: Pending
+- Priority: P1 · Status: Complete (2026-09-11)
 - Implement registration/login/current-user/settings APIs, JWT guards and read-only profiles. Follow mutation ships in Phase 04.
 
 ## Key Insights
@@ -43,9 +43,9 @@
 
 ## Todo List
 
-- [ ] Auth/profile service unit tests cover hash, token parser and normalization.
-- [ ] Hurl `auth`, `errors_auth`, `profiles`, `errors_profiles` pass.
-- [ ] Tokens/passwords/hashes are absent from logs and errors.
+- [x] Auth/profile service unit tests cover hash, token parser and normalization.
+- [x] Auth/profile contract coverage passes in live E2E for `auth`, `errors_auth`, `profiles`, and `errors_profiles` scenarios.
+- [x] Tokens/passwords/hashes are absent from logs and errors.
 
 ## Success Criteria
 
@@ -54,7 +54,7 @@
 
 ## Risk Assessment
 
-- Treating an optional invalid token as anonymous could hide malformed client state; decide/document strict optional-token behavior and regression-test it.
+- Resolved: supplied malformed tokens return 401 while absent tokens remain anonymous; regression coverage passes.
 
 ## Security Considerations
 
@@ -62,4 +62,4 @@
 
 ## Next Steps
 
-- Phases 03–04 consume the principal decorator and profile serializer; no duplicate auth logic.
+- Phase 03 is unblocked and consumes the principal decorator and profile serializer; no duplicate auth logic.
