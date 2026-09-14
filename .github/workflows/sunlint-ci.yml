@@ -1,20 +1,45 @@
-# sunlint-ci.yml
-name: Sunlint Code Quality Check
-on: [push, pull_request]
+name: SunLint
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sunlint-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-    sunlint:
-        runs-on: ubuntu-latest
-        # permissions are required for uploading report to Dashboard
-        permissions:
-            id-token: write
-            contents: read
-        steps:
-            - uses: actions/checkout@v3
-            - uses: actions/setup-node@v3
-                with:
-                    node-version: '21' # support node 18+
-            # Install Sunlint globally
-            - run: npm install -g @sun-asterisk/sunlint
-            # Run Sunlint with the specified options and upload the report to the Dashboard
-            # --output-summary=report.json --upload-report are required for Dashboard integration
-            - run: sunlint --all --input=src --output-summary=report.json --upload-report
+  sunlint:
+    name: Static analysis
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.10.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec sunlint --all --input=src --output-summary=.takumi/reports/sunlint.json --upload-report
+
+      - name: Upload SunLint report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sunlint-report
+          path: .takumi/reports/sunlint.json
+          include-hidden-files: true
+          if-no-files-found: warn
