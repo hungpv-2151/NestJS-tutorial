@@ -1,13 +1,10 @@
 import { NestFactory } from '@nestjs/core';
-import { ConfigService } from '@nestjs/config';
-import { configureApp } from './app-bootstrap.js';
-import { AppModule } from './app.module.js';
-import { environmentKeys } from './config/environment.validation.js';
+import { AppModule, ObserveInstrument } from './app.module.js';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { bodyParser: false });
-  configureApp(app);
-  app.enableShutdownHooks();
-  await app.listen(app.get(ConfigService).getOrThrow<number>(environmentKeys.port));
+  const app = await NestFactory.create(AppModule, {
+    instrument: ObserveInstrument,
+  });
+  await app.listen(process.env.PORT ?? 3000);
 }
 await bootstrap();

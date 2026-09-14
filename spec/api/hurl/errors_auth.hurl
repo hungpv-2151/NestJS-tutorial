@@ -212,8 +212,6 @@ Authorization: Token {{token}}
   }
 }
 HTTP 200
-[Captures]
-token: jsonpath "$.user.token"
 
 # Update password to 64 chars - should accept
 PUT {{host}}/api/user
