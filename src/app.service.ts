@@ -1,14 +1,8 @@
-import { Injectable, ServiceUnavailableException } from '@nestjs/common';
-import { PrismaService } from './database/prisma.service.js';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class AppService {
-  constructor(private readonly prisma: PrismaService) {}
-
-  async readiness(): Promise<{ status: 'ok' }> {
-    if (!(await this.prisma.isReady())) {
-      throw new ServiceUnavailableException({ errors: { database: ['unavailable'] } });
-    }
-    return { status: 'ok' };
+  getHello(): string {
+    return 'Hello World!';
   }
 }
