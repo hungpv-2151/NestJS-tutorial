@@ -4,7 +4,6 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
-import { isDatabaseEnabled } from './config/database-config.js';
 import { DatabaseModule } from './database/database.module.js';
 
 const translationsPath = join(dirname(fileURLToPath(import.meta.url)), 'i18n');
@@ -19,7 +18,7 @@ const translationsPath = join(dirname(fileURLToPath(import.meta.url)), 'i18n');
       },
       resolvers: [AcceptLanguageResolver],
     }),
-    ...(isDatabaseEnabled() ? [DatabaseModule.register()] : []),
+    DatabaseModule.register(),
   ],
   controllers: [AppController],
   providers: [AppService],

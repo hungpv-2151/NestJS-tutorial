@@ -24,21 +24,52 @@ export function getDatabaseConfig(
   return { url };
 }
 
-export function isDatabaseEnabled(
+export function getTestDatabaseConfig(
   environment: NodeJS.ProcessEnv = process.env,
-): boolean {
-  const value = environment.DATABASE_ENABLED;
-  if (value === undefined || value === 'false') {
-    return false;
+): DatabaseConfig {
+  const testDatabaseUrl = environment.TEST_DATABASE_URL;
+  if (!testDatabaseUrl) {
+    throw new DatabaseConfigValidationError('TEST_DATABASE_URL is required');
   }
 
-  if (value === 'true') {
-    return true;
-  }
-
-  throw new DatabaseConfigValidationError(
-    'DATABASE_ENABLED must be true or false',
+  const allowedHosts = getRequiredAllowlist(
+    environment.TEST_DATABASE_ALLOWED_HOSTS,
+    'TEST_DATABASE_ALLOWED_HOSTS',
   );
+  const allowedDatabaseNames = getRequiredAllowlist(
+    environment.TEST_DATABASE_ALLOWED_NAMES,
+    'TEST_DATABASE_ALLOWED_NAMES',
+  );
+  const databaseConfig = getDatabaseConfig({ DATABASE_URL: testDatabaseUrl });
+  const databaseUrl = new URL(databaseConfig.url);
+  const databaseName = databaseUrl.pathname.slice(1);
+
+  if (!allowedHosts.includes(databaseUrl.hostname)) {
+    throw new DatabaseConfigValidationError(
+      'TEST_DATABASE_URL host is not allowlisted',
+    );
+  }
+
+  if (!allowedDatabaseNames.includes(databaseName)) {
+    throw new DatabaseConfigValidationError(
+      'TEST_DATABASE_URL database is not allowlisted',
+    );
+  }
+
+  return databaseConfig;
+}
+
+function getRequiredAllowlist(value: string | undefined, name: string): string[] {
+  const entries = value
+    ?.split(',')
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+
+  if (!entries?.length) {
+    throw new DatabaseConfigValidationError(`${name} is required`);
+  }
+
+  return entries;
 }
 
 function isPostgresUrl(url: string): boolean {

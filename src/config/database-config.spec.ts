@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   DatabaseConfigValidationError,
   getDatabaseConfig,
-  isDatabaseEnabled,
+  getTestDatabaseConfig,
 } from './database-config.js';
 
 describe('getDatabaseConfig', () => {
@@ -27,16 +27,40 @@ describe('getDatabaseConfig', () => {
   });
 });
 
-describe('isDatabaseEnabled', () => {
-  it('defaults to disabled and enables only an explicit true value', () => {
-    expect(isDatabaseEnabled({})).toBe(false);
-    expect(isDatabaseEnabled({ DATABASE_ENABLED: 'false' })).toBe(false);
-    expect(isDatabaseEnabled({ DATABASE_ENABLED: 'true' })).toBe(true);
+describe('getTestDatabaseConfig', () => {
+  const testEnvironment = {
+    TEST_DATABASE_URL: 'postgresql://user:password@test-db.example.com:5432/app_test',
+    TEST_DATABASE_ALLOWED_HOSTS: 'test-db.example.com',
+    TEST_DATABASE_ALLOWED_NAMES: 'app_test',
+  };
+
+  it('returns an explicitly allowlisted test database URL', () => {
+    expect(getTestDatabaseConfig(testEnvironment)).toEqual({
+      url: testEnvironment.TEST_DATABASE_URL,
+    });
   });
 
-  it('rejects an invalid enablement value', () => {
-    expect(() => isDatabaseEnabled({ DATABASE_ENABLED: 'yes' })).toThrow(
-      'DATABASE_ENABLED must be true or false',
+  it.each([
+    [
+      { ...testEnvironment, TEST_DATABASE_URL: 'postgresql://user:password@dev-db.example.com:5432/app_dev' },
+      'TEST_DATABASE_URL host is not allowlisted',
+    ],
+    [
+      { ...testEnvironment, TEST_DATABASE_URL: 'postgresql://user:password@test-db.example.com:5432/app_prod' },
+      'TEST_DATABASE_URL database is not allowlisted',
+    ],
+    [
+      { ...testEnvironment, TEST_DATABASE_ALLOWED_HOSTS: undefined },
+      'TEST_DATABASE_ALLOWED_HOSTS is required',
+    ],
+    [
+      { ...testEnvironment, TEST_DATABASE_ALLOWED_NAMES: undefined },
+      'TEST_DATABASE_ALLOWED_NAMES is required',
+    ],
+  ])('rejects unsafe test database configuration', (environment, message) => {
+    expect(() => getTestDatabaseConfig(environment)).toThrow(
+      DatabaseConfigValidationError,
     );
+    expect(() => getTestDatabaseConfig(environment)).toThrow(message);
   });
 });
