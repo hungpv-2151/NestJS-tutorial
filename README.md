@@ -52,12 +52,9 @@ the process environment used to start the service:
 | `SWAGGER_ENABLED` | unset | Set to the exact value `true` to enable Swagger in production. |
 | `DATABASE_URL` | required | PostgreSQL connection URL used by the application at startup. |
 | `TEST_DATABASE_URL` | required for tests | PostgreSQL connection URL used only by the test runners. |
-| `TEST_DATABASE_ALLOWED_HOSTS` | required for tests | Comma-separated host allowlist for `TEST_DATABASE_URL`. |
-| `TEST_DATABASE_ALLOWED_NAMES` | required for tests | Comma-separated database-name allowlist for `TEST_DATABASE_URL`. |
 
-`pnpm test` and `pnpm test:e2e` require `TEST_DATABASE_URL` plus both
-allowlists. The test setup refuses a URL whose hostname or database name is
-not explicitly allowlisted before it assigns the URL to `DATABASE_URL`.
+`pnpm test` and `pnpm test:e2e` require `TEST_DATABASE_URL` and use it as
+their database connection.
 
 `GET /api/hello` returns a localized greeting. `Accept-Language: vi` and
 `vi-*` values select Vietnamese; a missing, English, or unsupported locale

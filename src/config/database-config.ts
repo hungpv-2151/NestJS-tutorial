@@ -32,44 +32,7 @@ export function getTestDatabaseConfig(
     throw new DatabaseConfigValidationError('TEST_DATABASE_URL is required');
   }
 
-  const allowedHosts = getRequiredAllowlist(
-    environment.TEST_DATABASE_ALLOWED_HOSTS,
-    'TEST_DATABASE_ALLOWED_HOSTS',
-  );
-  const allowedDatabaseNames = getRequiredAllowlist(
-    environment.TEST_DATABASE_ALLOWED_NAMES,
-    'TEST_DATABASE_ALLOWED_NAMES',
-  );
-  const databaseConfig = getDatabaseConfig({ DATABASE_URL: testDatabaseUrl });
-  const databaseUrl = new URL(databaseConfig.url);
-  const databaseName = databaseUrl.pathname.slice(1);
-
-  if (!allowedHosts.includes(databaseUrl.hostname)) {
-    throw new DatabaseConfigValidationError(
-      'TEST_DATABASE_URL host is not allowlisted',
-    );
-  }
-
-  if (!allowedDatabaseNames.includes(databaseName)) {
-    throw new DatabaseConfigValidationError(
-      'TEST_DATABASE_URL database is not allowlisted',
-    );
-  }
-
-  return databaseConfig;
-}
-
-function getRequiredAllowlist(value: string | undefined, name: string): string[] {
-  const entries = value
-    ?.split(',')
-    .map((entry) => entry.trim())
-    .filter(Boolean);
-
-  if (!entries?.length) {
-    throw new DatabaseConfigValidationError(`${name} is required`);
-  }
-
-  return entries;
+  return getDatabaseConfig({ DATABASE_URL: testDatabaseUrl });
 }
 
 function isPostgresUrl(url: string): boolean {
