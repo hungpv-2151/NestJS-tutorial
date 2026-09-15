@@ -1,82 +1,86 @@
-# Phase 02 — PR2: Migration, auth và background jobs
+# Phase 02 — Audit/Rebase Gate, Foundations và Auth API Stack
 
 ## Context Links
 
-- [Auth contract](../../spec/api/hurl/auth.hurl) · [auth errors](../../spec/api/hurl/errors_auth.hurl) · [stack research](../reports/researcher-260910-0930-medium-backend-stack.md)
+- [Auth contract](../../spec/api/hurl/auth.hurl) · [auth errors](../../spec/api/hurl/errors_auth.hurl) · [PR1](https://github.com/hungpv-2151/NestJS-tutorial/pull/17)
 
 ## Overview
 
-- Priority: P1 · Status: Pending · Effort: 20h · Blocked by: PR1
-- Dựng PostgreSQL/TypeORM migration thủ công; register/login/logout/current-user; Redis deny-list; một mail queue và một scheduled teaching job.
+- Priority: P1 · Status: In progress — audit gate, not completed · Effort: 24h · Blocked by: PR1
+- Nhánh `phase-02-database-auth-background-jobs` hiện chưa có PR riêng trong `gh stack view`; nó trỏ cùng commit `c7dda9f` với PR1 và có local diff chưa được phân loại.
 
 ## Key Insights
 
-- Chọn TypeORM vì Nest integration quen thuộc và migration class có `up/down` rõ; Prisma không đáp ứng mục tiêu học migration thủ công.
-- Bull và JWT deny-list dùng cùng Redis server nhưng khác prefix; TTL deny-list không vượt `exp` token.
+- Snapshot 2026-09-15: 6 file modified, +1,102/-16; riêng `pnpm-lock.yaml` +1,067 dòng. Đây là partial foundation, không phải bằng chứng auth đã hoàn thành.
+- Không sửa tiếp trên diff này trước khi giữ một snapshot phục hồi được, refresh/rebase lên `phase-01-bootstrap-i18n-swagger`, rồi map từng hunk vào PR stack mới.
+- Generated lockfile vẫn tính vào limit. PR dự kiến >400 changed lines phải tách thêm trước submit.
 
 ## Requirements
 
-- Scripts: `db:migration:add`, `db:migration:apply`, `db:migration:revert`, `db:migration:reset`, `db:migration:show`.
-- `add` tạo migration rỗng để developer tự viết `up/down`; `reset` chỉ dev/test, drop schema rồi apply lại toàn bộ migration, có guard DB name/env.
-- User table: UUID, unique username/email, Argon2id hash, bio/image nullable, timestamps; không dùng `synchronize: true`.
-- APIs: `POST /api/users`, `POST /api/users/login`, `POST /api/user/logout`, `GET /api/user`.
-- JWT HS256 có `sub`, `jti`, issuer, audience, `iat`, `exp`; logout lưu `auth:denylist:{jti}` với TTL `exp-now` và trả 204 idempotent.
-- DTO nested wrapper + transform/validation; UserSerializer trả đúng envelope, không lộ hash/entity fields.
-- Welcome mail: register commit thành công mới enqueue `@nestjs/bull` job trên Redis; retry/backoff hữu hạn, stable job id, SMTP adapter cấu hình bằng env.
-- Schedule: `@nestjs/schedule` cron mỗi ngày enqueue summary số user mới đến `TRAINING_REPORT_EMAIL`; feature flag, timezone và duplicate job id theo ngày; không thêm public API.
+- Migration viết tay có `up/down`; DB reset chỉ dev/test; không `synchronize`.
+- Bốn APIs giữ riêng: `POST /api/users`, `POST /api/users/login`, `GET /api/user`, `POST /api/user/logout`.
+- JWT có `sub/jti/iss/aud/iat/exp`; logout deny-list Redis TTL bằng phần token còn lại; auth lỗi không lộ secret.
+- Welcome job chỉ thuộc registration API; daily training summary là foundation không có public API.
 
-## Architecture
+## Architecture and PR Dependency Graph
 
-`request → DTO → AuthController → AuthService → TypeORM transaction → UserSerializer`.
-`logout → verify JWT → Redis SET EX deny-list`; guard verify signature/claims rồi check deny-list, Redis lỗi thì fail closed.
-`register commit → Bull producer → mail processor → SMTP`; `ScheduleService → same queue`, scheduler không gửi mail trực tiếp.
+`PR1 → 2A → 2B → 2C → 2D → 2E → 2F → 2G → 2H → 2I`. Mỗi row là một PR ceiling; nếu >400 lines, tách suffix cùng API/scope và giữ chuỗi base.
+
+| PR | Only scope / public API | Base | Required evidence |
+|---|---|---|---|
+| Gate G2 | Preserve local work; refresh/rebase; diff-to-plan audit; no code fix | PR1 | stack screenshot + before/after diff-stat |
+| 2A | Dependency/config slices; API: none | PR1 | install/compile result; size proof |
+| 2B | TypeORM data source, migration CLI/reset, users migration; API: none | 2A | apply/revert/apply screenshot |
+| 2C | DTO/error/serializer/JWT/Redis primitives; API: none | 2B | targeted unit/static-analysis result |
+| 2D | `POST /api/users` part 1: transaction, hash, duplicate rules | 2C | service/persistence test result |
+| 2E | `POST /api/users` part 2: HTTP contract + welcome mail enqueue | 2D | register E2E + queue result screenshot |
+| 2F | `POST /api/users/login` only | 2E | valid/invalid login E2E screenshot |
+| 2G | `GET /api/user` only | 2F | valid/missing/invalid token result |
+| 2H | `POST /api/user/logout` only | 2G | 204/reuse-denied/TTL result |
+| 2I | Daily training summary queue/scheduler; API: none | 2H | cron/idempotency unit result |
 
 ## Related Code Files
 
-- Modify: `/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/package.json`, `/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/app.module.ts`, `/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/config/*`, `/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/create-app.ts`.
-- Create: `/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/database/data-source.ts`, `/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/database/database.module.ts`, `/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/database/migrations/*`, `/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/scripts/reset-database.ts`.
-- Create: `/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/users/*`, `/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/auth/*`, `/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/common/dto/*`, `/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/common/filters/*`.
-- Create: `/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/mail/*`, `/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/jobs/*`, `/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/scheduling/*`.
-- Create/modify tests: `/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/auth/*.spec.ts`, `/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/mail/*.spec.ts`, `/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/test/auth.e2e-spec.ts`.
+- Audit/modify sequentially: `/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/.env.example`, `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `src/app.module.ts`, `src/create-app.ts`.
+- Create by owning PR: `src/database/*` (2B), `src/common/dto/*`, `src/common/filters/*`, `src/auth/*` (2C/2F–2H), `src/users/*` (2B/2D–2G), `src/mail/*`, `src/jobs/*` (2E), `src/scheduling/*` (2I).
+- Tests stay with the PR/API they prove; no later catch-all test PR owns auth gaps.
 - Delete: none.
 
 ## Implementation Steps
 
-1. Cấu hình `@nestjs/typeorm`, `typeorm`, PostgreSQL driver và `typeorm-ts-node-esm`; DataSource CLI/runtime dùng chung options, entity glob chạy được cả TS/dev và JS/dist.
-2. Viết initial migration bằng tay với `up/down`; chứng minh add → apply → revert → apply và guarded reset trên DB dev/test.
-3. Tạo DTO/error filter/serializer chung; map validation 422, duplicate 409, credentials/token 401.
-4. Hash/register/login, ký token 15 phút và guard parse đúng `Token <jwt>`; supplied malformed/expired/forged/revoked token luôn 401.
-5. Thêm logout `jti` deny-list với TTL; tách Redis key prefix cho auth và Bull.
-6. Thêm Bull mail producer/processor và scheduled summary; test handler/producer, retry và idempotency không cần SMTP thật.
-7. Swagger hóa routes/schema/security; chạy unit, auth E2E và Hurl auth phần tương thích (logout test bằng Supertest).
+1. G2: record `gh stack view` and diff-stat; protect all uncommitted work without discard/reset. Refresh refs, rebase branch on declared PR1 base, then capture the same evidence again.
+2. Audit every existing hunk against rows 2A–2I. Keep only one row per branch; move mixed or oversized work into new stacked layers. Create a remediation layer when implemented behavior differs from this plan.
+3. Execute 2A–2I in order. Before each first fix and before submit, refresh/rebase on its row base and re-run the one-API/line-count audit.
+4. For each PR run compile, error-level lint/static analysis, targeted unit/integration/E2E and migration checks relevant to its scope.
+5. Attach one screenshot plus textual command/results to a PR comment; record comment URL in the row/checklist before review.
 
 ## Todo List
 
-- [ ] Bốn thao tác migration chạy/reversible, reset từ chối production/DB không đúng suffix.
-- [ ] Register/login/logout/current-user pass; token logout không dùng lại được.
-- [ ] Welcome/scheduled jobs bounded và idempotent.
-- [ ] Build, lint, unit, targeted E2E green.
+- [ ] G2 rebase/audit complete; current diff preserved and mapped, not silently marked done.
+- [ ] PRs 2A–2I each stay within one API/foundation and ≤400 changed lines.
+- [ ] Every PR has zero error-level findings; warnings fixed or logged with follow-up.
+- [ ] Evidence comment URLs: 2A `pending`; 2B `pending`; 2C `pending`; 2D `pending`; 2E `pending`; 2F `pending`; 2G `pending`; 2H `pending`; 2I `pending`.
 
 ## Success Criteria
 
-- Database mới dựng chỉ từ migrations; migration gần nhất revert không mất object ngoài phạm vi.
-- Auth response đúng contract; Redis key hết hạn cùng token; queue/schedule không làm chậm hoặc rollback register đã commit.
+- Fresh DB builds only from reversible migrations; each auth endpoint passes its own contract before the next PR starts.
+- Registration queue failure follows documented post-commit policy; logout token cannot be reused; scheduler remains non-API work.
 
 ## Risk Assessment
 
-- TypeORM CLI ESM/glob mismatch — Likelihood: Medium · Impact: High → test command trên source và build output ngay PR2.
-- Redis outage — Likelihood: Medium · Impact: High → protected auth fail closed; queue failure được log/metric, register xử lý theo post-commit policy.
-- Mail duplicate — Likelihood: Medium · Impact: Medium → deterministic `jobId`, retry hữu hạn, processor idempotent.
+- Rebase loses local work — Likelihood: Medium · Impact: Critical → recoverable snapshot first; no destructive reset.
+- Oversized dependency lockfile — Likelihood: High · Impact: High → generated lines count; split dependency slices until every submitted PR ≤400.
+- Mixed auth API changes — Likelihood: High · Impact: High → audit route/controller/test diffs and split before review.
 
 ## Security Considerations
 
-- Secret/SMTP/Redis URL chỉ từ env; Argon2 input có max; không log password, hash, JWT, Authorization hay SQL params nhạy cảm.
-- `reset` kiểm tra `NODE_ENV`, hostname/database allowlist và yêu cầu flag xác nhận.
+- Secrets only from env; Argon2 input capped; redact password/hash/JWT/Auth header. Redis outage on protected auth fails closed.
+- Reset verifies environment/database allowlist and explicit confirmation.
 
 ## Rollback
 
-- Revert code; chạy `db:migration:revert` cho migration PR2. Xóa Redis keys theo prefix riêng; không flush toàn Redis.
+- Revert only the failing top layer; migration PR uses `down`; delete only owned Redis prefixes. Rebase descendants after base rollback.
 
 ## Next Steps
 
-- PR3 dùng User entity, auth guard, serializer/error contract và migration scripts.
+- Phase 03 begins only after 2I is green and every Phase 02 evidence comment URL is recorded.

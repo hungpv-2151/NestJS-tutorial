@@ -1,4 +1,4 @@
-# Phase 01 — PR1: Bootstrap, i18n và Swagger
+# Phase 01 — PR1: Bootstrap, i18n, Swagger và `GET /api/hello`
 
 ## Context Links
 
@@ -6,8 +6,9 @@
 
 ## Overview
 
-- Priority: P1 · Status: Complete · Effort: 6h
+- Priority: P1 · Status: Complete · Effort: 6h · PR: [#17](https://github.com/hungpv-2151/NestJS-tutorial/pull/17)
 - Chuẩn hóa starter NestJS 12 ESM, giữ một hello API, thêm i18n và Swagger chạy được.
+- Lịch sử implementation giữ nguyên. Nếu audit phát hiện gap, tạo remediation PR mới chỉ cho `GET /api/hello` hoặc foundation; không amend/rewrite PR1.
 
 ## Key Insights
 
@@ -59,6 +60,13 @@
 - `pnpm test` passed: 10 tests.
 - `pnpm test:e2e` passed: 6 tests covering default/vi/fallback locale and production Swagger gating.
 
+## PR Definition of Done & Evidence
+
+- API boundary: chỉ `GET /api/hello`; i18n/Swagger/bootstrap là foundation đi kèm, không có API thứ hai.
+- Implementation, compile, lint, unit và E2E đã complete theo validation trên; Phase 02 không được làm đổi lịch sử này.
+- Trước release, backfill một PR #17 comment: commit SHA, changed-line count, command/exit-code summary, warning ledger và screenshot kết quả. Ghi URL comment tại đây: `pending`.
+- Nếu evidence audit thấy error-level lint/static-analysis hoặc diff ngoài scope: mở remediation layer mới sau PR1, rebase layer đó trên PR1; không sửa lịch sử PR1.
+
 ## Risk Assessment
 
 - I18n asset thiếu trong `dist` — Likelihood: Medium · Impact: Medium → cấu hình Nest assets và test `start:prod` build output.
@@ -74,4 +82,4 @@
 
 ## Next Steps
 
-- PR2 phụ thuộc `createApp()`, config và validation seam từ PR1.
+- Phase 02 audit nhánh hiện tại trên base PR1 trước khi sửa code; PR2 phụ thuộc `createApp()`, config và validation seam từ PR1.
