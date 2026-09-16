@@ -6,14 +6,21 @@
 
 ## Overview
 
-- Priority: P1 · Status: In progress — audit gate, not completed · Effort: 24h · Blocked by: PR1
-- Nhánh `phase-02-database-auth-background-jobs` hiện chưa có PR riêng trong `gh stack view`; nó trỏ cùng commit `c7dda9f` với PR1 và có local diff chưa được phân loại.
+- Priority: P1 · Status: In progress — 2B.1 submitted; 2B.2 pending · Effort: 24h · Blocked by: PR1
+- 2B.1 đã submit ở [PR #22](https://github.com/hungpv-2151/NestJS-tutorial/pull/22) với migration applied trên `DATABASE_URL`. 2B.2 reset tooling chưa làm; 2C–2I tiếp tục blocked theo dependency chain.
 
 ## Key Insights
 
-- Snapshot 2026-09-15: 6 file modified, +1,102/-16; riêng `pnpm-lock.yaml` +1,067 dòng. Đây là partial foundation, không phải bằng chứng auth đã hoàn thành.
+- Snapshot 2026-09-15: 6 file modified, +1,102/-16; riêng `pnpm-lock.yaml` +1,067 dòng. Dependency/config work đã tách khỏi foundation; không có public API trong 2B.1.
 - Không sửa tiếp trên diff này trước khi giữ một snapshot phục hồi được, refresh/rebase lên `phase-01-bootstrap-i18n-swagger`, rồi map từng hunk vào PR stack mới.
 - Generated lockfile vẫn tính vào limit. PR dự kiến >400 changed lines phải tách thêm trước submit.
+
+## Delivery Status
+
+- 2B.1 complete locally: TypeORM data source, migration CLI wiring, `User` entity, reversible users migration, and focused migration/data-source tests.
+- Validation passed: lint, build, 24 unit tests, and 6 E2E tests. Isolated temporary Neon database apply → revert → apply passed; database was dropped afterward.
+- Reviewer passed; no API routes were added. Evidence: [PR #22 comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/22#issuecomment-5692428675).
+- 2B.2 database reset tooling remains pending. 2C–2I remain blocked by the declared dependency graph.
 
 ## Requirements
 
@@ -24,14 +31,15 @@
 
 ## Architecture and PR Dependency Graph
 
-`PR1 → 2A → 2B → 2C → 2D → 2E → 2F → 2G → 2H → 2I`. Mỗi row là một PR ceiling; nếu >400 lines, tách suffix cùng API/scope và giữ chuỗi base.
+`PR1 → 2A → 2B.1 → 2B.2 → 2C → 2D → 2E → 2F → 2G → 2H → 2I`. Mỗi row là một PR ceiling; migration và reset tách thành foundation layers để rollback/review độc lập.
 
 | PR | Only scope / public API | Base | Required evidence |
 |---|---|---|---|
 | Gate G2 | Preserve local work; refresh/rebase; diff-to-plan audit; no code fix | PR1 | stack screenshot + before/after diff-stat |
 | 2A | Dependency/config slices; API: none | PR1 | install/compile result; size proof |
-| 2B | TypeORM data source, migration CLI/reset, users migration; API: none | 2A | apply/revert/apply screenshot |
-| 2C | DTO/error/serializer/JWT/Redis primitives; API: none | 2B | targeted unit/static-analysis result |
+| 2B.1 | TypeORM data source, migration CLI, users entity/migration; API: none | 2A | apply/revert/apply evidence |
+| 2B.2 | Guarded dev/test database reset tooling; API: none | 2B.1 | reset refusal + reset evidence |
+| 2C | DTO/error/serializer/JWT/Redis primitives; API: none | 2B.2 | targeted unit/static-analysis result |
 | 2D | `POST /api/users` part 1: transaction, hash, duplicate rules | 2C | service/persistence test result |
 | 2E | `POST /api/users` part 2: HTTP contract + welcome mail enqueue | 2D | register E2E + queue result screenshot |
 | 2F | `POST /api/users/login` only | 2E | valid/invalid login E2E screenshot |
@@ -59,7 +67,7 @@
 - [ ] G2 rebase/audit complete; current diff preserved and mapped, not silently marked done.
 - [ ] PRs 2A–2I each stay within one API/foundation and ≤400 changed lines.
 - [ ] Every PR has zero error-level findings; warnings fixed or logged with follow-up.
-- [ ] Evidence comment URLs: 2A dependency foundation [PR #20](https://github.com/hungpv-2151/NestJS-tutorial/pull/20#issuecomment-5673200048); 2A required-DB configuration [PR #21](https://github.com/hungpv-2151/NestJS-tutorial/pull/21#issuecomment-5676001144); 2B `pending`; 2C `pending`; 2D `pending`; 2E `pending`; 2F `pending`; 2G `pending`; 2H `pending`; 2I `pending`.
+- [ ] Evidence comment URLs: 2A dependency foundation [PR #20](https://github.com/hungpv-2151/NestJS-tutorial/pull/20#issuecomment-5673200048); 2A required-DB configuration [PR #21](https://github.com/hungpv-2151/NestJS-tutorial/pull/21#issuecomment-5676001144); 2B.1 [PR #22](https://github.com/hungpv-2151/NestJS-tutorial/pull/22#issuecomment-5692428675); 2B.2 `pending`; 2C `pending`; 2D `pending`; 2E `pending`; 2F `pending`; 2G `pending`; 2H `pending`; 2I `pending`.
 
 ## Success Criteria
 

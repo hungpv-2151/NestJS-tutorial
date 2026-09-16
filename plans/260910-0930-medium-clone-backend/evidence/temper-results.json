@@ -1,0 +1,46 @@
+{
+  "commands": [
+    {
+      "command": "pnpm lint",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "SunLint passed",
+      "ts": "2026-09-16T05:15:52.486Z"
+    },
+    {
+      "command": "pnpm build",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Nest build passed",
+      "ts": "2026-09-16T05:15:52.486Z"
+    },
+    {
+      "command": "pnpm test:cov",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "24 unit tests passed",
+      "ts": "2026-09-16T05:15:52.486Z"
+    },
+    {
+      "command": "pnpm test:e2e",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "6 E2E tests passed",
+      "ts": "2026-09-16T05:15:52.486Z"
+    },
+    {
+      "command": "pnpm db:migration:apply",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "CreateUsers1710000000000 applied to DATABASE_URL",
+      "ts": "2026-09-16T05:15:52.486Z"
+    },
+    {
+      "command": "pnpm db:migration:show",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "CreateUsers1710000000000 is applied",
+      "ts": "2026-09-16T05:15:52.486Z"
+    }
+  ]
+}
