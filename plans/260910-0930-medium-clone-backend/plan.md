@@ -23,6 +23,7 @@ Giữ nguyên lịch sử PR1 đã hoàn thành, audit phần Phase 02 đang d�
 
 - Một API → một hoặc nhiều PR; không PR nào chứa từ hai API trở lên. Foundation PR phải có `Public API change: none`.
 - Mục tiêu ≤300 changed lines/PR, hard gate ≤400 tính cả generated files. Vượt ngưỡng thì tách trước review; không submit để “xin exception”.
+- Ngoại lệ duy nhất: PR dependency/lockfile-only có thể vượt 400 dòng khi lockfile tái giải quyết vượt cap; phải không có runtime source/API, nêu rõ số dòng lockfile và lý do trong PR evidence.
 - Trước mọi code fix: refresh remote, rebase PR lên đúng base, xác nhận lại bằng stack view, rồi audit diff với phase hiện hành. Không rewrite lịch sử PR1; gap của PR đã hoàn thành đi vào remediation layer mới.
 - Error-level lint/static-analysis = 0 trước submit. Warning sửa khi hợp lý; warning giữ lại phải ghi rule, file, lý do và follow-up trong PR evidence.
 - Mỗi PR phải có một PR comment chứa command/result, exit code, commit SHA và screenshot đính kèm. Link comment được ghi vào checklist phase.
