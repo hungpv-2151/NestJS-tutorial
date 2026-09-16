@@ -71,10 +71,18 @@ pnpm db:migration:show
 
 # Revert the most recently applied migration
 pnpm db:migration:revert
+
+# Drop and recreate the test database from all migrations
+CONFIRM_DATABASE_RESET=yes pnpm db:migration:reset
 ```
 
 Each command builds the project before invoking TypeORM. Reverting the users
 migration drops the `users` table, so use it only when that data can be lost.
+
+`pnpm db:migration:reset` is destructive: it drops the database at
+`TEST_DATABASE_URL` and reruns every migration. Set `TEST_DATABASE_URL` to the
+intended PostgreSQL test database and pass the exact confirmation value
+`CONFIRM_DATABASE_RESET=yes`; the command fails without either value.
 
 `GET /api/hello` returns a localized greeting. `Accept-Language: vi` and
 `vi-*` values select Vietnamese; a missing, English, or unsupported locale
