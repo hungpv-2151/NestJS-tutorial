@@ -56,6 +56,26 @@ the process environment used to start the service:
 `pnpm test` and `pnpm test:e2e` require `TEST_DATABASE_URL` and use it as
 their database connection.
 
+## Database migrations
+
+Set `DATABASE_URL` to the target PostgreSQL database before running a
+migration. Keep the connection string in a local ignored environment file; do
+not commit credentials.
+
+```bash
+# Apply pending migrations
+pnpm db:migration:apply
+
+# Show applied and pending migrations
+pnpm db:migration:show
+
+# Revert the most recently applied migration
+pnpm db:migration:revert
+```
+
+Each command builds the project before invoking TypeORM. Reverting the users
+migration drops the `users` table, so use it only when that data can be lost.
+
 `GET /api/hello` returns a localized greeting. `Accept-Language: vi` and
 `vi-*` values select Vietnamese; a missing, English, or unsupported locale
 uses English.

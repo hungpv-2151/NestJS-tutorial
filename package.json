@@ -21,7 +21,11 @@
     "test:watch": "vitest",
     "test:cov": "vitest run --coverage",
     "test:debug": "vitest --inspect-brk --no-file-parallelism",
-    "test:e2e": "vitest run --config ./vitest.config.e2e.ts"
+    "test:e2e": "vitest run --config ./vitest.config.e2e.ts",
+    "db:migration:add": "typeorm migration:create src/database/migrations/manual-migration",
+    "db:migration:apply": "pnpm build && typeorm migration:run -d dist/database/data-source.js",
+    "db:migration:revert": "pnpm build && typeorm migration:revert -d dist/database/data-source.js",
+    "db:migration:show": "pnpm build && typeorm migration:show -d dist/database/data-source.js"
   },
   "dependencies": {
     "@nestjs/common": "^12.0.1",
