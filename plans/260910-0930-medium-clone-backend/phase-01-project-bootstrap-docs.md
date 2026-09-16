@@ -6,7 +6,7 @@
 
 ## Overview
 
-- Priority: P1 · Status: Pending · Effort: 6h
+- Priority: P1 · Status: Complete · Effort: 6h
 - Chuẩn hóa starter NestJS 12 ESM, giữ một hello API, thêm i18n và Swagger chạy được.
 
 ## Key Insights
@@ -43,14 +43,21 @@
 
 ## Todo List
 
-- [ ] Fresh clone install/start được; `/api/hello` hoạt động.
-- [ ] i18n và Swagger có test.
-- [ ] Build, lint, targeted unit/E2E green.
+- [x] Fresh clone install/start được; `/api/hello` hoạt động.
+- [x] i18n và Swagger có test.
+- [x] Build, lint, targeted unit/E2E green.
 
 ## Success Criteria
 
 - Developer setup project bằng README/scripts hiện có và gọi được hello ở hai locale.
 - Swagger render đúng route/response; E2E dùng cùng bootstrap với runtime.
+
+## Validation
+
+- `pnpm build` passed.
+- `pnpm lint` passed (SunLint; ESLint config advisory only).
+- `pnpm test` passed: 10 tests.
+- `pnpm test:e2e` passed: 6 tests covering default/vi/fallback locale and production Swagger gating.
 
 ## Risk Assessment
 
