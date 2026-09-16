@@ -33,7 +33,7 @@ Giữ nguyên lịch sử PR1 đã hoàn thành, audit phần Phase 02 đang d�
 | Phase | PR scope | Effort | Blocked by | Status |
 |---|---|---:|---|---|
 | 1 | [PR1 bootstrap + `GET /api/hello`](./phase-01-project-bootstrap-docs.md) | 6h | — | Complete |
-| 2 | [Audit/rebase, foundations và auth APIs](./phase-02-database-auth-background-jobs.md) | 24h | PR1 | In progress: 2B.1 validated; 2B.2 verified, awaiting PR |
+| 2 | [Audit/rebase, foundations và auth APIs](./phase-02-database-auth-background-jobs.md) | 24h | PR1 | In progress: 2B.1 validated; 2B.2 submitted in [PR #23](https://github.com/hungpv-2151/NestJS-tutorial/pull/23) |
 | 3 | [User, profile và private-file APIs](./phase-03-user-profile-private-avatar.md) | 18h | Phase 2 | Pending |
 | 4 | [Article/feed/favorite/tag APIs](./phase-04-articles-search-pagination.md) | 26h | Phase 3 | Pending |
 | 5 | [Comment APIs](./phase-05-comments.md) | 10h | Phase 4 | Pending |
