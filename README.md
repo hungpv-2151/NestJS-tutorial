@@ -27,16 +27,22 @@
 
 ## API bootstrap
 
-Install dependencies and start the local server:
+Install dependencies, set `DATABASE_URL` to a PostgreSQL connection URL, and
+start the local server:
 
 ```bash
 pnpm install
 pnpm start:dev
 ```
 
-The service listens on `http://localhost:3000` by default. No environment
-variables are required for this bootstrap. Set overrides in the process
-environment used to start the service:
+The service connects to PostgreSQL during startup; it does not start when
+`DATABASE_URL` is absent or invalid. Copy the safe placeholders in
+`.env.example` into your local, ignored environment file, then provide those
+values to the process that starts the service. Never commit connection strings
+or credentials.
+
+The service listens on `http://localhost:3000` by default. Set overrides in
+the process environment used to start the service:
 
 | Variable | Default | Valid values and behavior |
 | --- | --- | --- |
@@ -44,6 +50,11 @@ environment used to start the service:
 | `BODY_LIMIT` | `100kb` | Positive integer followed by `kb` or `mb`, such as `2mb`. |
 | `NODE_ENV` | unset | Set to `production` to apply production Swagger behavior. |
 | `SWAGGER_ENABLED` | unset | Set to the exact value `true` to enable Swagger in production. |
+| `DATABASE_URL` | required | PostgreSQL connection URL used by the application at startup. |
+| `TEST_DATABASE_URL` | required for tests | PostgreSQL connection URL used only by the test runners. |
+
+`pnpm test` and `pnpm test:e2e` require `TEST_DATABASE_URL` and use it as
+their database connection.
 
 `GET /api/hello` returns a localized greeting. `Accept-Language: vi` and
 `vi-*` values select Vietnamese; a missing, English, or unsupported locale
