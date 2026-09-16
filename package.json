@@ -25,7 +25,8 @@
     "db:migration:add": "typeorm migration:create src/database/migrations/manual-migration",
     "db:migration:apply": "pnpm build && typeorm migration:run -d dist/database/data-source.js",
     "db:migration:revert": "pnpm build && typeorm migration:revert -d dist/database/data-source.js",
-    "db:migration:show": "pnpm build && typeorm migration:show -d dist/database/data-source.js"
+    "db:migration:show": "pnpm build && typeorm migration:show -d dist/database/data-source.js",
+    "db:migration:reset": "pnpm build && node dist/database/reset-database-runner.js"
   },
   "dependencies": {
     "@nestjs/common": "^12.0.1",
