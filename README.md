@@ -35,11 +35,11 @@ pnpm install
 pnpm start:dev
 ```
 
-The service connects to PostgreSQL during startup; it does not start when
+The start scripts load the local, ignored `.env` file when it exists. The
+service connects to PostgreSQL during startup; it does not start when
 `DATABASE_URL` is absent or invalid. Copy the safe placeholders in
-`.env.example` into your local, ignored environment file, then provide those
-values to the process that starts the service. Never commit connection strings
-or credentials.
+`.env.example` into your local `.env` file. Never commit connection strings or
+credentials.
 
 The service listens on `http://localhost:3000` by default. Set overrides in
 the process environment used to start the service:
