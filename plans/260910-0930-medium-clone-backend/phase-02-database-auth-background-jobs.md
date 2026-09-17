@@ -6,8 +6,8 @@
 
 ## Overview
 
-- Priority: P1 · Status: In progress — 2B.1 submitted; 2B.2 pending · Effort: 24h · Blocked by: PR1
-- 2B.1 đã submit ở [PR #22](https://github.com/hungpv-2151/NestJS-tutorial/pull/22) với migration applied trên `DATABASE_URL`. 2B.2 reset tooling chưa làm; 2C–2I tiếp tục blocked theo dependency chain.
+- Priority: P1 · Status: In progress — 2B.1 submitted; 2B.2 submitted in [PR #23](https://github.com/hungpv-2151/NestJS-tutorial/pull/23) · Effort: 24h · Blocked by: PR1
+- 2B.1 đã submit ở [PR #22](https://github.com/hungpv-2151/NestJS-tutorial/pull/22) với migration applied trên `DATABASE_URL`. 2B.2 reset tooling đã verify; 2C–2I tiếp tục blocked theo dependency chain.
 
 ## Key Insights
 
@@ -20,7 +20,8 @@
 - 2B.1 complete locally: TypeORM data source, migration CLI wiring, `User` entity, reversible users migration, and focused migration/data-source tests.
 - Validation passed: lint, build, 24 unit tests, and 6 E2E tests. Isolated temporary Neon database apply → revert → apply passed; database was dropped afterward.
 - Reviewer passed; no API routes were added. Evidence: [PR #22 comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/22#issuecomment-5692428675).
-- 2B.2 database reset tooling remains pending. 2C–2I remain blocked by the declared dependency graph.
+- 2B.2 dùng `TEST_DATABASE_URL` và bắt buộc `CONFIRM_DATABASE_RESET=yes`; refusal, reset tạm thời, build, lint, unit và E2E đã pass. 2C–2I remain blocked by the declared dependency graph.
+- 2B.2 reviewer found no issues; PR evidence URL remains pending until submission.
 
 ## Requirements
 
@@ -67,7 +68,7 @@
 - [ ] G2 rebase/audit complete; current diff preserved and mapped, not silently marked done.
 - [ ] PRs 2A–2I each stay within one API/foundation and ≤400 changed lines.
 - [ ] Every PR has zero error-level findings; warnings fixed or logged with follow-up.
-- [ ] Evidence comment URLs: 2A dependency foundation [PR #20](https://github.com/hungpv-2151/NestJS-tutorial/pull/20#issuecomment-5673200048); 2A required-DB configuration [PR #21](https://github.com/hungpv-2151/NestJS-tutorial/pull/21#issuecomment-5676001144); 2B.1 [PR #22](https://github.com/hungpv-2151/NestJS-tutorial/pull/22#issuecomment-5692428675); 2B.2 `pending`; 2C `pending`; 2D `pending`; 2E `pending`; 2F `pending`; 2G `pending`; 2H `pending`; 2I `pending`.
+- [ ] Evidence comment URLs: 2A dependency foundation [PR #20](https://github.com/hungpv-2151/NestJS-tutorial/pull/20#issuecomment-5673200048); 2A required-DB configuration [PR #21](https://github.com/hungpv-2151/NestJS-tutorial/pull/21#issuecomment-5676001144); 2B.1 [PR #22](https://github.com/hungpv-2151/NestJS-tutorial/pull/22#issuecomment-5692428675); 2B.2 [PR #23](https://github.com/hungpv-2151/NestJS-tutorial/pull/23#issuecomment-5695483395); 2C `pending`; 2D `pending`; 2E `pending`; 2F `pending`; 2G `pending`; 2H `pending`; 2I `pending`.
 
 ## Success Criteria
 
@@ -83,7 +84,7 @@
 ## Security Considerations
 
 - Secrets only from env; Argon2 input capped; redact password/hash/JWT/Auth header. Redis outage on protected auth fails closed.
-- Reset verifies environment/database allowlist and explicit confirmation.
+- Reset chỉ nhận `TEST_DATABASE_URL` hợp lệ và bắt buộc explicit confirmation; không có host/name allowlist theo quyết định tối giản hóa đã xác nhận.
 
 ## Rollback
 
