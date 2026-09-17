@@ -22,6 +22,7 @@
 - Reviewer passed; no API routes were added. Evidence: [PR #22 comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/22#issuecomment-5692428675).
 - 2B.2 dùng `TEST_DATABASE_URL` và bắt buộc `CONFIRM_DATABASE_RESET=yes`; refusal, reset tạm thời, build, lint, unit và E2E đã pass. 2C–2I remain blocked by the declared dependency graph.
 - 2B.2 reviewer found no issues; PR evidence URL remains pending until submission.
+- Registration delivery is split: 2E.1 provides the HTTP contract only. 2E.2 will add durable welcome-mail delivery with a transactional outbox or equivalent retryable record; it must never return a retry-hostile 5xx after the user transaction commits.
 
 ## Requirements
 
@@ -42,7 +43,8 @@
 | 2B.2 | Guarded dev/test database reset tooling; API: none | 2B.1 | reset refusal + reset evidence |
 | 2C | DTO/error/serializer/JWT/Redis primitives; API: none | 2B.2 | targeted unit/static-analysis result |
 | 2D | `POST /api/users` part 1: transaction, hash, duplicate rules | 2C | service/persistence test result |
-| 2E | `POST /api/users` part 2: HTTP contract + welcome mail enqueue | 2D | register E2E + queue result screenshot |
+| 2E.1 | `POST /api/users` part 2: HTTP contract only | 2D | register contract result |
+| 2E.2 | `POST /api/users` durable welcome-mail delivery; no additional public API | 2E.1 | post-commit recovery + queue result |
 | 2F | `POST /api/users/login` only | 2E | valid/invalid login E2E screenshot |
 | 2G | `GET /api/user` only | 2F | valid/missing/invalid token result |
 | 2H | `POST /api/user/logout` only | 2G | 204/reuse-denied/TTL result |
