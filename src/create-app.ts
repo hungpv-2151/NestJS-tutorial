@@ -1,8 +1,13 @@
-import { ValidationPipe } from '@nestjs/common';
+import {
+  BadRequestException,
+  ValidationPipe,
+  type INestApplication,
+} from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { json, urlencoded } from 'express';
 import { AppModule } from './app.module.js';
+import { ApiExceptionFilter } from './common/filters/api-exception.filter.js';
 import { getAppConfig } from './config/app-config.js';
 
 export async function createApp(environment: NodeJS.ProcessEnv = process.env) {
@@ -12,13 +17,7 @@ export async function createApp(environment: NodeJS.ProcessEnv = process.env) {
   app.use(json({ limit: config.bodyLimit }));
   app.use(urlencoded({ extended: true, limit: config.bodyLimit }));
   app.setGlobalPrefix('api');
-  app.useGlobalPipes(
-    new ValidationPipe({
-      forbidNonWhitelisted: true,
-      transform: true,
-      whitelist: true,
-    }),
-  );
+  configureGlobalRequestHandling(app);
   app.enableShutdownHooks();
 
   if (config.isSwaggerEnabled) {
@@ -38,4 +37,17 @@ export async function createApp(environment: NodeJS.ProcessEnv = process.env) {
 
   await app.init();
   return app;
+}
+
+export function configureGlobalRequestHandling(app: INestApplication): void {
+  app.useGlobalFilters(new ApiExceptionFilter());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      exceptionFactory: (validationErrors) =>
+        new BadRequestException(validationErrors),
+      forbidNonWhitelisted: true,
+      transform: true,
+      whitelist: true,
+    }),
+  );
 }
