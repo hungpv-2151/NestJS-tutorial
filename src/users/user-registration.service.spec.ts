@@ -2,11 +2,13 @@ import { verify } from 'argon2';
 import { describe, expect, it } from 'vitest';
 
 import { User } from './user.entity.js';
+import { WelcomeMailOutbox } from '../jobs/welcome-mail-outbox.entity.js';
 import {
   UserRegistrationConflictError,
   UserRegistrationPersistenceError,
   UserRegistrationService,
   type UserRegistrationRepository,
+  type WelcomeMailOutboxRepository,
 } from './user-registration.service.js';
 
 class TransactionRolledBackError extends Error {
@@ -44,7 +46,7 @@ class FakeRepository implements UserRegistrationRepository {
   }
 
   create(user: Pick<User, 'email' | 'passwordHash' | 'username'>): User {
-    return { ...user } as User;
+    return { ...user, id: 'user-id' } as User;
   }
 
   async save(user: User): Promise<User> {
@@ -56,18 +58,49 @@ class FakeRepository implements UserRegistrationRepository {
   }
 }
 
-function createService(repository = new FakeRepository()) {
+class FakeOutboxRepository implements WelcomeMailOutboxRepository {
+  readonly savedOutbox: WelcomeMailOutbox[] = [];
+  saveError?: Error;
+
+  create(
+    outbox: Pick<WelcomeMailOutbox, 'email' | 'userId' | 'username'>,
+  ): WelcomeMailOutbox {
+    return { ...outbox } as WelcomeMailOutbox;
+  }
+
+  async save(outbox: WelcomeMailOutbox): Promise<WelcomeMailOutbox> {
+    if (this.saveError) {
+      throw this.saveError;
+    }
+    this.savedOutbox.push(outbox);
+    return outbox;
+  }
+}
+
+function createService(
+  repository = new FakeRepository(),
+  outboxRepository = new FakeOutboxRepository(),
+) {
   let isRolledBack = false;
   const service = new UserRegistrationService({
     transaction: async (work) => {
-      const snapshot = [...repository.savedUsers];
+      const userSnapshot = [...repository.savedUsers];
+      const outboxSnapshot = [...outboxRepository.savedOutbox];
       try {
-        return await work({ getRepository: () => repository });
+        return await work({
+          getRepository: (entity) =>
+            entity === User ? repository : outboxRepository,
+        } as never);
       } catch (error) {
         repository.savedUsers.splice(
           0,
           repository.savedUsers.length,
-          ...snapshot,
+          ...userSnapshot,
+        );
+        outboxRepository.savedOutbox.splice(
+          0,
+          outboxRepository.savedOutbox.length,
+          ...outboxSnapshot,
         );
         isRolledBack = true;
         if (error instanceof UserRegistrationConflictError) {
@@ -80,12 +113,12 @@ function createService(repository = new FakeRepository()) {
       }
     },
   });
-  return { repository, rolledBack: () => isRolledBack, service };
+  return { outboxRepository, repository, rolledBack: () => isRolledBack, service };
 }
 
 describe('UserRegistrationService', () => {
   it('hashes password and persists a user without returning the hash', async () => {
-    const { repository, service } = createService();
+    const { outboxRepository, repository, service } = createService();
 
     const user = await service.register({
       email: 'jane@example.com',
@@ -97,6 +130,9 @@ describe('UserRegistrationService', () => {
     expect(
       await verify(repository.savedUsers[0].passwordHash, 'safe-password'),
     ).toBe(true);
+    expect(outboxRepository.savedOutbox).toEqual([
+      { email: 'jane@example.com', userId: 'user-id', username: 'jane' },
+    ]);
   });
 
   it.each([
@@ -145,6 +181,27 @@ describe('UserRegistrationService', () => {
     ).rejects.toBeInstanceOf(UserRegistrationPersistenceError);
 
     expect(repository.savedUsers).toEqual([]);
+    expect(rolledBack()).toBe(true);
+  });
+
+  it('rolls back the user when outbox persistence fails', async () => {
+    const outboxRepository = new FakeOutboxRepository();
+    outboxRepository.saveError = new Error('outbox unavailable');
+    const { repository, rolledBack, service } = createService(
+      new FakeRepository(),
+      outboxRepository,
+    );
+
+    await expect(
+      service.register({
+        email: 'jane@example.com',
+        password: 'safe-password',
+        username: 'jane',
+      }),
+    ).rejects.toBeInstanceOf(UserRegistrationPersistenceError);
+
+    expect(repository.savedUsers).toEqual([]);
+    expect(outboxRepository.savedOutbox).toEqual([]);
     expect(rolledBack()).toBe(true);
   });
 
