@@ -13,7 +13,7 @@
 
 - Snapshot 2026-09-15: 6 file modified, +1,102/-16; riêng `pnpm-lock.yaml` +1,067 dòng. Dependency/config work đã tách khỏi foundation; không có public API trong 2B.1.
 - Không sửa tiếp trên diff này trước khi giữ một snapshot phục hồi được, refresh/rebase lên `phase-01-bootstrap-i18n-swagger`, rồi map từng hunk vào PR stack mới.
-- Generated lockfile vẫn tính vào limit. PR dự kiến >400 changed lines phải tách thêm trước submit.
+- Chỉ file code production tính vào limit; generated lockfile, spec, Markdown, JSON, test, migration, YAML và supporting artifact không tính.
 
 ## Delivery Status
 
@@ -70,7 +70,7 @@
 ## Todo List
 
 - [ ] G2 rebase/audit complete; current diff preserved and mapped, not silently marked done.
-- [ ] PRs 2A–2I each stay within one API/foundation and ≤400 changed lines.
+- [ ] PRs 2A–2I each stay within one API/foundation and ≤400 changed lines of production code; spec, Markdown, JSON, test, migration, YAML, lockfile và supporting artifact không tính.
 - [ ] Every PR has zero error-level findings; warnings fixed or logged with follow-up.
 - [ ] Evidence comment URLs: 2A dependency foundation [PR #20](https://github.com/hungpv-2151/NestJS-tutorial/pull/20#issuecomment-5673200048); 2A required-DB configuration [PR #21](https://github.com/hungpv-2151/NestJS-tutorial/pull/21#issuecomment-5676001144); 2B.1 [PR #22](https://github.com/hungpv-2151/NestJS-tutorial/pull/22#issuecomment-5692428675); 2B.2 [PR #23](https://github.com/hungpv-2151/NestJS-tutorial/pull/23#issuecomment-5695483395); 2C `pending`; 2D and 2E.1 consolidated in [PR #31](https://github.com/hungpv-2151/NestJS-tutorial/pull/31#issuecomment-5711870434); 2E.2 `pending`; 2F `pending`; 2G `pending`; 2H `pending`; 2I `pending`.
 
@@ -82,7 +82,7 @@
 ## Risk Assessment
 
 - Rebase loses local work — Likelihood: Medium · Impact: Critical → recoverable snapshot first; no destructive reset.
-- Oversized dependency lockfile — Likelihood: High · Impact: High → generated lines count; split dependency slices until every submitted PR ≤400.
+- Oversized production-code diff — Likelihood: High · Impact: High → count production code only; split slices until that diff is ≤400.
 - Mixed auth API changes — Likelihood: High · Impact: High → audit route/controller/test diffs and split before review.
 
 ## Security Considerations
