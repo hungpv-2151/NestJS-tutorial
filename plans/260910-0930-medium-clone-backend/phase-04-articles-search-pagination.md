@@ -52,7 +52,7 @@
 
 1. Refresh/rebase and audit diff before fixing each row; confirm declared base, one API and line limit.
 2. Land 4A schema first; implement endpoint rows in order. Route `/feed` stays ahead of `/:slug` without editing unrelated contracts.
-3. Split any row above 400 changed lines into suffix PRs serving the same API only; preferred size ≤300.
+3. Split any row above 400 changed lines of production code into suffix PRs serving the same API only; preferred size ≤300. Spec, Markdown, JSON, test, migration, YAML, lockfile and supporting artifacts do not count.
 4. Run compile, error-free lint/static analysis, focused tests and contract checks. Attach screenshot/results in PR comment; record URL.
 
 ## Todo List
