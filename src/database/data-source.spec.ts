@@ -14,8 +14,8 @@ describe('data source', () => {
 
     const { default: dataSource } = await import('./data-source.js');
 
-    expect(dataSource.options.entities).toHaveLength(1);
-    expect(dataSource.options.migrations).toHaveLength(1);
+    expect(dataSource.options.entities).toHaveLength(2);
+    expect(dataSource.options.migrations).toHaveLength(2);
     expect(dataSource.options.synchronize).toBe(false);
     await expect(dataSource.buildMetadatas()).resolves.toBeUndefined();
 
