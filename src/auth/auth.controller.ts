@@ -41,7 +41,7 @@ import {
   AuthInvalidCredentialsError,
   AuthService,
 } from './auth.service.js';
-import { RegisterUserSwagger } from './auth.swagger.js';
+import { LoginUserSwagger, RegisterUserSwagger } from './auth.swagger.js';
 import { createTokenClaims } from './token-claims.js';
 
 export { AUTH_CONFIG } from './auth.constants.js';
@@ -71,7 +71,9 @@ export class AuthController {
     try {
       user = await this.authService.register(request.user);
     } catch (error) {
-      this.logger.error(JSON.stringify(createRequestFailureLog(error, httpRequest)));
+      this.logger.error(
+        JSON.stringify(createRequestFailureLog(error, httpRequest)),
+      );
       if (error instanceof AuthConflictError) {
         throw new ConflictException({
           errors: { [error.field]: ['has already been taken'] },
@@ -86,6 +88,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @LoginUserSwagger()
   @HttpCode(HttpStatus.OK)
   @Header('Cache-Control', 'no-store')
   async login(
@@ -98,11 +101,18 @@ export class AuthController {
         request.user.email,
         request.user.password,
       );
-      return serializeUser(user, await this.createToken(user.username, httpRequest));
+      return serializeUser(
+        user,
+        await this.createToken(user.username, httpRequest),
+      );
     } catch (error) {
-      this.logger.error(JSON.stringify(createRequestFailureLog(error, httpRequest)));
+      this.logger.error(
+        JSON.stringify(createRequestFailureLog(error, httpRequest)),
+      );
       if (error instanceof AuthInvalidCredentialsError) {
-        throw new UnauthorizedException({ errors: { credentials: ['invalid'] } });
+        throw new UnauthorizedException({
+          errors: { credentials: ['invalid'] },
+        });
       }
       if (error instanceof AuthLoginRateLimitError) {
         throw new HttpException(
@@ -116,7 +126,10 @@ export class AuthController {
     }
   }
 
-  private async createToken(username: string, request: Request): Promise<string> {
+  private async createToken(
+    username: string,
+    request: Request,
+  ): Promise<string> {
     const issuedAt = Math.floor(Date.now() / 1_000);
     try {
       return await this.jwtService.signAsync(
@@ -129,7 +142,9 @@ export class AuthController {
         ),
       );
     } catch (error) {
-      this.logger.error(JSON.stringify(createRequestFailureLog(error, request)));
+      this.logger.error(
+        JSON.stringify(createRequestFailureLog(error, request)),
+      );
       throw new InternalServerErrorException({
         errors: { body: ['request failed'] },
       });

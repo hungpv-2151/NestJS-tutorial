@@ -5,11 +5,17 @@ import {
   ApiCreatedResponse,
   ApiInternalServerErrorResponse,
   ApiOperation,
+  ApiOkResponse,
   ApiTags,
+  ApiTooManyRequestsResponse,
+  ApiUnauthorizedResponse,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 
-import { RegisterUserRequestDto } from '../common/dto/user-auth.dto.js';
+import {
+  LoginUserRequestDto,
+  RegisterUserRequestDto,
+} from '../common/dto/user-auth.dto.js';
 
 const AUTHENTICATED_USER_SCHEMA = {
   example: {
@@ -62,6 +68,34 @@ export function RegisterUserSwagger(): MethodDecorator {
     }),
     ApiInternalServerErrorResponse({
       description: 'Registration could not be completed.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
+  );
+}
+
+export function LoginUserSwagger(): MethodDecorator {
+  return applyDecorators(
+    ApiTags('Authentication'),
+    ApiOperation({ summary: 'Sign in with email and password' }),
+    ApiBody({ type: LoginUserRequestDto }),
+    ApiOkResponse({
+      description: 'Authenticated user.',
+      schema: AUTHENTICATED_USER_SCHEMA,
+    }),
+    ApiUnauthorizedResponse({
+      description: 'Credentials are invalid.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
+    ApiTooManyRequestsResponse({
+      description: 'Too many login attempts.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
+    ApiUnprocessableEntityResponse({
+      description: 'Request validation failed.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
+    ApiInternalServerErrorResponse({
+      description: 'Login could not be completed.',
       schema: VALIDATION_ERROR_SCHEMA,
     }),
   );
