@@ -1,2 +1,4 @@
 export const AUTH_CONFIG = Symbol('AUTH_CONFIG');
+export const AUTH_LOGIN_RATE_LIMITER = Symbol('AUTH_LOGIN_RATE_LIMITER');
+export const AUTH_LOGIN_REPOSITORY = Symbol('AUTH_LOGIN_REPOSITORY');
 export const TOKEN_LIFETIME_SECONDS = 15 * 60;

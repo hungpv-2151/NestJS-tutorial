@@ -4,27 +4,44 @@ import {
   Controller,
   Header,
   HttpCode,
+  HttpException,
   HttpStatus,
   Inject,
   InternalServerErrorException,
   Logger,
   Post,
   Req,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import type { Request } from 'express';
 import { randomUUID } from 'node:crypto';
 
-import { RegisterUserRequestDto } from '../common/dto/user-auth.dto.js';
+import {
+  LoginUserRequestDto,
+  RegisterUserRequestDto,
+} from '../common/dto/user-auth.dto.js';
 import {
   serializeUser,
   type SerializedUser,
 } from '../users/user.serializer.js';
 import type { AuthConfig } from '../config/auth-config.js';
 import { createRequestFailureLog } from '../common/logging/request-failure-log.js';
-import { AUTH_CONFIG, TOKEN_LIFETIME_SECONDS } from './auth.constants.js';
-import { AuthConflictError, AuthService } from './auth.service.js';
-import { RegisterUserSwagger } from './auth.swagger.js';
+import {
+  AUTH_CONFIG,
+  AUTH_LOGIN_RATE_LIMITER,
+  TOKEN_LIFETIME_SECONDS,
+} from './auth.constants.js';
+import {
+  AuthLoginRateLimitError,
+  AuthLoginRateLimiter,
+} from './auth-login-rate-limiter.js';
+import {
+  AuthConflictError,
+  AuthInvalidCredentialsError,
+  AuthService,
+} from './auth.service.js';
+import { LoginUserSwagger, RegisterUserSwagger } from './auth.swagger.js';
 import { createTokenClaims } from './token-claims.js';
 
 export { AUTH_CONFIG } from './auth.constants.js';
@@ -36,6 +53,8 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly jwtService: JwtService,
+    @Inject(AUTH_LOGIN_RATE_LIMITER)
+    private readonly loginRateLimiter: AuthLoginRateLimiter,
     @Inject(AUTH_CONFIG) private readonly authConfig: AuthConfig,
   ) {}
 
@@ -66,6 +85,45 @@ export class AuthController {
     }
 
     return serializeUser({ ...user, bio: null, image: null }, token);
+  }
+
+  @Post('login')
+  @LoginUserSwagger()
+  @HttpCode(HttpStatus.OK)
+  @Header('Cache-Control', 'no-store')
+  async login(
+    @Body() request: LoginUserRequestDto,
+    @Req() httpRequest: Request,
+  ): Promise<SerializedUser> {
+    try {
+      await this.loginRateLimiter.consume(request.user.email, httpRequest.ip);
+      const user = await this.authService.login(
+        request.user.email,
+        request.user.password,
+      );
+      return serializeUser(
+        user,
+        await this.createToken(user.username, httpRequest),
+      );
+    } catch (error) {
+      this.logger.error(
+        JSON.stringify(createRequestFailureLog(error, httpRequest)),
+      );
+      if (error instanceof AuthInvalidCredentialsError) {
+        throw new UnauthorizedException({
+          errors: { credentials: ['invalid'] },
+        });
+      }
+      if (error instanceof AuthLoginRateLimitError) {
+        throw new HttpException(
+          { errors: { body: ['too many requests'] } },
+          HttpStatus.TOO_MANY_REQUESTS,
+        );
+      }
+      throw new InternalServerErrorException({
+        errors: { body: ['request failed'] },
+      });
+    }
   }
 
   private async createToken(

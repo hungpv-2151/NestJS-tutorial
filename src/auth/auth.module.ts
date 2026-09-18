@@ -19,8 +19,13 @@ import {
   WelcomeMailOutboxRelayRunner,
 } from '../jobs/welcome-mail-outbox-relay.js';
 import { User } from '../users/user.entity.js';
-import { AUTH_CONFIG } from './auth.constants.js';
+import {
+  AUTH_CONFIG,
+  AUTH_LOGIN_RATE_LIMITER,
+  AUTH_LOGIN_REPOSITORY,
+} from './auth.constants.js';
 import { AuthController } from './auth.controller.js';
+import { AuthLoginRateLimiter } from './auth-login-rate-limiter.js';
 import { AuthService } from './auth.service.js';
 import { WELCOME_MAIL_OUTBOX_RELAY } from '../jobs/welcome-mail-outbox-relay.constants.js';
 
@@ -38,9 +43,26 @@ import { WELCOME_MAIL_OUTBOX_RELAY } from '../jobs/welcome-mail-outbox-relay.con
     },
     {
       inject: [DataSource],
+      provide: AUTH_LOGIN_REPOSITORY,
+      useFactory: (dataSource: DataSource) => ({
+        findByEmail: (email: string) =>
+          dataSource
+            .getRepository(User)
+            .createQueryBuilder('user')
+            .addSelect('user.passwordHash')
+            .where('user.email = :email', { email })
+            .getOne(),
+      }),
+    },
+    {
+      inject: [DataSource, AUTH_LOGIN_REPOSITORY],
       provide: AuthService,
-      useFactory: (dataSource: DataSource) =>
-        new AuthService(dataSource),
+      useFactory: (dataSource: DataSource, loginRepository) =>
+        new AuthService(dataSource, loginRepository),
+    },
+    {
+      provide: AUTH_LOGIN_RATE_LIMITER,
+      useFactory: () => new AuthLoginRateLimiter(),
     },
     {
       provide: WELCOME_MAIL_QUEUE,
