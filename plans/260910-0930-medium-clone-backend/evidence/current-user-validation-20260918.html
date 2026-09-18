@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>GET /api/user validation</title>
+<style>body{font:18px system-ui;margin:48px;color:#172033}h1{margin-bottom:8px}li{margin:12px 0}.ok{color:#087443;font-weight:700}code{background:#edf2f7;padding:2px 5px}</style>
+<h1>Phase 2G — GET /api/user validation</h1>
+<p>2026-09-18 · stacked base: <code>phase-02-login</code></p>
+<ul>
+<li><span class="ok">PASS</span> a valid <code>Token &lt;jwt&gt;</code> returns the current user and presented token</li>
+<li><span class="ok">PASS</span> missing or malformed credentials return the RealWorld <code>401</code> token error</li>
+<li><span class="ok">PASS</span> expired, wrong-issuer and wrong-audience JWTs are rejected through the actual AuthModule verifier</li>
+<li><span class="ok">PASS</span> <code>pnpm install --frozen-lockfile</code>, build, unit, E2E, lint and diff check</li>
+<li><span class="ok">PASS</span> lint: 0 errors; heuristic warnings recorded in PR evidence</li>
+</ul>

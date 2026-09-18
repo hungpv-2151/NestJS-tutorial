@@ -2,6 +2,7 @@ import {
   Body,
   ConflictException,
   Controller,
+  Get,
   Header,
   HttpCode,
   HttpException,
@@ -12,6 +13,7 @@ import {
   Post,
   Req,
   UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import type { Request } from 'express';
@@ -31,14 +33,16 @@ import { AuthLoginRateLimitError } from './auth-login-rate-limiter.js';
 import {
   AuthConflictError,
   AuthInvalidCredentialsError,
+  AuthInvalidTokenError,
   AuthService,
 } from './auth.service.js';
-import { LoginUserSwagger, RegisterUserSwagger } from './auth.swagger.js';
+import { AuthTokenGuard, type AuthenticatedRequest } from './auth-token.guard.js';
+import { CurrentUserSwagger, LoginUserSwagger, RegisterUserSwagger } from './auth.swagger.js';
 import { issueToken } from './auth-token-issuer.js';
 
 export { AUTH_CONFIG } from './auth.constants.js';
 
-@Controller('users')
+@Controller()
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
 
@@ -48,7 +52,7 @@ export class AuthController {
     @Inject(AUTH_CONFIG) private readonly authConfig: AuthConfig,
   ) {}
 
-  @Post()
+  @Post('users')
   @RegisterUserSwagger()
   @HttpCode(HttpStatus.CREATED)
   @Header('Cache-Control', 'no-store')
@@ -77,7 +81,7 @@ export class AuthController {
     return serializeUser({ ...user, bio: null, image: null }, token);
   }
 
-  @Post('login')
+  @Post('users/login')
   @LoginUserSwagger()
   @HttpCode(HttpStatus.OK)
   @Header('Cache-Control', 'no-store')
@@ -110,6 +114,22 @@ export class AuthController {
       throw new InternalServerErrorException({
         errors: { body: ['request failed'] },
       });
+    }
+  }
+
+  @Get('user')
+  @CurrentUserSwagger()
+  @UseGuards(AuthTokenGuard)
+  @Header('Cache-Control', 'no-store')
+  async currentUser(@Req() request: AuthenticatedRequest): Promise<SerializedUser> {
+    try {
+      const user = await this.authService.currentUser(request.auth.sub);
+      return serializeUser(user, request.auth.token);
+    } catch (error) {
+      if (error instanceof AuthInvalidTokenError) {
+        throw new UnauthorizedException({ errors: { token: ['is invalid'] } });
+      }
+      throw error;
     }
   }
 
