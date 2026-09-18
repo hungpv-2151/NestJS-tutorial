@@ -21,22 +21,25 @@ describe('welcome-mail outbox transaction', () => {
 
     await dataSource.initialize();
     try {
-      const service = new AuthService({
-        transaction: (work) =>
-          dataSource.transaction((manager) =>
-            work({
-              getRepository: (entity) =>
-                entity === User
-                  ? manager.getRepository(User)
-                  : {
-                      create: () => ({}) as WelcomeMailOutbox,
-                      save: async () => {
-                        throw new Error('outbox persistence failed');
+      const service = new AuthService(
+        {
+          transaction: (work) =>
+            dataSource.transaction((manager) =>
+              work({
+                getRepository: (entity) =>
+                  entity === User
+                    ? manager.getRepository(User)
+                    : {
+                        create: () => ({}) as WelcomeMailOutbox,
+                        save: async () => {
+                          throw new Error('outbox persistence failed');
+                        },
                       },
-                    },
-            } as never),
-          ),
-      });
+              } as never),
+            ),
+        },
+        { findByEmail: async () => null },
+      );
 
       await expect(
         service.register({

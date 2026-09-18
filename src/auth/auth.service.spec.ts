@@ -1,10 +1,11 @@
-import { verify } from 'argon2';
-import { describe, expect, it } from 'vitest';
+import { hash, verify } from 'argon2';
+import { describe, expect, it, vi } from 'vitest';
 
 import { User } from '../users/user.entity.js';
 import { WelcomeMailOutbox } from '../jobs/welcome-mail-outbox.entity.js';
 import {
   AuthConflictError,
+  AuthInvalidCredentialsError,
   AuthPersistenceError,
   AuthService,
   type UserRepository,
@@ -82,8 +83,9 @@ function createService(
   outboxRepository = new FakeOutboxRepository(),
 ) {
   let isRolledBack = false;
-  const service = new AuthService({
-    transaction: async (work) => {
+  const service = new AuthService(
+    {
+      transaction: async (work) => {
       const userSnapshot = [...repository.savedUsers];
       const outboxSnapshot = [...outboxRepository.savedOutbox];
       try {
@@ -111,12 +113,61 @@ function createService(
         }
         throw new TransactionRolledBackError(error as Error);
       }
+      },
     },
-  });
+    { findByEmail: async () => null },
+  );
   return { outboxRepository, repository, rolledBack: () => isRolledBack, service };
 }
 
 describe('AuthService', () => {
+  it('logs in when the password matches', async () => {
+    const user = await userWithPassword('safe-password');
+    const service = new AuthService(
+      { transaction: async (work) => work({} as never) },
+      { findByEmail: async () => user },
+    );
+
+    await expect(service.login(user.email, 'safe-password')).resolves.toBe(user);
+  });
+
+  it('rejects an unknown email or incorrect password with one error', async () => {
+    const user = await userWithPassword('different-password');
+    const unknownEmail = new AuthService(
+      { transaction: async (work) => work({} as never) },
+      { findByEmail: async () => null },
+    );
+    const wrongPassword = new AuthService(
+      { transaction: async (work) => work({} as never) },
+      { findByEmail: async () => user },
+    );
+
+    await expect(
+      unknownEmail.login('missing@example.com', 'safe-password'),
+    ).rejects.toBeInstanceOf(AuthInvalidCredentialsError);
+    await expect(
+      wrongPassword.login(user.email, 'safe-password'),
+    ).rejects.toBeInstanceOf(AuthInvalidCredentialsError);
+  });
+
+  it('verifies a password hash when an email is unknown', async () => {
+    const matches = vi.fn().mockResolvedValue(false);
+    const service = new AuthService(
+      { transaction: async (work) => work({} as never) },
+      { findByEmail: async () => null },
+      { matches },
+    );
+
+    await expect(
+      service.login('missing@example.com', 'safe-password'),
+    ).rejects.toBeInstanceOf(AuthInvalidCredentialsError);
+
+    expect(matches).toHaveBeenCalledWith(
+      expect.stringMatching(/^\$argon2id\$/),
+      'safe-password',
+    );
+  });
+
   it('hashes password and persists a user without returning the hash', async () => {
     const { outboxRepository, repository, service } = createService();
 
@@ -273,3 +324,13 @@ describe('AuthService', () => {
     ).rejects.toMatchObject({ field: 'body' });
   });
 });
+
+async function userWithPassword(password: string): Promise<User> {
+  return {
+    bio: null,
+    email: 'jane@example.com',
+    image: null,
+    passwordHash: await hash(password),
+    username: 'jane',
+  } as User;
+}

@@ -19,6 +19,14 @@ export interface AuthenticatedUser {
   username: string;
 }
 
+export interface AuthLoginRepository {
+  findByEmail(email: string): Promise<User | null>;
+}
+
+export interface AuthPasswordVerifier {
+  matches(hash: string, password: string): Promise<boolean>;
+}
+
 export interface UserRepository {
   create(user: Pick<User, 'email' | 'passwordHash' | 'username'>): User;
   findOneBy(
@@ -57,8 +65,31 @@ export class AuthPersistenceError extends Error {
   }
 }
 
+export class AuthInvalidCredentialsError extends Error {}
+
+const INVALID_PASSWORD_HASH =
+  '$argon2id$v=19$m=65536,p=4,t=3$5KRxbfPDDZVDeWkvkmtU/A$S35kHKRLUx3/W9bsRHOpGrKsMfGn3d/ttbh08m4GWGg';
+
 export class AuthService {
-  constructor(private readonly dataSource: AuthTransaction) {}
+  constructor(
+    private readonly dataSource: AuthTransaction,
+    private readonly loginRepository: AuthLoginRepository,
+    private readonly passwordVerifier: AuthPasswordVerifier = {
+      matches: matchesPassword,
+    },
+  ) {}
+
+  async login(email: string, password: string): Promise<User> {
+    const user = await this.loginRepository.findByEmail(email);
+    const passwordMatches = await this.passwordVerifier.matches(
+      user?.passwordHash ?? INVALID_PASSWORD_HASH,
+      password,
+    );
+    if (!user || !passwordMatches) {
+      throw new AuthInvalidCredentialsError();
+    }
+    return user;
+  }
 
   async register(request: RegisterRequest): Promise<AuthenticatedUser> {
     try {
@@ -145,4 +176,12 @@ function isUniqueViolation(error: unknown): error is Record<string, unknown> {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
+}
+
+async function matchesPassword(hash: string, password: string): Promise<boolean> {
+  try {
+    return await argon2.verify(hash, password);
+  } catch {
+    return false;
+  }
 }
