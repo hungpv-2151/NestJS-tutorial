@@ -24,6 +24,7 @@ import type { AuthConfig } from '../config/auth-config.js';
 import { createRequestFailureLog } from '../common/logging/request-failure-log.js';
 import { AUTH_CONFIG, TOKEN_LIFETIME_SECONDS } from './auth.constants.js';
 import { AuthConflictError, AuthService } from './auth.service.js';
+import { RegisterUserSwagger } from './auth.swagger.js';
 import { createTokenClaims } from './token-claims.js';
 
 export { AUTH_CONFIG } from './auth.constants.js';
@@ -39,6 +40,7 @@ export class AuthController {
   ) {}
 
   @Post()
+  @RegisterUserSwagger()
   @HttpCode(HttpStatus.CREATED)
   @Header('Cache-Control', 'no-store')
   async register(
@@ -50,7 +52,9 @@ export class AuthController {
     try {
       user = await this.authService.register(request.user);
     } catch (error) {
-      this.logger.error(JSON.stringify(createRequestFailureLog(error, httpRequest)));
+      this.logger.error(
+        JSON.stringify(createRequestFailureLog(error, httpRequest)),
+      );
       if (error instanceof AuthConflictError) {
         throw new ConflictException({
           errors: { [error.field]: ['has already been taken'] },
@@ -64,7 +68,10 @@ export class AuthController {
     return serializeUser({ ...user, bio: null, image: null }, token);
   }
 
-  private async createToken(username: string, request: Request): Promise<string> {
+  private async createToken(
+    username: string,
+    request: Request,
+  ): Promise<string> {
     const issuedAt = Math.floor(Date.now() / 1_000);
     try {
       return await this.jwtService.signAsync(
@@ -77,7 +84,9 @@ export class AuthController {
         ),
       );
     } catch (error) {
-      this.logger.error(JSON.stringify(createRequestFailureLog(error, request)));
+      this.logger.error(
+        JSON.stringify(createRequestFailureLog(error, request)),
+      );
       throw new InternalServerErrorException({
         errors: { body: ['request failed'] },
       });
