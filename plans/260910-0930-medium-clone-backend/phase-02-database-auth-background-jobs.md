@@ -31,6 +31,7 @@
 - Migration viết tay có `up/down`; DB reset chỉ dev/test; không `synchronize`.
 - Bốn APIs giữ riêng: `POST /api/users`, `POST /api/users/login`, `GET /api/user`, `POST /api/user/logout`.
 - JWT có `sub/jti/iss/aud/iat/exp`; logout deny-list Redis TTL bằng phần token còn lại; auth lỗi không lộ secret.
+- `AuthController`/`AuthService` sở hữu đăng ký, đăng nhập, đăng xuất và kiểm tra phiên; `UserService` chỉ sở hữu đọc/cập nhật user dùng chung. Error log ghi category cố định, request đã redaction và thời điểm; không ghi text từ exception, password/hash/token/cookie.
 - Welcome job chỉ thuộc registration API; daily training summary là foundation không có public API.
 
 ## Architecture and PR Dependency Graph

@@ -1,25 +1,25 @@
 import * as argon2 from 'argon2';
 
 import { WelcomeMailOutbox } from '../jobs/welcome-mail-outbox.entity.js';
-import { User } from './user.entity.js';
+import { User } from '../users/user.entity.js';
 
 const UNIQUE_VIOLATION_CODE = '23505';
 const UNIQUE_CONSTRAINT_FIELDS = {
   users_email_key: 'email',
   users_username_key: 'username',
 } as const;
-type UserRegistrationConflictField = 'body' | 'email' | 'username';
+type AuthConflictField = 'body' | 'email' | 'username';
 
-export type UserRegistrationRequest = Pick<User, 'email' | 'username'> & {
+export type RegisterRequest = Pick<User, 'email' | 'username'> & {
   password: string;
 };
 
-export interface RegisteredUser {
+export interface AuthenticatedUser {
   email: string;
   username: string;
 }
 
-export interface UserRegistrationRepository {
+export interface UserRepository {
   create(user: Pick<User, 'email' | 'passwordHash' | 'username'>): User;
   findOneBy(
     criteria: Partial<Pick<User, 'email' | 'username'>>,
@@ -34,33 +34,33 @@ export interface WelcomeMailOutboxRepository {
   save(outbox: WelcomeMailOutbox): Promise<WelcomeMailOutbox>;
 }
 
-export interface UserRegistrationTransactionManager {
-  getRepository(entity: typeof User): UserRegistrationRepository;
+export interface AuthTransactionManager {
+  getRepository(entity: typeof User): UserRepository;
   getRepository(entity: typeof WelcomeMailOutbox): WelcomeMailOutboxRepository;
 }
 
-export interface UserRegistrationTransaction {
+export interface AuthTransaction {
   transaction<T>(
-    work: (manager: UserRegistrationTransactionManager) => Promise<T>,
+    work: (manager: AuthTransactionManager) => Promise<T>,
   ): Promise<T>;
 }
 
-export class UserRegistrationConflictError extends Error {
-  constructor(readonly field: UserRegistrationConflictField) {
+export class AuthConflictError extends Error {
+  constructor(readonly field: AuthConflictField) {
     super(`${field} has already been taken`);
   }
 }
 
-export class UserRegistrationPersistenceError extends Error {
+export class AuthPersistenceError extends Error {
   constructor(cause: unknown) {
     super('user registration could not be saved', { cause });
   }
 }
 
-export class UserRegistrationService {
-  constructor(private readonly dataSource: UserRegistrationTransaction) {}
+export class AuthService {
+  constructor(private readonly dataSource: AuthTransaction) {}
 
-  async register(request: UserRegistrationRequest): Promise<RegisteredUser> {
+  async register(request: RegisterRequest): Promise<AuthenticatedUser> {
     try {
       return await this.dataSource.transaction(async (manager) => {
         const userRepository = manager.getRepository(User);
@@ -89,23 +89,23 @@ export class UserRegistrationService {
         return { email: user.email, username: user.username };
       });
     } catch (error) {
-      if (error instanceof UserRegistrationConflictError) {
-        throw new UserRegistrationConflictError(error.field);
+      if (error instanceof AuthConflictError) {
+        throw new AuthConflictError(error.field);
       }
       if (isUniqueViolation(error)) {
-        throw new UserRegistrationConflictError(getDuplicateField(error) ?? 'body');
+        throw new AuthConflictError(getDuplicateField(error) ?? 'body');
       }
-      throw new UserRegistrationPersistenceError(error);
+      throw new AuthPersistenceError(error);
     }
   }
 
   private async assertAvailable(
-    repository: UserRegistrationRepository,
+    repository: UserRepository,
     field: 'email' | 'username',
     value: string,
   ): Promise<void> {
     if (await repository.findOneBy({ [field]: value })) {
-      throw new UserRegistrationConflictError(field);
+      throw new AuthConflictError(field);
     }
   }
 }

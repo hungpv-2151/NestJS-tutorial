@@ -3,9 +3,9 @@ import { DataSource } from 'typeorm';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { User } from '../users/user.entity.js';
-import { RegisterUserModule } from './register-user.module.js';
+import { AuthModule } from './auth.module.js';
 
-describe('RegisterUserModule', () => {
+describe('AuthModule', () => {
   let module: TestingModule | undefined;
 
   afterEach(async () => {
@@ -14,7 +14,7 @@ describe('RegisterUserModule', () => {
 
   it('registers User metadata for the registration service', async () => {
     module = await Test.createTestingModule({
-      imports: [RegisterUserModule],
+      imports: [AuthModule],
     }).compile();
 
     expect(module.get(DataSource).hasMetadata(User)).toBe(true);

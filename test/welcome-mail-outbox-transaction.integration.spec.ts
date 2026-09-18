@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 
 import { WelcomeMailOutbox } from '../src/jobs/welcome-mail-outbox.entity.js';
 import { User } from '../src/users/user.entity.js';
-import { UserRegistrationService } from '../src/users/user-registration.service.js';
+import { AuthService } from '../src/auth/auth.service.js';
 
 const databaseUrl = process.env.INTEGRATION_DATABASE_URL;
 const integration = databaseUrl ? it : it.skip;
@@ -21,7 +21,7 @@ describe('welcome-mail outbox transaction', () => {
 
     await dataSource.initialize();
     try {
-      const service = new UserRegistrationService({
+      const service = new AuthService({
         transaction: (work) =>
           dataSource.transaction((manager) =>
             work({

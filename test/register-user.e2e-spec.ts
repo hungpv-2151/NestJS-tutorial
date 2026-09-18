@@ -4,9 +4,9 @@ import request from 'supertest';
 import { App } from 'supertest/types';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { RegisterUserController, AUTH_CONFIG } from '../src/auth/register-user.controller.js';
+import { AuthController, AUTH_CONFIG } from '../src/auth/auth.controller.js';
 import { configureGlobalRequestHandling } from '../src/create-app.js';
-import { UserRegistrationService } from '../src/users/user-registration.service.js';
+import { AuthService } from '../src/auth/auth.service.js';
 import { JwtService } from '@nestjs/jwt';
 
 describe('POST /api/users (e2e)', () => {
@@ -93,17 +93,17 @@ async function createApp(
   signAsync = vi.fn().mockResolvedValue('signed-token'),
 ): Promise<INestApplication<App>> {
   @Module({
-    controllers: [RegisterUserController],
+    controllers: [AuthController],
     providers: [
-      { provide: UserRegistrationService, useValue: { register } },
+      { provide: AuthService, useValue: { register } },
       { provide: JwtService, useValue: { signAsync } },
       { provide: AUTH_CONFIG, useValue: { audience: 'client', issuer: 'api', secret: 'secret' } },
     ],
   })
-  class RegisterUserTestModule {}
+  class AuthTestModule {}
 
   const module = await Test.createTestingModule({
-    imports: [RegisterUserTestModule],
+    imports: [AuthTestModule],
   }).compile();
   const application = module.createNestApplication<App>();
   application.setGlobalPrefix('api');

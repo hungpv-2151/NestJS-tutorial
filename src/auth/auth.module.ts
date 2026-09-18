@@ -19,13 +19,13 @@ import {
   WelcomeMailOutboxRelayRunner,
 } from '../jobs/welcome-mail-outbox-relay.js';
 import { User } from '../users/user.entity.js';
-import { UserRegistrationService } from '../users/user-registration.service.js';
 import { AUTH_CONFIG } from './auth.constants.js';
+import { AuthController } from './auth.controller.js';
+import { AuthService } from './auth.service.js';
 import { WELCOME_MAIL_OUTBOX_RELAY } from '../jobs/welcome-mail-outbox-relay.constants.js';
-import { RegisterUserController } from './register-user.controller.js';
 
 @Module({
-  controllers: [RegisterUserController],
+  controllers: [AuthController],
   imports: [
     DatabaseModule.register(),
     JwtModule.register(toJwtModuleOptions(getAuthConfig())),
@@ -38,9 +38,9 @@ import { RegisterUserController } from './register-user.controller.js';
     },
     {
       inject: [DataSource],
-      provide: UserRegistrationService,
+      provide: AuthService,
       useFactory: (dataSource: DataSource) =>
-        new UserRegistrationService(dataSource),
+        new AuthService(dataSource),
     },
     {
       provide: WELCOME_MAIL_QUEUE,
@@ -63,4 +63,4 @@ import { RegisterUserController } from './register-user.controller.js';
     WelcomeMailOutboxRelayRunner,
   ],
 })
-export class RegisterUserModule {}
+export class AuthModule {}
