@@ -111,7 +111,13 @@ export function CurrentUserSwagger(): MethodDecorator {
       name: 'Authorization',
       required: true,
     }),
-    ApiOkResponse({ description: 'Authenticated user.', schema: AUTHENTICATED_USER_SCHEMA }),
-    ApiUnauthorizedResponse({ description: 'Token is missing or invalid.', schema: VALIDATION_ERROR_SCHEMA }),
+    ApiOkResponse({
+      description: 'Authenticated user.',
+      schema: AUTHENTICATED_USER_SCHEMA,
+    }),
+    ApiUnauthorizedResponse({
+      description: 'Token is missing or invalid.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
   );
 }
