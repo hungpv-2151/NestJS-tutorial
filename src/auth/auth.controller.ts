@@ -41,6 +41,7 @@ import {
 import {
   AuthConflictError,
   AuthInvalidCredentialsError,
+  AuthLogoutUnavailableError,
   AuthService,
 } from './auth.service.js';
 import {
@@ -50,6 +51,7 @@ import {
 import {
   CurrentUserSwagger,
   LoginUserSwagger,
+  LogoutUserSwagger,
   RegisterUserSwagger,
 } from './auth.swagger.js';
 import { createTokenClaims } from './token-claims.js';
@@ -150,6 +152,27 @@ export class AuthController {
       throw new UnauthorizedException({ errors: { token: ['is invalid'] } });
     }
     return serializeUser(user, request.auth.token);
+  }
+
+  @Post('user/logout')
+  @LogoutUserSwagger()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(AuthTokenGuard)
+  @Header('Cache-Control', 'no-store')
+  async logout(@Req() request: AuthenticatedRequest): Promise<void> {
+    try {
+      await this.authService.logout(request.auth);
+    } catch (error) {
+      this.logger.error(
+        JSON.stringify(createRequestFailureLog(error, request)),
+      );
+      if (error instanceof AuthLogoutUnavailableError) {
+        throw new InternalServerErrorException({
+          errors: { body: ['request failed'] },
+        });
+      }
+      throw error;
+    }
   }
 
   private async createToken(
