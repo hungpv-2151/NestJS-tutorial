@@ -1,0 +1,275 @@
+import { verify } from 'argon2';
+import { describe, expect, it } from 'vitest';
+
+import { User } from '../users/user.entity.js';
+import { WelcomeMailOutbox } from '../jobs/welcome-mail-outbox.entity.js';
+import {
+  AuthConflictError,
+  AuthPersistenceError,
+  AuthService,
+  type UserRepository,
+  type WelcomeMailOutboxRepository,
+} from './auth.service.js';
+
+class TransactionRolledBackError extends Error {
+  constructor(cause: Error) {
+    super('transaction rolled back', { cause });
+  }
+}
+
+class DuplicateDatabaseError extends Error {
+  readonly code = '23505';
+
+  constructor(
+    readonly detail: string,
+    readonly constraint?: string,
+  ) {
+    super('duplicate key value violates unique constraint');
+  }
+}
+
+class FakeRepository implements UserRepository {
+  readonly savedUsers: User[] = [];
+  saveError?: Error;
+
+  async findOneBy(
+    criteria: Partial<Pick<User, 'email' | 'username'>>,
+  ): Promise<User | null> {
+    return (
+      this.savedUsers.find(
+        (user) =>
+          (criteria.username !== undefined &&
+            user.username === criteria.username) ||
+          (criteria.email !== undefined && user.email === criteria.email),
+      ) ?? null
+    );
+  }
+
+  create(user: Pick<User, 'email' | 'passwordHash' | 'username'>): User {
+    return { ...user, id: 'user-id' } as User;
+  }
+
+  async save(user: User): Promise<User> {
+    if (this.saveError) {
+      throw this.saveError;
+    }
+    this.savedUsers.push(user);
+    return user;
+  }
+}
+
+class FakeOutboxRepository implements WelcomeMailOutboxRepository {
+  readonly savedOutbox: WelcomeMailOutbox[] = [];
+  saveError?: Error;
+
+  create(
+    outbox: Pick<WelcomeMailOutbox, 'email' | 'userId' | 'username'>,
+  ): WelcomeMailOutbox {
+    return { ...outbox } as WelcomeMailOutbox;
+  }
+
+  async save(outbox: WelcomeMailOutbox): Promise<WelcomeMailOutbox> {
+    if (this.saveError) {
+      throw this.saveError;
+    }
+    this.savedOutbox.push(outbox);
+    return outbox;
+  }
+}
+
+function createService(
+  repository = new FakeRepository(),
+  outboxRepository = new FakeOutboxRepository(),
+) {
+  let isRolledBack = false;
+  const service = new AuthService({
+    transaction: async (work) => {
+      const userSnapshot = [...repository.savedUsers];
+      const outboxSnapshot = [...outboxRepository.savedOutbox];
+      try {
+        return await work({
+          getRepository: (entity) =>
+            entity === User ? repository : outboxRepository,
+        } as never);
+      } catch (error) {
+        repository.savedUsers.splice(
+          0,
+          repository.savedUsers.length,
+          ...userSnapshot,
+        );
+        outboxRepository.savedOutbox.splice(
+          0,
+          outboxRepository.savedOutbox.length,
+          ...outboxSnapshot,
+        );
+        isRolledBack = true;
+        if (error instanceof AuthConflictError) {
+          throw new AuthConflictError(error.field);
+        }
+        if (error instanceof DuplicateDatabaseError) {
+          throw new DuplicateDatabaseError(error.detail, error.constraint);
+        }
+        throw new TransactionRolledBackError(error as Error);
+      }
+    },
+  });
+  return { outboxRepository, repository, rolledBack: () => isRolledBack, service };
+}
+
+describe('AuthService', () => {
+  it('hashes password and persists a user without returning the hash', async () => {
+    const { outboxRepository, repository, service } = createService();
+
+    const user = await service.register({
+      email: 'jane@example.com',
+      password: 'safe-password',
+      username: 'jane',
+    });
+
+    expect(user).toEqual({ email: 'jane@example.com', username: 'jane' });
+    expect(
+      await verify(repository.savedUsers[0].passwordHash, 'safe-password'),
+    ).toBe(true);
+    expect(outboxRepository.savedOutbox).toEqual([
+      { email: 'jane@example.com', userId: 'user-id', username: 'jane' },
+    ]);
+  });
+
+  it.each([
+    [
+      'username',
+      {
+        email: 'other@example.com',
+        password: 'safe-password',
+        username: 'jane',
+      },
+    ],
+    [
+      'email',
+      {
+        email: 'jane@example.com',
+        password: 'safe-password',
+        username: 'other',
+      },
+    ],
+  ])('rejects duplicate %s without saving changes', async (field, request) => {
+    const { repository, rolledBack, service } = createService();
+    repository.savedUsers.push({
+      email: 'jane@example.com',
+      username: 'jane',
+    } as User);
+
+    await expect(service.register(request)).rejects.toMatchObject({ field });
+    await expect(service.register(request)).rejects.toBeInstanceOf(
+      AuthConflictError,
+    );
+    expect(repository.savedUsers).toHaveLength(1);
+    expect(rolledBack()).toBe(true);
+  });
+
+  it('rolls back when persistence fails', async () => {
+    const repository = new FakeRepository();
+    repository.saveError = new Error('database unavailable');
+    const { rolledBack, service } = createService(repository);
+
+    await expect(
+      service.register({
+        email: 'jane@example.com',
+        password: 'safe-password',
+        username: 'jane',
+      }),
+    ).rejects.toBeInstanceOf(AuthPersistenceError);
+
+    expect(repository.savedUsers).toEqual([]);
+    expect(rolledBack()).toBe(true);
+  });
+
+  it('rolls back the user when outbox persistence fails', async () => {
+    const outboxRepository = new FakeOutboxRepository();
+    outboxRepository.saveError = new Error('outbox unavailable');
+    const { repository, rolledBack, service } = createService(
+      new FakeRepository(),
+      outboxRepository,
+    );
+
+    await expect(
+      service.register({
+        email: 'jane@example.com',
+        password: 'safe-password',
+        username: 'jane',
+      }),
+    ).rejects.toBeInstanceOf(AuthPersistenceError);
+
+    expect(repository.savedUsers).toEqual([]);
+    expect(outboxRepository.savedOutbox).toEqual([]);
+    expect(rolledBack()).toBe(true);
+  });
+
+  it.each(['username', 'email'] as const)(
+    'maps a database duplicate for %s without leaking database details',
+    async (field) => {
+      const repository = new FakeRepository();
+      repository.saveError = new DuplicateDatabaseError(
+        `Key (${field})=(jane) already exists.`,
+      );
+      const { rolledBack, service } = createService(repository);
+
+      const error = await service
+        .register({
+          email: 'jane@example.com',
+          password: 'safe-password',
+          username: 'jane',
+        })
+        .catch((caught: unknown) => caught);
+
+      expect(error).toMatchObject({ field });
+      expect(error).toBeInstanceOf(AuthConflictError);
+      expect(error).not.toHaveProperty('detail');
+      expect(rolledBack()).toBe(true);
+    },
+  );
+
+  it('maps an email duplicate when its value contains username', async () => {
+    const repository = new FakeRepository();
+    repository.saveError = new DuplicateDatabaseError(
+      'Key (email)=(username@example.com) already exists.',
+    );
+    const { service } = createService(repository);
+
+    await expect(
+      service.register({
+        email: 'username@example.com',
+        password: 'safe-password',
+        username: 'jane',
+      }),
+    ).rejects.toMatchObject({ field: 'email' });
+  });
+
+  it('maps a database duplicate by constraint name', async () => {
+    const repository = new FakeRepository();
+    repository.saveError = new DuplicateDatabaseError('', 'users_username_key');
+    const { service } = createService(repository);
+
+    await expect(
+      service.register({
+        email: 'jane@example.com',
+        password: 'safe-password',
+        username: 'jane',
+      }),
+    ).rejects.toMatchObject({ field: 'username' });
+  });
+
+  it('uses a generic conflict when a database constraint is unknown', async () => {
+    const repository = new FakeRepository();
+    repository.saveError = new DuplicateDatabaseError('', 'users_unexpected_key');
+    const { service } = createService(repository);
+
+    await expect(
+      service.register({
+        email: 'jane@example.com',
+        password: 'safe-password',
+        username: 'jane',
+      }),
+    ).rejects.toMatchObject({ field: 'body' });
+  });
+});

@@ -1,0 +1,3 @@
+export const POLL_INTERVAL_MS = 5_000;
+export const RELAY_BATCH_SIZE = 20;
+export const WELCOME_MAIL_OUTBOX_RELAY = Symbol('WELCOME_MAIL_OUTBOX_RELAY');
