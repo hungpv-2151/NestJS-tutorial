@@ -3,9 +3,11 @@ import {
   ApiBody,
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiHeader,
   ApiInternalServerErrorResponse,
   ApiOperation,
   ApiOkResponse,
+  ApiSecurity,
   ApiTags,
   ApiTooManyRequestsResponse,
   ApiUnauthorizedResponse,
@@ -48,6 +50,8 @@ const VALIDATION_ERROR_SCHEMA = {
   example: { errors: { email: ['is invalid'] } },
   type: 'object',
 };
+
+export const TOKEN_AUTH_SECURITY_SCHEME = 'tokenAuth';
 
 export function RegisterUserSwagger(): MethodDecorator {
   return applyDecorators(
@@ -96,6 +100,28 @@ export function LoginUserSwagger(): MethodDecorator {
     }),
     ApiInternalServerErrorResponse({
       description: 'Login could not be completed.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
+  );
+}
+
+export function CurrentUserSwagger(): MethodDecorator {
+  return applyDecorators(
+    ApiTags('Authentication'),
+    ApiOperation({ summary: 'Get the authenticated user' }),
+    ApiHeader({
+      description: 'JWT presented as Token <jwt>.',
+      example: 'Token <jwt>',
+      name: 'Authorization',
+      required: true,
+    }),
+    ApiSecurity(TOKEN_AUTH_SECURITY_SCHEME),
+    ApiOkResponse({
+      description: 'Authenticated user.',
+      schema: AUTHENTICATED_USER_SCHEMA,
+    }),
+    ApiUnauthorizedResponse({
+      description: 'Token is missing or invalid.',
       schema: VALIDATION_ERROR_SCHEMA,
     }),
   );

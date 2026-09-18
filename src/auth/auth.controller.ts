@@ -3,6 +3,7 @@ import {
   ConflictException,
   Controller,
   Header,
+  Get,
   HttpCode,
   HttpException,
   HttpStatus,
@@ -12,6 +13,7 @@ import {
   Post,
   Req,
   UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import type { Request } from 'express';
@@ -41,12 +43,21 @@ import {
   AuthInvalidCredentialsError,
   AuthService,
 } from './auth.service.js';
-import { LoginUserSwagger, RegisterUserSwagger } from './auth.swagger.js';
+import {
+  AuthTokenGuard,
+  type AuthenticatedRequest,
+} from './auth-token.guard.js';
+import {
+  CurrentUserSwagger,
+  LoginUserSwagger,
+  RegisterUserSwagger,
+} from './auth.swagger.js';
 import { createTokenClaims } from './token-claims.js';
+import { UserService } from '../users/user.service.js';
 
 export { AUTH_CONFIG } from './auth.constants.js';
 
-@Controller('users')
+@Controller()
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
 
@@ -56,9 +67,10 @@ export class AuthController {
     @Inject(AUTH_LOGIN_RATE_LIMITER)
     private readonly loginRateLimiter: AuthLoginRateLimiter,
     @Inject(AUTH_CONFIG) private readonly authConfig: AuthConfig,
+    private readonly userService: UserService,
   ) {}
 
-  @Post()
+  @Post('users')
   @RegisterUserSwagger()
   @HttpCode(HttpStatus.CREATED)
   @Header('Cache-Control', 'no-store')
@@ -87,7 +99,7 @@ export class AuthController {
     return serializeUser({ ...user, bio: null, image: null }, token);
   }
 
-  @Post('login')
+  @Post('users/login')
   @LoginUserSwagger()
   @HttpCode(HttpStatus.OK)
   @Header('Cache-Control', 'no-store')
@@ -124,6 +136,20 @@ export class AuthController {
         errors: { body: ['request failed'] },
       });
     }
+  }
+
+  @Get('user')
+  @CurrentUserSwagger()
+  @UseGuards(AuthTokenGuard)
+  @Header('Cache-Control', 'no-store')
+  async currentUser(
+    @Req() request: AuthenticatedRequest,
+  ): Promise<SerializedUser> {
+    const user = await this.userService.findByUsername(request.auth.sub);
+    if (!user) {
+      throw new UnauthorizedException({ errors: { token: ['is invalid'] } });
+    }
+    return serializeUser(user, request.auth.token);
   }
 
   private async createToken(

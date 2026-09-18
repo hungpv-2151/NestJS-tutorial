@@ -7,12 +7,14 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AuthController, AUTH_CONFIG } from '../src/auth/auth.controller.js';
 import { AUTH_LOGIN_RATE_LIMITER } from '../src/auth/auth.constants.js';
 import { AuthLoginRateLimitError } from '../src/auth/auth-login-rate-limiter.js';
+import { AuthTokenGuard } from '../src/auth/auth-token.guard.js';
 import { configureGlobalRequestHandling } from '../src/create-app.js';
 import {
   AuthInvalidCredentialsError,
   AuthService,
 } from '../src/auth/auth.service.js';
 import { JwtService } from '@nestjs/jwt';
+import { UserService } from '../src/users/user.service.js';
 
 describe('POST /api/users (e2e)', () => {
   let app: INestApplication<App>;
@@ -166,9 +168,11 @@ async function createApp(
   @Module({
     controllers: [AuthController],
     providers: [
+      AuthTokenGuard,
       { provide: AUTH_LOGIN_RATE_LIMITER, useValue: loginRateLimiter },
       { provide: AuthService, useValue: { login, register } },
       { provide: JwtService, useValue: { signAsync } },
+      { provide: UserService, useValue: { findByUsername: vi.fn() } },
       { provide: AUTH_CONFIG, useValue: { audience: 'client', issuer: 'api', secret: 'secret' } },
     ],
   })
