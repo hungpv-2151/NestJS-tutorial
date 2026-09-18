@@ -63,6 +63,10 @@ describe('AppController (e2e)', () => {
       },
       summary: 'Sign in with email and password',
     });
+    expect(response.body.paths['/api/user'].get).toMatchObject({
+      responses: { '200': expect.any(Object), '401': expect.any(Object) },
+      summary: 'Get the authenticated user',
+    });
   });
 
   afterEach(async () => {

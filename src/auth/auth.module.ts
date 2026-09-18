@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 
@@ -19,14 +19,17 @@ import {
   WelcomeMailOutboxRelayRunner,
 } from '../jobs/welcome-mail-outbox-relay.js';
 import { User } from '../users/user.entity.js';
+import { UserService } from '../users/user.service.js';
 import {
   AUTH_CONFIG,
   AUTH_LOGIN_RATE_LIMITER,
   AUTH_LOGIN_REPOSITORY,
+  AUTH_TOKEN_VERIFIER,
 } from './auth.constants.js';
 import { AuthController } from './auth.controller.js';
 import { AuthLoginRateLimiter } from './auth-login-rate-limiter.js';
-import { AuthService } from './auth.service.js';
+import { AuthTokenGuard } from './auth-token.guard.js';
+import { AuthService, type AuthTokenVerifier } from './auth.service.js';
 import { WELCOME_MAIL_OUTBOX_RELAY } from '../jobs/welcome-mail-outbox-relay.constants.js';
 
 @Module({
@@ -55,15 +58,32 @@ import { WELCOME_MAIL_OUTBOX_RELAY } from '../jobs/welcome-mail-outbox-relay.con
       }),
     },
     {
-      inject: [DataSource, AUTH_LOGIN_REPOSITORY],
+      inject: [DataSource, AUTH_LOGIN_REPOSITORY, AUTH_TOKEN_VERIFIER],
       provide: AuthService,
-      useFactory: (dataSource: DataSource, loginRepository) =>
-        new AuthService(dataSource, loginRepository),
+      useFactory: (
+        dataSource: DataSource,
+        loginRepository,
+        tokenVerifier: AuthTokenVerifier,
+      ) => new AuthService(dataSource, loginRepository, undefined, tokenVerifier),
+    },
+    {
+      inject: [JwtService],
+      provide: AUTH_TOKEN_VERIFIER,
+      useFactory: (jwtService: JwtService): AuthTokenVerifier => ({
+        verify: (token) => jwtService.verifyAsync(token),
+      }),
     },
     {
       provide: AUTH_LOGIN_RATE_LIMITER,
       useFactory: () => new AuthLoginRateLimiter(),
     },
+    {
+      inject: [DataSource],
+      provide: UserService,
+      useFactory: (dataSource: DataSource) =>
+        new UserService(dataSource.getRepository(User)),
+    },
+    AuthTokenGuard,
     {
       provide: WELCOME_MAIL_QUEUE,
       useFactory: () => new BullMqWelcomeMailQueue(),

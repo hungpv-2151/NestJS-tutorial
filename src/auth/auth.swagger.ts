@@ -3,6 +3,7 @@ import {
   ApiBody,
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiHeader,
   ApiInternalServerErrorResponse,
   ApiOperation,
   ApiOkResponse,
@@ -98,5 +99,19 @@ export function LoginUserSwagger(): MethodDecorator {
       description: 'Login could not be completed.',
       schema: VALIDATION_ERROR_SCHEMA,
     }),
+  );
+}
+
+export function CurrentUserSwagger(): MethodDecorator {
+  return applyDecorators(
+    ApiTags('Authentication'),
+    ApiOperation({ summary: 'Get the authenticated user' }),
+    ApiHeader({
+      description: 'JWT presented as Token <jwt>.',
+      name: 'Authorization',
+      required: true,
+    }),
+    ApiOkResponse({ description: 'Authenticated user.', schema: AUTHENTICATED_USER_SCHEMA }),
+    ApiUnauthorizedResponse({ description: 'Token is missing or invalid.', schema: VALIDATION_ERROR_SCHEMA }),
   );
 }

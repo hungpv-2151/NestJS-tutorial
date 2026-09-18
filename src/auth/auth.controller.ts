@@ -3,6 +3,7 @@ import {
   ConflictException,
   Controller,
   Header,
+  Get,
   HttpCode,
   HttpException,
   HttpStatus,
@@ -12,6 +13,7 @@ import {
   Post,
   Req,
   UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import type { Request } from 'express';
@@ -41,12 +43,21 @@ import {
   AuthInvalidCredentialsError,
   AuthService,
 } from './auth.service.js';
-import { LoginUserSwagger, RegisterUserSwagger } from './auth.swagger.js';
+import {
+  AuthTokenGuard,
+  type AuthenticatedRequest,
+} from './auth-token.guard.js';
+import {
+  CurrentUserSwagger,
+  LoginUserSwagger,
+  RegisterUserSwagger,
+} from './auth.swagger.js';
 import { createTokenClaims } from './token-claims.js';
+import { UserService } from '../users/user.service.js';
 
 export { AUTH_CONFIG } from './auth.constants.js';
 
-@Controller('users')
+@Controller()
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
 
@@ -56,9 +67,10 @@ export class AuthController {
     @Inject(AUTH_LOGIN_RATE_LIMITER)
     private readonly loginRateLimiter: AuthLoginRateLimiter,
     @Inject(AUTH_CONFIG) private readonly authConfig: AuthConfig,
+    private readonly userService: UserService,
   ) {}
 
-  @Post()
+  @Post('users')
   @RegisterUserSwagger()
   @HttpCode(HttpStatus.CREATED)
   @Header('Cache-Control', 'no-store')
@@ -71,9 +83,7 @@ export class AuthController {
     try {
       user = await this.authService.register(request.user);
     } catch (error) {
-      this.logger.error(
-        JSON.stringify(createRequestFailureLog(error, httpRequest)),
-      );
+      this.logger.error(JSON.stringify(createRequestFailureLog(error, httpRequest)));
       if (error instanceof AuthConflictError) {
         throw new ConflictException({
           errors: { [error.field]: ['has already been taken'] },
@@ -87,7 +97,7 @@ export class AuthController {
     return serializeUser({ ...user, bio: null, image: null }, token);
   }
 
-  @Post('login')
+  @Post('users/login')
   @LoginUserSwagger()
   @HttpCode(HttpStatus.OK)
   @Header('Cache-Control', 'no-store')
@@ -101,18 +111,11 @@ export class AuthController {
         request.user.email,
         request.user.password,
       );
-      return serializeUser(
-        user,
-        await this.createToken(user.username, httpRequest),
-      );
+      return serializeUser(user, await this.createToken(user.username, httpRequest));
     } catch (error) {
-      this.logger.error(
-        JSON.stringify(createRequestFailureLog(error, httpRequest)),
-      );
+      this.logger.error(JSON.stringify(createRequestFailureLog(error, httpRequest)));
       if (error instanceof AuthInvalidCredentialsError) {
-        throw new UnauthorizedException({
-          errors: { credentials: ['invalid'] },
-        });
+        throw new UnauthorizedException({ errors: { credentials: ['invalid'] } });
       }
       if (error instanceof AuthLoginRateLimitError) {
         throw new HttpException(
@@ -126,10 +129,21 @@ export class AuthController {
     }
   }
 
-  private async createToken(
-    username: string,
-    request: Request,
-  ): Promise<string> {
+  @Get('user')
+  @CurrentUserSwagger()
+  @UseGuards(AuthTokenGuard)
+  @Header('Cache-Control', 'no-store')
+  async currentUser(
+    @Req() request: AuthenticatedRequest,
+  ): Promise<SerializedUser> {
+    const user = await this.userService.findByUsername(request.auth.sub);
+    if (!user) {
+      throw new UnauthorizedException({ errors: { token: ['is invalid'] } });
+    }
+    return serializeUser(user, request.auth.token);
+  }
+
+  private async createToken(username: string, request: Request): Promise<string> {
     const issuedAt = Math.floor(Date.now() / 1_000);
     try {
       return await this.jwtService.signAsync(
@@ -142,9 +156,7 @@ export class AuthController {
         ),
       );
     } catch (error) {
-      this.logger.error(
-        JSON.stringify(createRequestFailureLog(error, request)),
-      );
+      this.logger.error(JSON.stringify(createRequestFailureLog(error, request)));
       throw new InternalServerErrorException({
         errors: { body: ['request failed'] },
       });

@@ -2,6 +2,11 @@ import * as argon2 from 'argon2';
 
 import { WelcomeMailOutbox } from '../jobs/welcome-mail-outbox.entity.js';
 import { User } from '../users/user.entity.js';
+import {
+  INVALID_PASSWORD_HASH,
+  matchesPassword,
+} from './auth-password-verifier.js';
+import type { TokenClaims } from './token-claims.js';
 
 const UNIQUE_VIOLATION_CODE = '23505';
 const UNIQUE_CONSTRAINT_FIELDS = {
@@ -25,6 +30,10 @@ export interface AuthLoginRepository {
 
 export interface AuthPasswordVerifier {
   matches(hash: string, password: string): Promise<boolean>;
+}
+
+export interface AuthTokenVerifier {
+  verify(token: string): Promise<TokenClaims>;
 }
 
 export interface UserRepository {
@@ -66,9 +75,7 @@ export class AuthPersistenceError extends Error {
 }
 
 export class AuthInvalidCredentialsError extends Error {}
-
-const INVALID_PASSWORD_HASH =
-  '$argon2id$v=19$m=65536,p=4,t=3$5KRxbfPDDZVDeWkvkmtU/A$S35kHKRLUx3/W9bsRHOpGrKsMfGn3d/ttbh08m4GWGg';
+export class AuthInvalidTokenError extends Error {}
 
 export class AuthService {
   constructor(
@@ -77,7 +84,19 @@ export class AuthService {
     private readonly passwordVerifier: AuthPasswordVerifier = {
       matches: matchesPassword,
     },
+    private readonly tokenVerifier?: AuthTokenVerifier,
   ) {}
+
+  async authenticate(token: string): Promise<TokenClaims> {
+    if (!this.tokenVerifier) {
+      throw new AuthInvalidTokenError();
+    }
+    try {
+      return await this.tokenVerifier.verify(token);
+    } catch {
+      throw new AuthInvalidTokenError();
+    }
+  }
 
   async login(email: string, password: string): Promise<User> {
     const user = await this.loginRepository.findByEmail(email);
@@ -176,12 +195,4 @@ function isUniqueViolation(error: unknown): error is Record<string, unknown> {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
-}
-
-async function matchesPassword(hash: string, password: string): Promise<boolean> {
-  try {
-    return await argon2.verify(hash, password);
-  } catch {
-    return false;
-  }
 }

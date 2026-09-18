@@ -6,6 +6,7 @@ import { WelcomeMailOutbox } from '../jobs/welcome-mail-outbox.entity.js';
 import {
   AuthConflictError,
   AuthInvalidCredentialsError,
+  AuthInvalidTokenError,
   AuthPersistenceError,
   AuthService,
   type UserRepository,
@@ -121,6 +122,34 @@ function createService(
 }
 
 describe('AuthService', () => {
+  it('returns verified token claims and hides verification failures', async () => {
+    const claims = {
+      aud: 'client',
+      exp: 1_900,
+      iat: 1_000,
+      iss: 'api',
+      jti: 'token-id',
+      sub: 'jane',
+    };
+    const authenticated = new AuthService(
+      { transaction: async (work) => work({} as never) },
+      { findByEmail: async () => null },
+      undefined,
+      { verify: async () => claims },
+    );
+    const rejected = new AuthService(
+      { transaction: async (work) => work({} as never) },
+      { findByEmail: async () => null },
+      undefined,
+      { verify: async () => Promise.reject(new Error('invalid signature')) },
+    );
+
+    await expect(authenticated.authenticate('signed-token')).resolves.toEqual(claims);
+    await expect(rejected.authenticate('invalid-token')).rejects.toBeInstanceOf(
+      AuthInvalidTokenError,
+    );
+  });
+
   it('logs in when the password matches', async () => {
     const user = await userWithPassword('safe-password');
     const service = new AuthService(
