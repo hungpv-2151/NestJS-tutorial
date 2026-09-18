@@ -13,16 +13,19 @@ import { JwtService } from '@nestjs/jwt';
 import { randomUUID } from 'node:crypto';
 
 import { RegisterUserRequestDto } from '../common/dto/user-auth.dto.js';
-import { serializeUser, type SerializedUser } from '../users/user.serializer.js';
+import {
+  serializeUser,
+  type SerializedUser,
+} from '../users/user.serializer.js';
 import {
   UserRegistrationConflictError,
   UserRegistrationService,
 } from '../users/user-registration.service.js';
 import type { AuthConfig } from '../config/auth-config.js';
+import { AUTH_CONFIG, TOKEN_LIFETIME_SECONDS } from './auth.constants.js';
 import { createTokenClaims } from './token-claims.js';
 
-const TOKEN_LIFETIME_SECONDS = 15 * 60;
-export const AUTH_CONFIG = Symbol('AUTH_CONFIG');
+export { AUTH_CONFIG } from './auth.constants.js';
 
 @Controller('users')
 export class RegisterUserController {

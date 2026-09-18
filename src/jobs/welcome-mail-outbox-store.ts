@@ -47,8 +47,8 @@ export class TypeOrmWelcomeMailOutboxStore implements WelcomeMailOutboxStore {
         entry.leaseOwner = leaseOwner;
         entry.leaseExpiresAt = leaseExpiresAt;
         entry.status = 'dispatching';
-        await manager.save(entry);
       }
+      await manager.save(entries);
       return entries.map((entry) => ({
         email: entry.email,
         id: entry.id,

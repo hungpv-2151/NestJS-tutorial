@@ -11,9 +11,13 @@ import {
   type WelcomeMailQueue,
 } from './welcome-mail-queue.js';
 import type { WelcomeMailOutboxStore } from './welcome-mail-outbox-store.js';
+import {
+  POLL_INTERVAL_MS,
+  RELAY_BATCH_SIZE,
+  WELCOME_MAIL_OUTBOX_RELAY,
+} from './welcome-mail-outbox-relay.constants.js';
 
-const POLL_INTERVAL_MS = 5_000;
-const RELAY_BATCH_SIZE = 20;
+export { WELCOME_MAIL_OUTBOX_RELAY } from './welcome-mail-outbox-relay.constants.js';
 
 export class WelcomeMailOutboxRelayError extends Error {
   constructor(readonly outboxId: string) {
@@ -45,8 +49,6 @@ export class WelcomeMailOutboxRelay {
     }
   }
 }
-
-export const WELCOME_MAIL_OUTBOX_RELAY = Symbol('WELCOME_MAIL_OUTBOX_RELAY');
 
 @Injectable()
 export class WelcomeMailOutboxRelayRunner

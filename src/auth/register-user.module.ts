@@ -17,14 +17,12 @@ import {
 import {
   WelcomeMailOutboxRelay,
   WelcomeMailOutboxRelayRunner,
-  WELCOME_MAIL_OUTBOX_RELAY,
 } from '../jobs/welcome-mail-outbox-relay.js';
 import { User } from '../users/user.entity.js';
 import { UserRegistrationService } from '../users/user-registration.service.js';
-import {
-  AUTH_CONFIG,
-  RegisterUserController,
-} from './register-user.controller.js';
+import { AUTH_CONFIG } from './auth.constants.js';
+import { WELCOME_MAIL_OUTBOX_RELAY } from '../jobs/welcome-mail-outbox-relay.constants.js';
+import { RegisterUserController } from './register-user.controller.js';
 
 @Module({
   controllers: [RegisterUserController],
