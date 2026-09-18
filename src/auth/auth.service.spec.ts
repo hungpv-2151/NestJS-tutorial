@@ -19,6 +19,7 @@ import {
   type UserRepository,
   type WelcomeMailOutboxRepository,
 } from './auth.service.js';
+import { TokenDenyListService } from './token-deny-list.service.js';
 
 class TransactionRolledBackError extends Error {
   constructor(cause: Error) {
@@ -178,6 +179,44 @@ describe('AuthService', () => {
     await expect(service.currentUser('jane')).resolves.toBe(user);
     await expect(service.currentUser('deleted')).rejects.toBeInstanceOf(AuthInvalidTokenError);
     expect(findByUsername).toHaveBeenNthCalledWith(1, 'jane');
+  });
+
+  it('rejects a deny-listed token and records logout using its JWT claims', async () => {
+    const deny = vi.fn().mockResolvedValue(undefined);
+    const isDenied = vi.fn().mockResolvedValue(null);
+    const now = 1_000;
+    const claims = {
+      aud: 'client', exp: now + 901, iat: now, iss: 'api', jti: 'token-id', sub: 'jane',
+    };
+    const denyList = new TokenDenyListService({ get: isDenied, set: deny }, () => now * 1_000);
+    const service = new AuthService(
+      { transaction: async (work) => work({} as never) },
+      { findByEmail: async () => null },
+      { consume: async () => undefined },
+      { issue: async () => 'signed-token' },
+      undefined,
+      { verify: async () => claims },
+      undefined,
+      denyList,
+    );
+
+    await expect(service.authenticate('signed-token')).resolves.toEqual(claims);
+    await service.logout(claims);
+    isDenied.mockResolvedValueOnce('1');
+    await expect(service.authenticate('signed-token')).rejects.toBeInstanceOf(AuthInvalidTokenError);
+    expect(deny).toHaveBeenCalledWith('auth:deny-list:token-id', '1', 'EX', 901);
+  });
+
+  it('rejects a verified token with incomplete runtime claims', async () => {
+    const service = new AuthService(
+      { transaction: async (work) => work({} as never) },
+      { findByEmail: async () => null },
+      { consume: async () => undefined },
+      { issue: async () => 'signed-token' },
+      undefined,
+      { verify: async () => ({ sub: 'jane' }) as never },
+    );
+    await expect(service.authenticate('signed-token')).rejects.toBeInstanceOf(AuthInvalidTokenError);
   });
 
   it('rate limits, validates credentials, and issues a token during login', async () => {
