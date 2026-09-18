@@ -25,6 +25,7 @@
 - Registration delivery is split: 2E.1 provides the HTTP contract only. 2E.2 adds durable welcome-mail delivery with a transactional outbox or equivalent retryable record; it must never return a retry-hostile 5xx after the user transaction commits.
 - PR #31 consolidates the complete registration API on top of 2C; it includes `User` metadata remediation and runtime `.env` preload. It supersedes closed PRs #26–#30 without changing PRs #17–#25.
 - 2E.2 is complete within registration-only PR #31: the welcome-mail relay and post-commit path were validated with Redis Cloud `PING`, `pnpm build`, unit, E2E, lint, and frozen-lockfile install evidence. Phase 02 remains in progress because 2F–2I and the remaining phase gates are not complete.
+- 2F is implemented on `phase-02-login`: `POST /api/users/login` uses generic credential failures, fixed-hash Argon2 verification for unknown emails, and an atomic Redis TTL limiter by email/IP. Build, frozen install, unit, E2E, lint and a live Redis limiter test passed; PR comment evidence is pending submission.
 
 ## Requirements
 

@@ -5,8 +5,13 @@ import { App } from 'supertest/types';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { AuthController, AUTH_CONFIG } from '../src/auth/auth.controller.js';
+import { AUTH_LOGIN_RATE_LIMITER } from '../src/auth/auth.constants.js';
+import { AuthLoginRateLimitError } from '../src/auth/auth-login-rate-limiter.js';
 import { configureGlobalRequestHandling } from '../src/create-app.js';
-import { AuthService } from '../src/auth/auth.service.js';
+import {
+  AuthInvalidCredentialsError,
+  AuthService,
+} from '../src/auth/auth.service.js';
 import { JwtService } from '@nestjs/jwt';
 
 describe('POST /api/users (e2e)', () => {
@@ -86,16 +91,83 @@ describe('POST /api/users (e2e)', () => {
 
     expect(register).not.toHaveBeenCalled();
   });
+
+  it('logs in an existing user', async () => {
+    const login = vi.fn().mockResolvedValue({
+      bio: null,
+      email: 'jane@example.com',
+      image: null,
+      username: 'jane',
+    });
+    app = await createApp(vi.fn(), vi.fn().mockResolvedValue('signed-token'), login);
+
+    await request(app.getHttpServer())
+      .post('/api/users/login')
+      .send({ user: { email: 'jane@example.com', password: 'safe-password' } })
+      .expect(200)
+      .expect({
+        user: {
+          bio: null,
+          email: 'jane@example.com',
+          image: null,
+          token: 'signed-token',
+          username: 'jane',
+        },
+      });
+
+    expect(login).toHaveBeenCalledWith('jane@example.com', 'safe-password');
+  });
+
+  it('rejects invalid login credentials', async () => {
+    const login = vi.fn().mockRejectedValue(new AuthInvalidCredentialsError());
+    app = await createApp(vi.fn(), vi.fn(), login);
+
+    await request(app.getHttpServer())
+      .post('/api/users/login')
+      .send({ user: { email: 'jane@example.com', password: 'wrong-password' } })
+      .expect(401)
+      .expect({ errors: { credentials: ['invalid'] } });
+  });
+
+  it('limits login attempts by email and IP address', async () => {
+    const login = vi.fn().mockRejectedValue(new AuthInvalidCredentialsError());
+    let attempts = 0;
+    app = await createApp(vi.fn(), vi.fn(), login, {
+      consume: () => {
+        attempts += 1;
+        if (attempts > 5) {
+          throw new AuthLoginRateLimitError();
+        }
+      },
+    });
+    const server = request(app.getHttpServer());
+
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      await server
+        .post('/api/users/login')
+        .send({ user: { email: 'jane@example.com', password: 'wrong-password' } })
+        .expect(401);
+    }
+
+    await server
+      .post('/api/users/login')
+      .send({ user: { email: 'jane@example.com', password: 'wrong-password' } })
+      .expect(429)
+      .expect({ errors: { body: ['too many requests'] } });
+  });
 });
 
 async function createApp(
   register: ReturnType<typeof vi.fn>,
   signAsync = vi.fn().mockResolvedValue('signed-token'),
+  login = vi.fn(),
+  loginRateLimiter = { consume: vi.fn() },
 ): Promise<INestApplication<App>> {
   @Module({
     controllers: [AuthController],
     providers: [
-      { provide: AuthService, useValue: { register } },
+      { provide: AUTH_LOGIN_RATE_LIMITER, useValue: loginRateLimiter },
+      { provide: AuthService, useValue: { login, register } },
       { provide: JwtService, useValue: { signAsync } },
       { provide: AUTH_CONFIG, useValue: { audience: 'client', issuer: 'api', secret: 'secret' } },
     ],
