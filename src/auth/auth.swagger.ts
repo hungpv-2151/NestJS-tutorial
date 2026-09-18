@@ -7,6 +7,7 @@ import {
   ApiInternalServerErrorResponse,
   ApiOperation,
   ApiOkResponse,
+  ApiSecurity,
   ApiTags,
   ApiTooManyRequestsResponse,
   ApiUnauthorizedResponse,
@@ -49,6 +50,8 @@ const VALIDATION_ERROR_SCHEMA = {
   example: { errors: { email: ['is invalid'] } },
   type: 'object',
 };
+
+export const TOKEN_AUTH_SECURITY_SCHEME = 'tokenAuth';
 
 export function RegisterUserSwagger(): MethodDecorator {
   return applyDecorators(
@@ -108,9 +111,11 @@ export function CurrentUserSwagger(): MethodDecorator {
     ApiOperation({ summary: 'Get the authenticated user' }),
     ApiHeader({
       description: 'JWT presented as Token <jwt>.',
+      example: 'Token <jwt>',
       name: 'Authorization',
       required: true,
     }),
+    ApiSecurity(TOKEN_AUTH_SECURITY_SCHEME),
     ApiOkResponse({
       description: 'Authenticated user.',
       schema: AUTHENTICATED_USER_SCHEMA,

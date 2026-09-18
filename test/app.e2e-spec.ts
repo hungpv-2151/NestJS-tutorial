@@ -65,7 +65,13 @@ describe('AppController (e2e)', () => {
     });
     expect(response.body.paths['/api/user'].get).toMatchObject({
       responses: { '200': expect.any(Object), '401': expect.any(Object) },
+      security: [{ tokenAuth: [] }],
       summary: 'Get the authenticated user',
+    });
+    expect(response.body.components.securitySchemes.tokenAuth).toMatchObject({
+      in: 'header',
+      name: 'Authorization',
+      type: 'apiKey',
     });
   });
 
