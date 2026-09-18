@@ -52,9 +52,16 @@ the process environment used to start the service:
 | `SWAGGER_ENABLED` | unset | Set to the exact value `true` to enable Swagger in production. |
 | `DATABASE_URL` | required | PostgreSQL connection URL used by the application at startup. |
 | `TEST_DATABASE_URL` | required for tests | PostgreSQL connection URL used only by the test runners. |
+| `REDIS_URL` | required | `redis://` or `rediss://` URL with host, username, and password for the welcome-mail queue. |
 
 `pnpm test` and `pnpm test:e2e` require `TEST_DATABASE_URL` and use it as
 their database connection.
+
+Successful registration writes a welcome-mail outbox record in the same
+database transaction as the user. A background relay polls every five seconds,
+leases up to 20 records, and enqueues idempotently to BullMQ's `welcome-mail`
+queue. If Redis is unavailable, the record remains retryable and registration
+still succeeds. Use `rediss://` for any Redis deployment that supports TLS.
 
 ## Database migrations
 
