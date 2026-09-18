@@ -6,14 +6,27 @@ import {
   INVALID_PASSWORD_HASH,
   matchesPassword,
 } from './auth-password-verifier.js';
-import type { TokenClaims } from './token-claims.js';
+import {
+  AuthConflictError,
+  AuthPersistenceError,
+  getDuplicateField,
+  isUniqueViolation,
+  type AuthTransactionManager,
+  type UserRepository,
+  type WelcomeMailOutboxRepository,
+} from './auth-registration-support.js';
+import { isTokenClaims, type TokenClaims } from './token-claims.js';
+import {
+  TokenDenyListService,
+  TokenDenyListUnavailableError,
+} from './token-deny-list.service.js';
 
-const UNIQUE_VIOLATION_CODE = '23505';
-const UNIQUE_CONSTRAINT_FIELDS = {
-  users_email_key: 'email',
-  users_username_key: 'username',
-} as const;
-type AuthConflictField = 'body' | 'email' | 'username';
+export {
+  AuthConflictError,
+  AuthPersistenceError,
+  type UserRepository,
+  type WelcomeMailOutboxRepository,
+} from './auth-registration-support.js';
 
 export type RegisterRequest = Pick<User, 'email' | 'username'> & {
   password: string;
@@ -36,46 +49,15 @@ export interface AuthTokenVerifier {
   verify(token: string): Promise<TokenClaims>;
 }
 
-export interface UserRepository {
-  create(user: Pick<User, 'email' | 'passwordHash' | 'username'>): User;
-  findOneBy(
-    criteria: Partial<Pick<User, 'email' | 'username'>>,
-  ): Promise<User | null>;
-  save(user: User): Promise<User>;
-}
-
-export interface WelcomeMailOutboxRepository {
-  create(
-    outbox: Pick<WelcomeMailOutbox, 'email' | 'userId' | 'username'>,
-  ): WelcomeMailOutbox;
-  save(outbox: WelcomeMailOutbox): Promise<WelcomeMailOutbox>;
-}
-
-export interface AuthTransactionManager {
-  getRepository(entity: typeof User): UserRepository;
-  getRepository(entity: typeof WelcomeMailOutbox): WelcomeMailOutboxRepository;
-}
-
 export interface AuthTransaction {
   transaction<T>(
     work: (manager: AuthTransactionManager) => Promise<T>,
   ): Promise<T>;
 }
 
-export class AuthConflictError extends Error {
-  constructor(readonly field: AuthConflictField) {
-    super(`${field} has already been taken`);
-  }
-}
-
-export class AuthPersistenceError extends Error {
-  constructor(cause: unknown) {
-    super('user registration could not be saved', { cause });
-  }
-}
-
 export class AuthInvalidCredentialsError extends Error {}
 export class AuthInvalidTokenError extends Error {}
+export class AuthLogoutUnavailableError extends Error {}
 
 export class AuthService {
   constructor(
@@ -85,6 +67,7 @@ export class AuthService {
       matches: matchesPassword,
     },
     private readonly tokenVerifier?: AuthTokenVerifier,
+    private readonly tokenDenyList?: TokenDenyListService,
   ) {}
 
   async authenticate(token: string): Promise<TokenClaims> {
@@ -92,10 +75,27 @@ export class AuthService {
       throw new AuthInvalidTokenError();
     }
     try {
-      return await this.tokenVerifier.verify(token);
-    } catch {
+      const claims = await this.tokenVerifier.verify(token);
+      if (!isTokenClaims(claims)) {
+        throw new AuthInvalidTokenError();
+      }
+      if (this.tokenDenyList && (await this.tokenDenyList.isDenied(claims.jti))) {
+        throw new AuthInvalidTokenError();
+      }
+      return claims;
+    } catch (error) {
+      if (error instanceof TokenDenyListUnavailableError) {
+        throw error;
+      }
       throw new AuthInvalidTokenError();
     }
+  }
+
+  async logout(claims: Pick<TokenClaims, 'exp' | 'jti'>): Promise<void> {
+    if (!this.tokenDenyList) {
+      throw new AuthLogoutUnavailableError();
+    }
+    await this.tokenDenyList.deny(claims);
   }
 
   async login(email: string, password: string): Promise<User> {
@@ -158,41 +158,4 @@ export class AuthService {
       throw new AuthConflictError(field);
     }
   }
-}
-
-function getDuplicateField(error: Record<string, unknown>):
-  | 'email'
-  | 'username'
-  | undefined {
-  const constraint = error.constraint;
-  if (
-    typeof constraint === 'string' &&
-    constraint in UNIQUE_CONSTRAINT_FIELDS
-  ) {
-    return UNIQUE_CONSTRAINT_FIELDS[
-      constraint as keyof typeof UNIQUE_CONSTRAINT_FIELDS
-    ];
-  }
-
-  if (typeof error.detail !== 'string') {
-    return undefined;
-  }
-  const match = /^Key \((email|username)\)=\(.+\) already exists\.$/.exec(
-    error.detail,
-  );
-  return match?.[1] as 'email' | 'username' | undefined;
-}
-
-function isUniqueViolation(error: unknown): error is Record<string, unknown> {
-  if (
-    !isRecord(error) ||
-    error.code !== UNIQUE_VIOLATION_CODE
-  ) {
-    return false;
-  }
-  return true;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
 }

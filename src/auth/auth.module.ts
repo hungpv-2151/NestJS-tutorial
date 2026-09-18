@@ -24,12 +24,18 @@ import {
   AUTH_CONFIG,
   AUTH_LOGIN_RATE_LIMITER,
   AUTH_LOGIN_REPOSITORY,
+  AUTH_TOKEN_DENY_LIST_CLIENT,
   AUTH_TOKEN_VERIFIER,
 } from './auth.constants.js';
 import { AuthController } from './auth.controller.js';
 import { AuthLoginRateLimiter } from './auth-login-rate-limiter.js';
 import { AuthTokenGuard } from './auth-token.guard.js';
 import { AuthService, type AuthTokenVerifier } from './auth.service.js';
+import { RedisTokenDenyListClient } from './redis-token-deny-list-client.js';
+import {
+  TokenDenyListService,
+  type TokenDenyListClient,
+} from './token-deny-list.service.js';
 import { WELCOME_MAIL_OUTBOX_RELAY } from '../jobs/welcome-mail-outbox-relay.constants.js';
 
 @Module({
@@ -58,13 +64,26 @@ import { WELCOME_MAIL_OUTBOX_RELAY } from '../jobs/welcome-mail-outbox-relay.con
       }),
     },
     {
-      inject: [DataSource, AUTH_LOGIN_REPOSITORY, AUTH_TOKEN_VERIFIER],
+      inject: [
+        DataSource,
+        AUTH_LOGIN_REPOSITORY,
+        AUTH_TOKEN_VERIFIER,
+        TokenDenyListService,
+      ],
       provide: AuthService,
       useFactory: (
         dataSource: DataSource,
         loginRepository,
         tokenVerifier: AuthTokenVerifier,
-      ) => new AuthService(dataSource, loginRepository, undefined, tokenVerifier),
+        tokenDenyList: TokenDenyListService,
+      ) =>
+        new AuthService(
+          dataSource,
+          loginRepository,
+          undefined,
+          tokenVerifier,
+          tokenDenyList,
+        ),
     },
     {
       inject: [JwtService],
@@ -72,6 +91,15 @@ import { WELCOME_MAIL_OUTBOX_RELAY } from '../jobs/welcome-mail-outbox-relay.con
       useFactory: (jwtService: JwtService): AuthTokenVerifier => ({
         verify: (token) => jwtService.verifyAsync(token),
       }),
+    },
+    {
+      provide: AUTH_TOKEN_DENY_LIST_CLIENT,
+      useFactory: () => new RedisTokenDenyListClient(),
+    },
+    {
+      inject: [AUTH_TOKEN_DENY_LIST_CLIENT],
+      provide: TokenDenyListService,
+      useFactory: (client: TokenDenyListClient) => new TokenDenyListService(client),
     },
     {
       provide: AUTH_LOGIN_RATE_LIMITER,

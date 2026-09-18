@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Phase 2H logout validation</title>
+    <style>
+      body { background: #0b1220; color: #e5edf8; font: 17px/1.5 system-ui, sans-serif; margin: 0; }
+      main { max-width: 1050px; margin: 40px auto; padding: 36px; }
+      h1 { color: #7dd3fc; margin-top: 0; }
+      .ok { color: #86efac; font-weight: 700; }
+      .card { background: #162033; border: 1px solid #334155; border-radius: 12px; margin: 18px 0; padding: 20px; }
+      code { background: #0f172a; border-radius: 4px; color: #fcd34d; padding: 2px 6px; }
+      table { border-collapse: collapse; width: 100%; }
+      td, th { border-bottom: 1px solid #334155; padding: 10px; text-align: left; }
+      th { color: #93c5fd; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Phase 2H — POST /api/user/logout</h1>
+      <p class="ok">VALIDATED · 2026-09-18 · branch phase-02-logout</p>
+      <section class="card">
+        <h2>Contract evidence</h2>
+        <table>
+          <tr><th>Scenario</th><th>Result</th></tr>
+          <tr><td>Authenticated logout</td><td><code>204 No Content</code></td></tr>
+          <tr><td>Reuse of same token</td><td><code>401 token is invalid</code></td></tr>
+          <tr><td>Redis deny-list failure</td><td><code>500</code>, sanitized response; protected auth fails closed</td></tr>
+          <tr><td>Deny-list expiry</td><td><code>EX 901</code>, calculated from JWT remaining lifetime</td></tr>
+          <tr><td>Malformed verified claims</td><td><code>401 token is invalid</code></td></tr>
+        </table>
+      </section>
+      <section class="card">
+        <h2>Verification</h2>
+        <p><code>pnpm install --frozen-lockfile</code> — exit 0</p>
+        <p><code>pnpm build</code> — exit 0</p>
+        <p><code>pnpm test</code> — 92 passed, 1 skipped</p>
+        <p><code>pnpm test:e2e</code> — 17 passed</p>
+        <p><code>pnpm lint</code> — 0 errors, 80 warnings</p>
+        <p><code>git diff --check</code> — exit 0</p>
+        <p>Live Redis deny-list write/read with a temporary 30-second key — passed.</p>
+      </section>
+    </main>
+  </body>
+</html>
