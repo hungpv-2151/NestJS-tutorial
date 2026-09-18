@@ -36,12 +36,19 @@ export class RegisterUserDto {
 }
 
 export class LoginUserDto {
+  @ApiProperty({ example: 'jane@example.com', format: 'email', maxLength: 254 })
   @IsString()
   @IsNotEmpty()
   @IsEmail()
   @Length(1, 254)
   email!: string;
 
+  @ApiProperty({
+    example: 'safe-password',
+    format: 'password',
+    maxLength: 128,
+    minLength: 8,
+  })
   @IsString()
   @IsNotEmpty()
   @Length(8, 128)
@@ -57,6 +64,7 @@ export class RegisterUserRequestDto {
 }
 
 export class LoginUserRequestDto {
+  @ApiProperty({ type: () => LoginUserDto })
   @IsDefined()
   @ValidateNested()
   @Type(() => LoginUserDto)
