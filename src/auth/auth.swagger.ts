@@ -139,7 +139,9 @@ export function LogoutUserSwagger(): MethodDecorator {
       required: true,
     }),
     ApiSecurity(TOKEN_AUTH_SECURITY_SCHEME),
-    ApiNoContentResponse({ description: 'Token revoked for its remaining lifetime.' }),
+    ApiNoContentResponse({
+      description: 'Token revoked for its remaining lifetime.',
+    }),
     ApiUnauthorizedResponse({
       description: 'Token is missing or invalid.',
       schema: VALIDATION_ERROR_SCHEMA,

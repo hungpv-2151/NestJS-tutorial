@@ -143,7 +143,9 @@ export class AuthController {
     try {
       await this.authService.logout(request.auth);
     } catch (error) {
-      this.logger.error(JSON.stringify(createRequestFailureLog(error, request)));
+      this.logger.error(
+        JSON.stringify(createRequestFailureLog(error, request)),
+      );
       if (error instanceof AuthLogoutUnavailableError) {
         throw new InternalServerErrorException({ errors: { body: ['request failed'] } });
       }
