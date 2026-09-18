@@ -9,6 +9,7 @@ import { json, urlencoded } from 'express';
 import { AppModule } from './app.module.js';
 import { ApiExceptionFilter } from './common/filters/api-exception.filter.js';
 import { getAppConfig } from './config/app-config.js';
+import { TOKEN_AUTH_SECURITY_SCHEME } from './auth/auth.swagger.js';
 
 export async function createApp(environment: NodeJS.ProcessEnv = process.env) {
   const config = getAppConfig(environment);
@@ -27,6 +28,15 @@ export async function createApp(environment: NodeJS.ProcessEnv = process.env) {
         .setTitle('NestJS Tutorial API')
         .setDescription('Runtime API documentation')
         .setVersion('1.0.0')
+        .addApiKey(
+          {
+            description: 'JWT presented as Token <jwt>.',
+            in: 'header',
+            name: 'Authorization',
+            type: 'apiKey',
+          },
+          TOKEN_AUTH_SECURITY_SCHEME,
+        )
         .build(),
     );
     SwaggerModule.setup('docs', app, document, {
