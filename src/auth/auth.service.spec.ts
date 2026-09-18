@@ -1,15 +1,15 @@
 import { verify } from 'argon2';
 import { describe, expect, it } from 'vitest';
 
-import { User } from './user.entity.js';
+import { User } from '../users/user.entity.js';
 import { WelcomeMailOutbox } from '../jobs/welcome-mail-outbox.entity.js';
 import {
-  UserRegistrationConflictError,
-  UserRegistrationPersistenceError,
-  UserRegistrationService,
-  type UserRegistrationRepository,
+  AuthConflictError,
+  AuthPersistenceError,
+  AuthService,
+  type UserRepository,
   type WelcomeMailOutboxRepository,
-} from './user-registration.service.js';
+} from './auth.service.js';
 
 class TransactionRolledBackError extends Error {
   constructor(cause: Error) {
@@ -28,7 +28,7 @@ class DuplicateDatabaseError extends Error {
   }
 }
 
-class FakeRepository implements UserRegistrationRepository {
+class FakeRepository implements UserRepository {
   readonly savedUsers: User[] = [];
   saveError?: Error;
 
@@ -82,7 +82,7 @@ function createService(
   outboxRepository = new FakeOutboxRepository(),
 ) {
   let isRolledBack = false;
-  const service = new UserRegistrationService({
+  const service = new AuthService({
     transaction: async (work) => {
       const userSnapshot = [...repository.savedUsers];
       const outboxSnapshot = [...outboxRepository.savedOutbox];
@@ -103,8 +103,8 @@ function createService(
           ...outboxSnapshot,
         );
         isRolledBack = true;
-        if (error instanceof UserRegistrationConflictError) {
-          throw new UserRegistrationConflictError(error.field);
+        if (error instanceof AuthConflictError) {
+          throw new AuthConflictError(error.field);
         }
         if (error instanceof DuplicateDatabaseError) {
           throw new DuplicateDatabaseError(error.detail, error.constraint);
@@ -116,7 +116,7 @@ function createService(
   return { outboxRepository, repository, rolledBack: () => isRolledBack, service };
 }
 
-describe('UserRegistrationService', () => {
+describe('AuthService', () => {
   it('hashes password and persists a user without returning the hash', async () => {
     const { outboxRepository, repository, service } = createService();
 
@@ -161,7 +161,7 @@ describe('UserRegistrationService', () => {
 
     await expect(service.register(request)).rejects.toMatchObject({ field });
     await expect(service.register(request)).rejects.toBeInstanceOf(
-      UserRegistrationConflictError,
+      AuthConflictError,
     );
     expect(repository.savedUsers).toHaveLength(1);
     expect(rolledBack()).toBe(true);
@@ -178,7 +178,7 @@ describe('UserRegistrationService', () => {
         password: 'safe-password',
         username: 'jane',
       }),
-    ).rejects.toBeInstanceOf(UserRegistrationPersistenceError);
+    ).rejects.toBeInstanceOf(AuthPersistenceError);
 
     expect(repository.savedUsers).toEqual([]);
     expect(rolledBack()).toBe(true);
@@ -198,7 +198,7 @@ describe('UserRegistrationService', () => {
         password: 'safe-password',
         username: 'jane',
       }),
-    ).rejects.toBeInstanceOf(UserRegistrationPersistenceError);
+    ).rejects.toBeInstanceOf(AuthPersistenceError);
 
     expect(repository.savedUsers).toEqual([]);
     expect(outboxRepository.savedOutbox).toEqual([]);
@@ -223,7 +223,7 @@ describe('UserRegistrationService', () => {
         .catch((caught: unknown) => caught);
 
       expect(error).toMatchObject({ field });
-      expect(error).toBeInstanceOf(UserRegistrationConflictError);
+      expect(error).toBeInstanceOf(AuthConflictError);
       expect(error).not.toHaveProperty('detail');
       expect(rolledBack()).toBe(true);
     },

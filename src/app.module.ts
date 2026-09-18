@@ -4,7 +4,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
-import { RegisterUserModule } from './auth/register-user.module.js';
+import { AuthModule } from './auth/auth.module.js';
 
 const translationsPath = join(dirname(fileURLToPath(import.meta.url)), 'i18n');
 
@@ -18,7 +18,7 @@ const translationsPath = join(dirname(fileURLToPath(import.meta.url)), 'i18n');
       },
       resolvers: [AcceptLanguageResolver],
     }),
-    RegisterUserModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
