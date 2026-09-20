@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>GET /api/profiles validation</title>
+<style>body{font:18px system-ui;margin:48px;color:#172033}h1{margin-bottom:8px}li{margin:12px 0}.ok{color:#087443;font-weight:700}code{background:#edf2f7;padding:2px 5px}</style>
+<h1>Phase 3B — GET /api/profiles/:username validation</h1>
+<p>2026-09-21 · stacked base: <code>phase-03-update-user</code> (PR #39)</p>
+<ul>
+<li><span class="ok">PASS</span> anonymous and token-header requests return only public profile fields.</li>
+<li><span class="ok">PASS</span> profile response sets <code>following: false</code> until the separate follow API PR.</li>
+<li><span class="ok">PASS</span> unknown usernames return <code>404 { errors: { profile: ['not found'] } }</code>.</li>
+<li><span class="ok">PASS</span> Swagger includes path parameter, response schemas and Profile tag.</li>
+<li><span class="ok">PASS</span> build, unit (97 passed), E2E (24 passed), lint (0 errors, 99 warnings) and diff check completed.</li>
+</ul>
+</html>
