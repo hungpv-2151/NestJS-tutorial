@@ -92,6 +92,11 @@ describe('AppController (e2e)', () => {
       security: [{ tokenAuth: [] }],
       summary: 'Sign out and revoke the presented token',
     });
+    expect(response.body.paths['/api/profiles/{username}'].get).toMatchObject({
+      responses: { '200': expect.any(Object), '404': expect.any(Object) },
+      summary: 'Get a profile by username',
+      tags: expect.arrayContaining(['Profile']),
+    });
   });
 
   afterEach(async () => {

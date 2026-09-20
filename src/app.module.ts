@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { AuthModule } from './auth/auth.module.js';
+import { ProfilesModule } from './profiles/profiles.module.js';
 
 const translationsPath = join(dirname(fileURLToPath(import.meta.url)), 'i18n');
 
@@ -19,6 +20,7 @@ const translationsPath = join(dirname(fileURLToPath(import.meta.url)), 'i18n');
       resolvers: [AcceptLanguageResolver],
     }),
     AuthModule,
+    ProfilesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
