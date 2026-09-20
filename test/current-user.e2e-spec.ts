@@ -2,9 +2,11 @@ import { INestApplication, Module } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, it, vi } from 'vitest';
 
 import { AuthController, AUTH_CONFIG } from '../src/auth/auth.controller.js';
+import { AuthCurrentUserHandler } from '../src/auth/auth-current-user-handler.js';
+import { AuthUpdateUserHandler } from '../src/auth/auth-update-user-handler.js';
 import { AUTH_LOGIN_RATE_LIMITER } from '../src/auth/auth.constants.js';
 import { AuthLoginRateLimiter } from '../src/auth/auth-login-rate-limiter.js';
 import { AuthTokenGuard } from '../src/auth/auth-token.guard.js';
@@ -76,6 +78,8 @@ async function createApp(
     controllers: [AuthController],
     providers: [
       AuthTokenGuard,
+      AuthCurrentUserHandler,
+      { provide: AuthUpdateUserHandler, useValue: { execute: vi.fn() } },
       { provide: AuthService, useValue: { authenticate, currentUser } },
       { provide: JwtService, useValue: { signAsync: vi.fn() } },
       { provide: AUTH_CONFIG, useValue: { audience: 'client', issuer: 'api', secret: 'secret' } },

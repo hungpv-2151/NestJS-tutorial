@@ -20,7 +20,7 @@
 - 2B.1 complete locally: TypeORM data source, migration CLI wiring, `User` entity, reversible users migration, and focused migration/data-source tests.
 - Validation passed: lint, build, 24 unit tests, and 6 E2E tests. Isolated temporary Neon database apply → revert → apply passed; database was dropped afterward.
 - Reviewer passed; no API routes were added. Evidence: [PR #22 comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/22#issuecomment-5692428675).
-- 2B.2 dùng `TEST_DATABASE_URL` và bắt buộc `CONFIRM_DATABASE_RESET=yes`; refusal, reset tạm thời, build, lint, unit và E2E đã pass. 2C–2I remain blocked by the declared dependency graph.
+- 2B.2 dùng `TEST_DATABASE_URL` và bắt buộc `CONFIRM_DATABASE_RESET=yes`; refusal, reset tạm thời, build, lint, unit và E2E đã pass. 2C–2H đã được thực hiện theo dependency graph; 2I được hoãn theo quyết định ngày 2026-09-18.
 - 2B.2 reviewer found no issues; PR evidence URL remains pending until submission.
 - Registration delivery is split: 2E.1 provides the HTTP contract only. 2E.2 adds durable welcome-mail delivery with a transactional outbox or equivalent retryable record; it must never return a retry-hostile 5xx after the user transaction commits.
 - PR #31 consolidates the complete registration API on top of 2C; it includes `User` metadata remediation and runtime `.env` preload. It supersedes closed PRs #26–#30 without changing PRs #17–#25.
@@ -41,21 +41,21 @@
 
 `PR1 → 2A → 2B.1 → 2B.2 → 2C → 2D → 2E → 2F → 2G → 2H → 2I`. Mỗi row là một PR ceiling; migration và reset tách thành foundation layers để rollback/review độc lập.
 
-| PR | Only scope / public API | Base | Required evidence |
-|---|---|---|---|
-| Gate G2 | Preserve local work; refresh/rebase; diff-to-plan audit; no code fix | PR1 | stack screenshot + before/after diff-stat |
-| 2A | Dependency/config slices; API: none | PR1 | install/compile result; size proof |
-| 2B.1 | TypeORM data source, migration CLI, users entity/migration; API: none | 2A | apply/revert/apply evidence |
-| 2B.2 | Guarded dev/test database reset tooling; API: none | 2B.1 | reset refusal + reset evidence |
-| 2C | DTO/error/serializer/JWT/Redis primitives; API: none | 2B.2 | targeted unit/static-analysis result |
-| 2D | `POST /api/users` part 1: transaction, hash, duplicate rules | 2C | service/persistence test result |
-| 2E.1 | `POST /api/users` part 2: HTTP contract only | 2D | register contract result |
-| 2E.1.R | Registration metadata + runtime env preload remediation; API: none | 2E.1 | real register result + startup result |
-| 2E.2 | `POST /api/users` durable welcome-mail delivery; no additional public API | 2E.1 | post-commit recovery + queue result; Redis Cloud `PING`; `pnpm build`; unit/E2E/lint/install validation |
-| 2F | `POST /api/users/login` only | 2E | valid/invalid login E2E screenshot |
-| 2G | `GET /api/user` only | 2F | valid/missing/invalid token result |
-| 2H | `POST /api/user/logout` only | 2G | 204/reuse-denied/TTL result |
-| 2I | Daily training summary queue/scheduler; API: none | 2H | cron/idempotency unit result |
+| PR      | Only scope / public API                                                   | Base     | Required evidence                                                                                       |
+| ------- | ------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------- |
+| Gate G2 | Preserve local work; refresh/rebase; diff-to-plan audit; no code fix      | PR1      | stack screenshot + before/after diff-stat                                                               |
+| 2A      | Dependency/config slices; API: none                                       | PR1      | install/compile result; size proof                                                                      |
+| 2B.1    | TypeORM data source, migration CLI, users entity/migration; API: none     | 2A       | apply/revert/apply evidence                                                                             |
+| 2B.2    | Guarded dev/test database reset tooling; API: none                        | 2B.1     | reset refusal + reset evidence                                                                          |
+| 2C      | DTO/error/serializer/JWT/Redis primitives; API: none                      | 2B.2     | targeted unit/static-analysis result                                                                    |
+| 2D      | `POST /api/users` part 1: transaction, hash, duplicate rules              | 2C       | service/persistence test result                                                                         |
+| 2E.1    | `POST /api/users` part 2: HTTP contract only                              | 2D       | register contract result                                                                                |
+| 2E.1.R  | Registration metadata + runtime env preload remediation; API: none        | 2E.1     | real register result + startup result                                                                   |
+| 2E.2    | `POST /api/users` durable welcome-mail delivery; no additional public API | 2E.1     | post-commit recovery + queue result; Redis Cloud `PING`; `pnpm build`; unit/E2E/lint/install validation |
+| 2F      | `POST /api/users/login` only                                              | 2E       | valid/invalid login E2E screenshot                                                                      |
+| 2G      | `GET /api/user` only                                                      | 2F       | valid/missing/invalid token result                                                                      |
+| 2H      | `POST /api/user/logout` only                                              | 2G       | 204/reuse-denied/TTL result                                                                             |
+| 2I      | Daily training summary queue/scheduler; API: none                         | Deferred | Deferred until final roadmap pass; requirements chưa được định nghĩa                                    |
 
 ## Related Code Files
 
@@ -102,4 +102,4 @@
 
 ## Next Steps
 
-- Phase 03 begins only after 2I is green and every Phase 02 evidence comment URL is recorded.
+- 2I is deferred until the final roadmap pass by user decision on 2026-09-18. Phase 03 starts from 2H; remaining Phase 02 evidence URL reconciliation remains follow-up work.

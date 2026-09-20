@@ -1,5 +1,4 @@
-import * as argon2 from 'argon2';
-
+import { hashPassword } from '../common/security/password-hasher.js';
 import { WelcomeMailOutbox } from '../jobs/welcome-mail-outbox.entity.js';
 import { User } from '../users/user.entity.js';
 import { UserService } from '../users/user.service.js';
@@ -20,7 +19,6 @@ import {
   isUniqueViolation,
   type AuthTransactionManager,
   type UserRepository,
-  type WelcomeMailOutboxRepository,
 } from './auth-registration-support.js';
 import { isTokenClaims, type TokenClaims } from './token-claims.js';
 import {
@@ -32,7 +30,6 @@ export {
   AuthConflictError,
   AuthPersistenceError,
   type UserRepository,
-  type WelcomeMailOutboxRepository,
 } from './auth-registration-support.js';
 
 export type RegisterRequest = Pick<User, 'email' | 'username'> & {
@@ -87,7 +84,10 @@ export class AuthService {
       if (!isTokenClaims(claims)) {
         throw new AuthInvalidTokenError();
       }
-      if (this.tokenDenyList && (await this.tokenDenyList.isDenied(claims.jti))) {
+      if (
+        this.tokenDenyList &&
+        (await this.tokenDenyList.isDenied(claims.jti))
+      ) {
         throw new AuthInvalidTokenError();
       }
       return claims;
@@ -129,12 +129,14 @@ export class AuthService {
       return await this.dataSource.transaction(async (manager) => {
         const userRepository = manager.getRepository(User);
         const outboxRepository = manager.getRepository(WelcomeMailOutbox);
-        await this.assertAvailable(userRepository, 'username', request.username);
+        await this.assertAvailable(
+          userRepository,
+          'username',
+          request.username,
+        );
         await this.assertAvailable(userRepository, 'email', request.email);
 
-        const passwordHash = await argon2.hash(request.password, {
-          type: argon2.argon2id,
-        });
+        const passwordHash = await hashPassword(request.password);
         const user = await userRepository.save(
           userRepository.create({
             email: request.email,

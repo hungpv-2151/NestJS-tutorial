@@ -9,6 +9,8 @@ import { AuthController, AUTH_CONFIG } from '../src/auth/auth.controller.js';
 import { AUTH_LOGIN_RATE_LIMITER } from '../src/auth/auth.constants.js';
 import { AuthLoginRateLimiter } from '../src/auth/auth-login-rate-limiter.js';
 import { AuthTokenGuard } from '../src/auth/auth-token.guard.js';
+import { AuthCurrentUserHandler } from '../src/auth/auth-current-user-handler.js';
+import { AuthUpdateUserHandler } from '../src/auth/auth-update-user-handler.js';
 import {
   AuthInvalidTokenError,
   AuthService,
@@ -88,6 +90,8 @@ async function createApp(
     controllers: [AuthController],
     providers: [
       AuthTokenGuard,
+      { provide: AuthCurrentUserHandler, useValue: { execute: vi.fn() } },
+      { provide: AuthUpdateUserHandler, useValue: { execute: vi.fn() } },
       { provide: AuthService, useValue: authService },
       { provide: UserService, useValue: { findByUsername: vi.fn() } },
       { provide: JwtService, useValue: { signAsync: vi.fn() } },
@@ -95,7 +99,10 @@ async function createApp(
         provide: AUTH_CONFIG,
         useValue: { audience: 'client', issuer: 'api', secret: 'secret' },
       },
-      { provide: AUTH_LOGIN_RATE_LIMITER, useValue: {} as AuthLoginRateLimiter },
+      {
+        provide: AUTH_LOGIN_RATE_LIMITER,
+        useValue: {} as AuthLoginRateLimiter,
+      },
     ],
   })
   class LogoutTestModule {}

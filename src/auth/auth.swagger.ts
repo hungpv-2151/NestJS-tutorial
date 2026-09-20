@@ -18,6 +18,7 @@ import {
 import {
   LoginUserRequestDto,
   RegisterUserRequestDto,
+  UpdateUserRequestDto,
 } from '../common/dto/user-auth.dto.js';
 
 const AUTHENTICATED_USER_SCHEMA = {
@@ -123,6 +124,41 @@ export function CurrentUserSwagger(): MethodDecorator {
     }),
     ApiUnauthorizedResponse({
       description: 'Token is missing or invalid.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
+  );
+}
+
+export function UpdateUserSwagger(): MethodDecorator {
+  return applyDecorators(
+    ApiTags('Authentication'),
+    ApiOperation({ summary: 'Update the authenticated user' }),
+    ApiHeader({
+      description: 'JWT presented as Token <jwt>.',
+      example: 'Token <jwt>',
+      name: 'Authorization',
+      required: true,
+    }),
+    ApiSecurity(TOKEN_AUTH_SECURITY_SCHEME),
+    ApiBody({ type: UpdateUserRequestDto }),
+    ApiOkResponse({
+      description: 'Updated user with a newly issued token.',
+      schema: AUTHENTICATED_USER_SCHEMA,
+    }),
+    ApiConflictResponse({
+      description: 'Email or username is already taken.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
+    ApiUnauthorizedResponse({
+      description: 'Token is missing or invalid.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
+    ApiUnprocessableEntityResponse({
+      description: 'Request validation failed.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
+    ApiInternalServerErrorResponse({
+      description: 'User could not be updated.',
       schema: VALIDATION_ERROR_SCHEMA,
     }),
   );

@@ -5,6 +5,8 @@ import { App } from 'supertest/types';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { AuthController, AUTH_CONFIG } from '../src/auth/auth.controller.js';
+import { AuthCurrentUserHandler } from '../src/auth/auth-current-user-handler.js';
+import { AuthUpdateUserHandler } from '../src/auth/auth-update-user-handler.js';
 import { AuthLoginRateLimitError } from '../src/auth/auth-login-rate-limiter.js';
 import { configureGlobalRequestHandling } from '../src/create-app.js';
 import {
@@ -181,6 +183,8 @@ async function createApp(
   @Module({
     controllers: [AuthController],
     providers: [
+      { provide: AuthCurrentUserHandler, useValue: { execute: vi.fn() } },
+      { provide: AuthUpdateUserHandler, useValue: { execute: vi.fn() } },
       { provide: AuthService, useValue: { login, register } },
       { provide: JwtService, useValue: { signAsync } },
       { provide: AUTH_CONFIG, useValue: { audience: 'client', issuer: 'api', secret: 'secret' } },
