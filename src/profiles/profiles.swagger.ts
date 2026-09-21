@@ -51,3 +51,17 @@ export function FollowProfileSwagger(): MethodDecorator {
     }),
   );
 }
+
+export function UnfollowProfileSwagger(): MethodDecorator {
+  return applyDecorators(
+    ApiOperation({ summary: 'Unfollow a profile by username' }),
+    ApiParam({ name: 'username', type: String }),
+    ApiSecurity(TOKEN_AUTH_SECURITY_SCHEME),
+    ApiOkResponse({ description: 'Profile unfollowed.', schema: PROFILE_SCHEMA }),
+    ApiUnauthorizedResponse({ description: 'Token is missing or invalid.' }),
+    ApiNotFoundResponse({
+      description: 'Profile does not exist.',
+      schema: { example: { errors: { profile: ['not found'] } } },
+    }),
+  );
+}

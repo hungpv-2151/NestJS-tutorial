@@ -107,6 +107,11 @@ describe('AppController (e2e)', () => {
       summary: 'Get a profile by username',
       tags: expect.arrayContaining(['Profile']),
     });
+    expect(response.body.paths['/api/profiles/{username}/follow'].delete).toMatchObject({
+      responses: { '200': expect.any(Object), '401': expect.any(Object), '404': expect.any(Object) },
+      security: [{ tokenAuth: [] }],
+      summary: 'Unfollow a profile by username',
+    });
   });
 
   afterEach(async () => {

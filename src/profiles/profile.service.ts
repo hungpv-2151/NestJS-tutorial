@@ -35,4 +35,19 @@ export class ProfileService {
       .execute();
     return following;
   }
+
+  async unfollow(followerUsername: string, username: string): Promise<User> {
+    const [follower, following] = await Promise.all([
+      this.userService.findByUsername(followerUsername),
+      this.userService.findByUsername(username),
+    ]);
+    if (!following) throw new ProfileNotFoundError();
+    if (!follower) throw new ProfileNotFoundError();
+
+    await this.follows.delete({
+      followerId: follower.id,
+      followingId: following.id,
+    });
+    return following;
+  }
 }
