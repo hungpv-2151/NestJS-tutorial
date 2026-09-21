@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>POST follow profile validation</title>
+<style>body{font:18px system-ui;margin:48px;color:#172033}h1{margin-bottom:8px}li{margin:12px 0}.ok{color:#087443;font-weight:700}code{background:#edf2f7;padding:2px 5px}</style>
+<h1>Phase 3C — POST /api/profiles/:username/follow validation</h1>
+<p>2026-09-21 · stacked base: <code>phase-03-get-profile</code> (PR #40)</p>
+<ul>
+<li><span class="ok">PASS</span> authenticated follow returns HTTP 200 and <code>following: true</code>.</li>
+<li><span class="ok">PASS</span> missing token, unknown profile and self-follow return contract errors.</li>
+<li><span class="ok">PASS</span> composite primary key plus <code>ON CONFLICT DO NOTHING</code> makes repeated follows idempotent.</li>
+<li><span class="ok">PASS</span> migration was applied to the configured PostgreSQL database.</li>
+<li><span class="ok">PASS</span> Swagger has only Authentication and Profile tags; build, unit, E2E, lint and diff check completed.</li>
+</ul></html>
