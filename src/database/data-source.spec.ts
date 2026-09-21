@@ -6,7 +6,7 @@ describe('data source', () => {
     vi.resetModules();
   });
 
-  it('registers users and follow migrations without schema synchronization', async () => {
+  it('registers all schema migrations without schema synchronization', async () => {
     vi.stubEnv(
       'DATABASE_URL',
       'postgresql://user:password@localhost:5432/nestjs_tutorial',
@@ -14,8 +14,8 @@ describe('data source', () => {
 
     const { default: dataSource } = await import('./data-source.js');
 
-    expect(dataSource.options.entities).toHaveLength(3);
-    expect(dataSource.options.migrations).toHaveLength(3);
+    expect(dataSource.options.entities).toHaveLength(4);
+    expect(dataSource.options.migrations).toHaveLength(4);
     expect(dataSource.options.synchronize).toBe(false);
     await expect(dataSource.buildMetadatas()).resolves.toBeUndefined();
 
