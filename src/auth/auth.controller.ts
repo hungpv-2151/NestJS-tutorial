@@ -17,6 +17,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { ApiTags } from '@nestjs/swagger';
 import type { Request } from 'express';
 
 import {
@@ -46,6 +47,7 @@ import { AuthUpdateUserHandler } from './auth-update-user-handler.js';
 
 export { AUTH_CONFIG } from './auth.constants.js';
 
+@ApiTags('Authentication')
 @Controller()
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
