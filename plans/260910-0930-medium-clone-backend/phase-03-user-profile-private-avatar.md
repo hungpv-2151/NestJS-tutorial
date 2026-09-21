@@ -6,7 +6,7 @@
 
 ## Overview
 
-- Priority: P1 · Status: In progress — 3A #39, 3B #40, 3C follow #41 and 3D unfollow #42 submitted · Effort: 18h · Blocked by: Phase 02 PR 2H
+- Priority: P1 · Status: In progress — 3A #39, 3B #40, 3C follow #41, 3D unfollow #42 and 3E attachment foundation #43 submitted · Effort: 18h · Blocked by: Phase 02 PR 2H
 - Tách update-user, profile, follow/unfollow, avatar upload và file read thành PR riêng; attachment foundation không expose API.
 
 ## Key Insights
@@ -54,7 +54,7 @@
 
 - [ ] PRs 3A–3G rebased, one-API scoped and within line limit.
 - [ ] Error-level findings zero; retained warnings documented per PR.
-- [ ] Evidence URLs: 3A [PR #39 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/39#issuecomment-5753521154); 3B [PR #40 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/40#issuecomment-5753623421); 3C [PR #41 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/41#issuecomment-5754553474); 3D [PR #42 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/42#issuecomment-5756484390); 3E `pending`; 3F `pending`; 3G `pending`.
+- [ ] Evidence URLs: 3A [PR #39 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/39#issuecomment-5753521154); 3B [PR #40 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/40#issuecomment-5753623421); 3C [PR #41 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/41#issuecomment-5754553474); 3D [PR #42 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/42#issuecomment-5756484390); 3E [PR #43 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/43#issuecomment-5756688502); 3F `pending`; 3G `pending`.
 
 ## Success Criteria
 
