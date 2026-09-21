@@ -5,7 +5,10 @@ import { App } from 'supertest/types';
 import { afterEach, describe, it, vi } from 'vitest';
 
 import { configureGlobalRequestHandling } from '../src/create-app.js';
+import { AuthTokenGuard } from '../src/auth/auth-token.guard.js';
+import { AuthService } from '../src/auth/auth.service.js';
 import { ProfilesController } from '../src/profiles/profiles.controller.js';
+import { ProfileService } from '../src/profiles/profile.service.js';
 import { UserService } from '../src/users/user.service.js';
 
 describe('GET /api/profiles/:username (e2e)', () => {
@@ -48,7 +51,12 @@ async function createApp(user: ReturnType<typeof user> | null) {
 
   @Module({
     controllers: [ProfilesController],
-    providers: [{ provide: UserService, useValue: { findByUsername } }],
+    providers: [
+      AuthTokenGuard,
+      { provide: AuthService, useValue: { authenticate: vi.fn() } },
+      { provide: UserService, useValue: { findByUsername } },
+      { provide: ProfileService, useValue: {} },
+    ],
   })
   class ProfilesTestModule {}
 

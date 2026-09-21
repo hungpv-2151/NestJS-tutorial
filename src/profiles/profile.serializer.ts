@@ -9,11 +9,14 @@ export interface SerializedProfile {
   };
 }
 
-export function serializeProfile(user: User): SerializedProfile {
+export function serializeProfile(
+  user: User,
+  following = false,
+): SerializedProfile {
   return {
     profile: {
       bio: user.bio,
-      following: false,
+      following,
       image: user.image,
       username: user.username,
     },

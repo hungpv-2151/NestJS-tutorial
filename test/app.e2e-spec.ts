@@ -83,6 +83,16 @@ describe('AppController (e2e)', () => {
       name: 'Authorization',
       type: 'apiKey',
     });
+    const tags = Object.values(response.body.paths)
+      .flatMap((path: Record<string, { tags?: string[] }>) =>
+        Object.values(path).flatMap((operation) => operation.tags ?? []),
+      )
+      .sort();
+    expect(tags).not.toContain('Auth');
+    expect(tags).not.toContain('Profiles');
+    expect(tags).toEqual(
+      expect.arrayContaining(['Authentication', 'Profile', 'System']),
+    );
     expect(response.body.paths['/api/user/logout'].post).toMatchObject({
       responses: {
         '204': expect.any(Object),
