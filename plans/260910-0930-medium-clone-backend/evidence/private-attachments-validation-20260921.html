@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>PR #43 validation evidence</title>
+    <style>
+      body { background: #0d1117; color: #e6edf3; font: 20px system-ui, sans-serif; margin: 0; }
+      main { margin: 64px auto; max-width: 1100px; padding: 48px; border: 1px solid #30363d; border-radius: 16px; }
+      h1 { margin-top: 0; } .ok { color: #3fb950; font-weight: 700; } code { color: #79c0ff; }
+      li { margin: 18px 0; } .note { color: #8b949e; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Private attachments foundation — PR #43</h1>
+      <p>Public API change: <strong>none</strong></p>
+      <ul>
+        <li><span class="ok">PASS</span> <code>pnpm build</code></li>
+        <li><span class="ok">PASS</span> <code>pnpm test</code> — 106 passed, 1 skipped</li>
+        <li><span class="ok">PASS</span> <code>pnpm test:e2e</code> — 28 passed</li>
+        <li><span class="ok">PASS</span> migration applied; all 4 migrations reported applied</li>
+        <li><span class="ok">PASS</span> path traversal and empty storage-root tests</li>
+        <li><span class="ok">PASS</span> lint has 0 errors; 112 warnings</li>
+      </ul>
+      <p class="note">Warnings include existing repository findings and migration-SQL heuristic findings; none are error-level.</p>
+    </main>
+  </body>
+</html>
