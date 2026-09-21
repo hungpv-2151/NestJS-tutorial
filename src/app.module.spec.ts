@@ -13,7 +13,7 @@ describe('AppModule database configuration', () => {
 
     const { AppModule } = await import('./app.module.js');
 
-    expect(Reflect.getMetadata('imports', AppModule)).toHaveLength(3);
+    expect(Reflect.getMetadata('imports', AppModule)).toHaveLength(4);
   });
 
   it.each([
