@@ -16,24 +16,27 @@
  *
  * Fail-CLOSED: when opt-in can't be verified the call is denied — the safe
  * default for an opt-in tool (deliberately against the house fail-open style).
- * The deny reason is fed back to the model, which can relay it to the user.
+ * The fail-closed posture lives INSIDE `run` (it returns a deny on any internal
+ * error), and the self-exec `onError` denies too, so both entry paths agree.
  *
- * Registered for matcher "Workflow"; emits permissionDecision on stdout, exit 0.
+ * DUAL-MODE KIT HOOK — see docs/hook-authoring.md. `run(input, ctx)` is the pure
+ * decision (no stdin/stdout/exit); the `require.main === module` branch preserves
+ * the legacy `node "<path>"` invocation.
+ *
  * Disable via .tkm.json → hooks."workflow-opt-in-guard": false.
  */
 
 const fs = require('fs');
+const { isHookEnabled } = require('./lib/tkm-config-utils.cjs');
+const { runSelfExec } = require('./lib/hook-dual-mode.cjs');
 
 const REASON = 'The Workflow tool is opt-in and stays blocked until the user\'s most recent chat message literally contains the word "workflow". A confirmation prompt or menu choice (e.g. AskUserQuestion) does NOT count and will not unblock it — only a new typed user message that includes the word "workflow" will. So either continue with an alternative such as the Task tool, or ask the user to resend their request with the word "workflow" in it (e.g. "run this as a workflow"), then call Workflow again.';
 
-function emitDeny(reason) {
-  process.stdout.write(JSON.stringify({
-    hookSpecificOutput: {
-      hookEventName: 'PreToolUse',
-      permissionDecision: 'deny',
-      permissionDecisionReason: reason
-    }
-  }));
+const COULD_NOT_VERIFY = 'The Workflow tool is opt-in and the guard could not verify opt-in. Use an alternative approach such as the Task tool, or ask the user to re-request explicitly with the word "workflow".';
+
+/** Deny result used whenever the guard cannot confirm an explicit opt-in. */
+function deny(reason) {
+  return { status: 'deny', denyReason: reason };
 }
 
 /**
@@ -54,7 +57,7 @@ function lastHumanPrompt(transcriptPath) {
     const content = entry.message.content;
     if (typeof content === 'string') return content;
     if (Array.isArray(content)) {
-      const text = content.filter(b => b && b.type === 'text').map(b => b.text).join(' ').trim();
+      const text = content.filter((b) => b && b.type === 'text').map((b) => b.text).join(' ').trim();
       if (text) return text; // genuine typed prompt
       // otherwise a tool_result-only entry — keep walking back
     }
@@ -62,50 +65,34 @@ function lastHumanPrompt(transcriptPath) {
   return null;
 }
 
-try {
-  const { isHookEnabled } = require('./lib/tkm-config-utils.cjs');
-  const { createHookTimer } = require('./lib/hook-logger.cjs');
-  const timer = createHookTimer('workflow-opt-in-guard', { event: 'PreToolUse', tool: 'Workflow' });
-
-  // Disabled via config → allow.
-  let enabled = true;
-  try { enabled = isHookEnabled('workflow-opt-in-guard'); } catch (_) { /* config error → treat as enabled */ }
-  if (!enabled) { timer.end({ status: 'ok', note: 'disabled' }); process.exit(0); }
-
-  let data;
+/**
+ * Pure decision. Allow (`{status:'ok'}`) when disabled, when the tool is not
+ * Workflow, or when the latest typed prompt contains "workflow". Otherwise deny
+ * (fail-closed). Any internal error also denies — an opt-in tool defaults blocked.
+ */
+function run(input, _ctx) {
   try {
-    data = JSON.parse(fs.readFileSync(0, 'utf-8'));
+    let enabled = true;
+    try { enabled = isHookEnabled('workflow-opt-in-guard'); } catch (_) { /* config error → treat as enabled */ }
+    if (!enabled) return { status: 'ok' };
+
+    if (input.tool_name && input.tool_name !== 'Workflow') return { status: 'ok' };
+
+    const prompt = lastHumanPrompt(input.transcript_path);
+    const optedIn = prompt !== null && prompt.toLowerCase().includes('workflow');
+    return optedIn ? { status: 'ok' } : deny(REASON);
   } catch (_) {
-    // Matcher guarantees this fired for a Workflow call; unparseable payload → fail-closed.
-    timer.end({ status: 'block', exit: 2, note: 'bad-input' });
-    emitDeny(REASON);
-    process.exit(0);
+    return deny(COULD_NOT_VERIFY);
   }
+}
 
-  // Guard only the Workflow tool; a different named tool passes through.
-  if (data.tool_name && data.tool_name !== 'Workflow') {
-    timer.end({ status: 'ok', note: 'not-workflow' });
-    process.exit(0);
-  }
+module.exports.run = run;
+module.exports.meta = {
+  events: ['PreToolUse'],
+  matchers: { PreToolUse: 'Workflow' },
+  timeout: 10,
+};
 
-  const prompt = lastHumanPrompt(data.transcript_path);
-  const optedIn = prompt !== null && prompt.toLowerCase().includes('workflow');
-
-  if (optedIn) {
-    timer.end({ status: 'ok', note: 'opted-in' });
-    process.exit(0);
-  }
-
-  // Fail-closed: not opted in (or prompt unverifiable) → deny an opt-in tool.
-  timer.end({ status: 'block', exit: 2, note: prompt === null ? 'no-prompt' : 'not-opted-in' });
-  emitDeny(REASON);
-  process.exit(0);
-
-} catch (e) {
-  // Fail-closed: an opt-in tool defaults to blocked when the guard itself fails.
-  try {
-    require('./lib/hook-logger.cjs').logHookCrash('workflow-opt-in-guard', e, { event: 'PreToolUse', tool: 'Workflow', exit: 2 });
-  } catch (_) { /* logger must never crash the hook */ }
-  emitDeny('The Workflow tool is opt-in and the guard could not verify opt-in. Use an alternative approach such as the Task tool, or ask the user to re-request explicitly with the word "workflow".');
-  process.exit(0);
+if (require.main === module) {
+  runSelfExec(run, { onError: () => deny(COULD_NOT_VERIFY) });
 }
