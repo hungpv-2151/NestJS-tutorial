@@ -1,6 +1,6 @@
 {
-  "version": "0.16.0",
-  "generatedAt": "2026-08-28T09:27:05.258Z",
+  "version": "1.0.0",
+  "generatedAt": "2026-09-22T10:43:48.919Z",
   "files": [
     {
       "path": "agents/business-analyst.md",
@@ -21,6 +21,12 @@
       "lastModified": "2026-08-22T16:09:13+07:00"
     },
     {
+      "path": "agents/sun-estimate-worker.md",
+      "checksum": "9c3147e2c85b2f70308a982e54f49305eb65d84ce01312fd5ebbc49a0579abb8",
+      "size": 2710,
+      "lastModified": "2026-08-28T06:45:38Z"
+    },
+    {
       "path": "hooks/iac-routing-guard.cjs",
       "checksum": "e6a50c07f5fb8cce9a615f0590a130215c7cff5811dfcfe7cd369d520351429b",
       "size": 4688,
@@ -34,9 +40,9 @@
     },
     {
       "path": "metadata.json",
-      "checksum": "60b6c646c5b98714ff091d7d985390eb7b2409de42f8490b98f3e0c01efc4414",
-      "size": 1041,
-      "lastModified": "2026-08-26T08:47:07Z"
+      "checksum": "7ca95de0dd7521d30565fd143ae0511d065a83aefceae209dcc522cca598f1b5",
+      "size": 1040,
+      "lastModified": "2026-08-28T09:27:19Z"
     },
     {
       "path": "settings.json",
@@ -370,9 +376,9 @@
     },
     {
       "path": "skills/bidding-proposal/SKILL.md",
-      "checksum": "4c6de9a9b056ed9691567bf9e23719fd480cf69836f769d8f3a69f11bbd44fb2",
-      "size": 34922,
-      "lastModified": "2026-08-21T17:35:24+07:00"
+      "checksum": "707191a01d5a107ddc7814143a0b644af042b3694114c33ccb454aaaedcabb60",
+      "size": 30740,
+      "lastModified": "2026-09-09T14:33:50+07:00"
     },
     {
       "path": "skills/bidding-proposal/data/mcp-config-snippet.json",
@@ -391,6 +397,12 @@
       "checksum": "0fc53f3a9c9a0d9ec0505e18120ea406fcc8d0d0c72c61b99da0665c1a0bc04f",
       "size": 5897,
       "lastModified": "2026-08-13T11:08:49+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/references/extra-slides.md",
+      "checksum": "52b4607b353ea1a662a57b8940011ede724a69f3a6b764990c1fb8de2149aeb4",
+      "size": 4637,
+      "lastModified": "2026-09-07T21:58:22+07:00"
     },
     {
       "path": "skills/bidding-proposal/references/generate-content-approach.md",
@@ -417,6 +429,12 @@
       "lastModified": "2026-08-07T17:25:51+07:00"
     },
     {
+      "path": "skills/bidding-proposal/references/generate-content-schedule-team.md",
+      "checksum": "d06a80d0aa07b8d73e623ea3266b66fe81c3104ea48e6dab7126d7cecc08f7bd",
+      "size": 5450,
+      "lastModified": "2026-09-07T21:58:22+07:00"
+    },
+    {
       "path": "skills/bidding-proposal/references/generate-content-technical.md",
       "checksum": "615d9fd39a62fb59bec4a53340ac652eded01c0f6a2c6f63b165bb393aeca145",
       "size": 39550,
@@ -424,15 +442,27 @@
     },
     {
       "path": "skills/bidding-proposal/references/generate-pptx.md",
-      "checksum": "d5c516d591bf7dd0d28c50b46567d769432c5677dc1bd6b881addbef0d4e74a0",
-      "size": 2568,
-      "lastModified": "2026-08-07T17:25:51+07:00"
+      "checksum": "0c83de62669dcc27dde050382f4f9470e6b937d825728d800585830ee340a43d",
+      "size": 3539,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/references/slide-coverage.md",
+      "checksum": "316033a9af37eecf15d3d310f2c4a4b38ee973fb67556ab0d879b6dfc6f33911",
+      "size": 3783,
+      "lastModified": "2026-09-09T14:33:50+07:00"
     },
     {
       "path": "skills/bidding-proposal/references/supplied-document.md",
-      "checksum": "af8885ba73ecc07b58e60a6e10b618e371f9a8da141bc8c692cb68d14daee492",
-      "size": 8134,
-      "lastModified": "2026-08-13T11:08:49+07:00"
+      "checksum": "3513202917093068aabf6b0842ec4538ee34f88ba2f754656a16ca5f844c25bf",
+      "size": 17731,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/references/troubleshooting.md",
+      "checksum": "047936f10f3d71d3729ecfd7279933a938720fc1d17eb23ce9a3852c7c1d4ce1",
+      "size": 2652,
+      "lastModified": "2026-09-09T14:33:50+07:00"
     },
     {
       "path": "skills/bidding-proposal/scripts/clio-api.py",
@@ -483,16 +513,58 @@
       "lastModified": "2026-08-07T17:25:51+07:00"
     },
     {
+      "path": "skills/bidding-proposal/scripts/lib/abs_draw.py",
+      "checksum": "5d62649aa6d708fbf04da9f22535b2fc7027ab8f88a85b00b20889f542163950",
+      "size": 3071,
+      "lastModified": "2026-09-07T21:58:22+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/lib/ascii_box_parser.py",
+      "checksum": "4701b5eaa9d489ae05ad14aa2c0e1879fc904075088b4edb1fb0fa7df54f04a7",
+      "size": 11119,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/lib/brand.py",
+      "checksum": "439c53c005c9b650ca1c906772fcdb8a9b81e16c19764fdba5f930457e73a054",
+      "size": 759,
+      "lastModified": "2026-09-07T21:58:22+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/lib/chapter_dividers.py",
+      "checksum": "d533530ff65dd3f5403550714b1f1fc93e60acde44d5fd7ed1fa7df8c4f7a66c",
+      "size": 4848,
+      "lastModified": "2026-09-09T14:33:50+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/lib/content_condenser.py",
+      "checksum": "3b661a5cd2120e5b2001a07991a08ce7f81c7883e448d1a0f1ae3488eea667b4",
+      "size": 10228,
+      "lastModified": "2026-09-09T14:33:50+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/lib/diagram_image.py",
+      "checksum": "1be130b159286e4ee15a7a439fbff56a5751cfa33dd05d954f0d0eb7c69a148b",
+      "size": 15028,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
       "path": "skills/bidding-proposal/scripts/lib/extra_slide_classifier.py",
-      "checksum": "ed260eba4ee0fb810a736f487a3fc99e1654547b5900230b1a20db79f1dcf599",
-      "size": 4437,
-      "lastModified": "2026-08-07T17:25:51+07:00"
+      "checksum": "48c13fa84246624aed64c89ac16b951676ae9014e565cc65d7f4907098412508",
+      "size": 11084,
+      "lastModified": "2026-09-09T13:01:05+07:00"
     },
     {
       "path": "skills/bidding-proposal/scripts/lib/extra_slide_layouts.py",
-      "checksum": "ee0807792f6c395b2bd2587af6893d76f64065cabacc58cc35dee22285eac703",
-      "size": 19805,
-      "lastModified": "2026-08-07T17:25:51+07:00"
+      "checksum": "9005782b6e1a8f16e4f3291f9ce89b203c2fca2dc82c25ef5bfcb4dd8df37e49",
+      "size": 27541,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/lib/gantt_layout.py",
+      "checksum": "ea3724b82b8daef24b292639f205faf00f61d09840946bb77f47ce3cff051320",
+      "size": 6591,
+      "lastModified": "2026-09-07T21:58:22+07:00"
     },
     {
       "path": "skills/bidding-proposal/scripts/lib/generator.py",
@@ -501,10 +573,22 @@
       "lastModified": "2026-08-07T17:25:51+07:00"
     },
     {
+      "path": "skills/bidding-proposal/scripts/lib/list_layouts.py",
+      "checksum": "513065c135c87077e90d1990313b6587e23eb7997c6f93e43de76a36dc9e8308",
+      "size": 22153,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
       "path": "skills/bidding-proposal/scripts/lib/markdown_primitives.py",
-      "checksum": "5bfff87f062b138129ec6c6f75aaaa819bc5cbcaf75cc9ce5a8d42bc7be44b72",
-      "size": 5908,
-      "lastModified": "2026-08-07T17:25:51+07:00"
+      "checksum": "d517eb7f85ba6d56218e3646f05244326246ff4b980154e183b06540a3c5ac1d",
+      "size": 12411,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/lib/org_chart_layout.py",
+      "checksum": "2d155a65d71de38cd8e3f5087fbbe526635ac13503d671f392295fa72df38d06",
+      "size": 4011,
+      "lastModified": "2026-09-07T21:58:22+07:00"
     },
     {
       "path": "skills/bidding-proposal/scripts/lib/parser.py",
@@ -514,21 +598,27 @@
     },
     {
       "path": "skills/bidding-proposal/scripts/lib/profile_parser.py",
-      "checksum": "54aeaa9f99a9f68856928135e435120d2be38efcf09a9460d4e3af69bb1b5c95",
-      "size": 31765,
-      "lastModified": "2026-08-13T11:08:49+07:00"
+      "checksum": "076c1d6c49e4c68add9e667b0cb4c77d94c41859ee6539d9ac8d35f44a5ea880",
+      "size": 67988,
+      "lastModified": "2026-09-10T13:56:04+07:00"
     },
     {
       "path": "skills/bidding-proposal/scripts/lib/profile_schema.py",
-      "checksum": "f0d97396e0ace530d770a396616926623a8abfdea47b40dfa80f6c5f5b0e2e2c",
-      "size": 13137,
-      "lastModified": "2026-08-13T11:08:49+07:00"
+      "checksum": "03f923dc62de5c0991f0158c0ddaaab2269e8c3f8d256ca53336344c26b8a66f",
+      "size": 19650,
+      "lastModified": "2026-09-09T14:33:50+07:00"
     },
     {
       "path": "skills/bidding-proposal/scripts/lib/renderer.py",
-      "checksum": "d0ffe64c60ce89fb2742ae1783de6aaca4849d702d6f845c05c3434b61e83ee3",
-      "size": 193627,
-      "lastModified": "2026-08-13T11:08:49+07:00"
+      "checksum": "f8c9455c1580fea4f82f3c4827b0d906da4eb457deaefc012ede2c74c53bde73",
+      "size": 292475,
+      "lastModified": "2026-09-09T14:33:50+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/lib/schedule_gantt_fill.py",
+      "checksum": "6e40e779a7c059a0dbecb7e8f059ffb8bf44613739b4c3f58f8829290c4ea719",
+      "size": 4502,
+      "lastModified": "2026-09-07T21:58:22+07:00"
     },
     {
       "path": "skills/bidding-proposal/scripts/lib/schemas.py",
@@ -538,9 +628,9 @@
     },
     {
       "path": "skills/bidding-proposal/scripts/lib/section_aliases.py",
-      "checksum": "d99b77014f65e99f51c6462b45f1d0a136ee7def76e5046e322e0e6636198010",
-      "size": 7401,
-      "lastModified": "2026-08-13T11:08:49+07:00"
+      "checksum": "e42a221f8d1877ea82fccdd857f3e33d4ff755cec2a48062c49c0c3c9e0c6185",
+      "size": 15736,
+      "lastModified": "2026-09-09T13:01:05+07:00"
     },
     {
       "path": "skills/bidding-proposal/scripts/lib/shape_discovery.py",
@@ -556,15 +646,33 @@
     },
     {
       "path": "skills/bidding-proposal/scripts/lib/templates/base.py",
-      "checksum": "cc155fe52babbc04841f6adf55261cbdbe37c0281abbe793b0e26dece71b734c",
-      "size": 6234,
-      "lastModified": "2026-08-07T17:25:51+07:00"
+      "checksum": "68d2382dc4c9a986aa89726c167eb656a3c2e4f80883404a6ffd1f56bdc67427",
+      "size": 7294,
+      "lastModified": "2026-09-09T13:01:05+07:00"
     },
     {
       "path": "skills/bidding-proposal/scripts/lib/templates/svn.py",
-      "checksum": "a1d861a8ed35fb740d2c5655953806aa495bc072ad50948e634f08beb070c195",
-      "size": 30910,
-      "lastModified": "2026-08-13T11:08:49+07:00"
+      "checksum": "586ceb11591f58a9319af055844a8e3cc11fc8bb3ad6165bc351eb0b9654282f",
+      "size": 46244,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/lib/timeline_data.py",
+      "checksum": "ba8cf4a567f70d97f6eae7989ce04aae38eafe3c4f15776fa08f1f7f165ee6c9",
+      "size": 13106,
+      "lastModified": "2026-09-09T14:33:50+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/lib/timeline_layouts.py",
+      "checksum": "ee7f6e2c502d11f63ad4b3588bde8978771cb39b5a6c413913cb0f411e1f0b9d",
+      "size": 12544,
+      "lastModified": "2026-09-09T14:33:50+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/lib/timeline_shapes.py",
+      "checksum": "0f6d276deb7c4a9faa5335e028edeb418538636cbe7ae4cf70b1f428c191e8f5",
+      "size": 5048,
+      "lastModified": "2026-09-09T13:01:05+07:00"
     },
     {
       "path": "skills/bidding-proposal/scripts/qa-slides.py",
@@ -586,9 +694,15 @@
     },
     {
       "path": "skills/bidding-proposal/scripts/tests/conftest.py",
-      "checksum": "e2d06ca75c013025c2aa43e8361d2a4f6978858c3acbda8494778833fee7fdfa",
-      "size": 969,
-      "lastModified": "2026-08-07T17:25:51+07:00"
+      "checksum": "0229cdab3dee715249cf4379dfc79b2ba8ac698904b90ebe70d6b915a5dec2de",
+      "size": 2583,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/tests/fixtures/appendix-chapter-borrows-a-design.md",
+      "checksum": "5ec80449e4289d08e85dabb983b0b98ba56b4d5199068b2be7b820659aa34b2b",
+      "size": 934,
+      "lastModified": "2026-09-09T13:01:05+07:00"
     },
     {
       "path": "skills/bidding-proposal/scripts/tests/fixtures/duplicate-sections-and-honorifics.md",
@@ -603,6 +717,18 @@
       "lastModified": "2026-08-13T11:08:49+07:00"
     },
     {
+      "path": "skills/bidding-proposal/scripts/tests/fixtures/extra-gantt-org-chart.json",
+      "checksum": "842ab40110af6924eccd0be0ec06d9006322f04df723379f5d100282f1516ab7",
+      "size": 2549,
+      "lastModified": "2026-09-07T21:58:22+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/tests/fixtures/field-targets-and-authored-copy.md",
+      "checksum": "da3c03c245da75d4f11002e7f92f1624731b2d9ef6915ef68942a3b4df04891e",
+      "size": 2521,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
       "path": "skills/bidding-proposal/scripts/tests/fixtures/generic-jp-ordinary-wording.md",
       "checksum": "9f61214c7edd1bf9bcb53c4d0e2b0c4ce10b18c32a8841a068bf07f4020e5cfe",
       "size": 1278,
@@ -615,10 +741,100 @@
       "lastModified": "2026-08-07T17:25:51+07:00"
     },
     {
+      "path": "skills/bidding-proposal/scripts/tests/fixtures/golden/appendix-chapter-borrows-a-design.slides.json",
+      "checksum": "da045d01bcac27f3d52b4917c538cffe01b56e0b5cda296c1d4f75b0e39fa8e1",
+      "size": 1294,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/tests/fixtures/golden/duplicate-sections-and-honorifics.slides.json",
+      "checksum": "181c8b56b1f0fc20afbad1c47d2d8ffad76e5465af4a58d7b0c346853856545e",
+      "size": 1604,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/tests/fixtures/golden/english-proposal.slides.json",
+      "checksum": "e4dbb9e7d371b750cfa91adf19d1306650e316ca061249ec9aa3e038de9a7b67",
+      "size": 783,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/tests/fixtures/golden/field-targets-and-authored-copy.slides.json",
+      "checksum": "def0b83636b08a337850dcd247a9687f1692d47f33330a4581dc2d315a209c57",
+      "size": 1427,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/tests/fixtures/golden/generic-jp-ordinary-wording.slides.json",
+      "checksum": "996932fae37f2fa25a4dc6d5a4b4801b2f4ea52eaaad71c98823763b7dbd0f4f",
+      "size": 1780,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/tests/fixtures/golden/generic-jp-with-sections-mapping.slides.json",
+      "checksum": "7d4f803c76cfece54c9af3a1404f6a4e83d72d3081abf8897f2994089465721b",
+      "size": 1824,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/tests/fixtures/golden/jp-schedule-gantt-team-container.slides.json",
+      "checksum": "1a845e773f2c7fba24ca0f19056f8d853c604fc1ce74039f2bc52374dbfac7fd",
+      "size": 1919,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/tests/fixtures/golden/overflow-forces-divider-shift.slides.json",
+      "checksum": "be1ee71aedc751123aee224b301888080ce6dded63a4eb41a94157aab82e6969",
+      "size": 826,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/tests/fixtures/jp-schedule-gantt-team-container.md",
+      "checksum": "751bd14596bfb9ef9aa66c2275f7472eecde94ef54eb2544f9de6f05338cc531",
+      "size": 1930,
+      "lastModified": "2026-09-07T21:58:22+07:00"
+    },
+    {
       "path": "skills/bidding-proposal/scripts/tests/fixtures/overflow-forces-divider-shift.md",
       "checksum": "7b9031a55cd39810dfaaa6ad859a70f72c7e5194e8a85fbd4454a879604a4653",
       "size": 7594,
       "lastModified": "2026-08-07T17:25:51+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/tests/regenerate_golden.py",
+      "checksum": "b7251942a967bffd675f6adc5ca33f93e66a33f794cdf7025eebf1683360e739",
+      "size": 1714,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/tests/test_ascii_box_parser.py",
+      "checksum": "fe8b18f7397eca08940660aa00245760ddd8ca50211402a30edd3e37c707f57c",
+      "size": 6250,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/tests/test_assumption_rows.py",
+      "checksum": "ab91af6f793fe368c4838192c49b9ef5064ee7a0221f3b597de515fa5c9c87ff",
+      "size": 3908,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/tests/test_chapter_ordering.py",
+      "checksum": "98714b9909623b3ee82382d1784631a0143bbfcf8b8084ef93e873c2398763c9",
+      "size": 10448,
+      "lastModified": "2026-09-09T14:33:50+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/tests/test_chapter_vocabulary.py",
+      "checksum": "a4a404c6226b944f2efaba6552ed124f6ee53b10a120f484b14de5d03507ce5b",
+      "size": 4155,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/tests/test_content_condenser.py",
+      "checksum": "032176b05064673158093fcf8db66142b4a6a44c45bdcf3e6e2ecaf83a71ae7c",
+      "size": 8537,
+      "lastModified": "2026-09-09T13:01:05+07:00"
     },
     {
       "path": "skills/bidding-proposal/scripts/tests/test_cover_fit_calibration.py",
@@ -627,16 +843,76 @@
       "lastModified": "2026-08-07T17:25:51+07:00"
     },
     {
+      "path": "skills/bidding-proposal/scripts/tests/test_diagram_slides.py",
+      "checksum": "26c9dff75927dcd9cdb86c0e26d922a3cd45b651e6765ad48314e542de73bfff",
+      "size": 8427,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/tests/test_donor_engine.py",
+      "checksum": "de4c3f75bdb5dbbce4c2837e42cb10aa0b410ef9241a42bbd8a6be861af66d4c",
+      "size": 8315,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/tests/test_essence_point_cards.py",
+      "checksum": "ccafdbac38353b5a9ca9d8b8d25eb3e5229a9db519720e73d35645898f3eae6c",
+      "size": 14912,
+      "lastModified": "2026-09-09T14:33:50+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/tests/test_extra_layouts_schedule_team.py",
+      "checksum": "2d308e964fb9721849d958a04cba1af558167b152fbb4be5e0c02e8125868ea1",
+      "size": 4144,
+      "lastModified": "2026-09-07T21:58:22+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/tests/test_extra_table_style.py",
+      "checksum": "44659fdbc65a924eefb01684aaf8a3eb783322bf4b52f255d9561f7fc0f645a7",
+      "size": 3934,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/tests/test_front_matter_field_targets.py",
+      "checksum": "c230b8ea0275f3d644d94140829c9eed3a99496b15497cc1fe3c87275975fdd8",
+      "size": 6044,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
       "path": "skills/bidding-proposal/scripts/tests/test_gen_slide_cover_overrides.py",
       "checksum": "c671b63fd5cf0ed084626e3c7d30c70738267b5fc7ddb61c5216651d255f866e",
       "size": 2466,
       "lastModified": "2026-08-13T11:08:49+07:00"
     },
     {
+      "path": "skills/bidding-proposal/scripts/tests/test_golden_decks.py",
+      "checksum": "c18c224d58ef5d9e33e2f6ac3dcf1a1327fd7cd66c0213acf1aed226de9ff495",
+      "size": 4171,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/tests/test_labelled_feature_tables.py",
+      "checksum": "8c62c59ea089e2fb4db547a3a35682ac4b2397fa0a97a2068e6d91927964e1d3",
+      "size": 8736,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/tests/test_list_layouts.py",
+      "checksum": "d43880091b56f8002b6089d0fa782f26a37a67ef337c7be69a8f6b3ae053ca73",
+      "size": 10658,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/tests/test_native_bullet_lists.py",
+      "checksum": "8fabf3a3f1c5a58ab085f74612567c048b68c4572133ece4bc013204db63550f",
+      "size": 5062,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
       "path": "skills/bidding-proposal/scripts/tests/test_profile_parser_regressions.py",
-      "checksum": "66132c77abde016f65ccd520788dff20d8cb9a02919e2d8d47b530bd47808196",
-      "size": 7732,
-      "lastModified": "2026-08-13T11:08:49+07:00"
+      "checksum": "dadd9c84ebb7cd7ce0c02f7c628a6dc12951565227fa850e30734e1f3291f388",
+      "size": 12806,
+      "lastModified": "2026-09-10T13:56:04+07:00"
     },
     {
       "path": "skills/bidding-proposal/scripts/tests/test_renderer_language.py",
@@ -651,16 +927,52 @@
       "lastModified": "2026-08-07T17:25:51+07:00"
     },
     {
+      "path": "skills/bidding-proposal/scripts/tests/test_schedule_team_sections.py",
+      "checksum": "188385a3e0ce3fc50f870cbf4eca8bb8fbc3c85e840ba41907ca10a53f02b9b6",
+      "size": 7106,
+      "lastModified": "2026-09-07T21:58:22+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/tests/test_schedule_timeline_slides.py",
+      "checksum": "2df9e8f8854ccdff4663330ea498e65b1661bf868457a5e7b14be6180fa51101",
+      "size": 9933,
+      "lastModified": "2026-09-09T14:33:50+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/tests/test_schedule_timelines.py",
+      "checksum": "125c705be09bbd2d9ab474f153f8f043a74882f296600413b3b43c0361030299",
+      "size": 9785,
+      "lastModified": "2026-09-09T14:33:50+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/tests/test_table_grid_fidelity.py",
+      "checksum": "ee9de18f7eb567bd083df3578474902e8a0876849c541e7fa950192c49bf55e8",
+      "size": 5250,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/tests/test_table_line_budget.py",
+      "checksum": "921fea9f2a36befc2d881ef84a4e138bbcae810072450c4a1ccd8a257a2a66da",
+      "size": 2167,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
       "path": "skills/bidding-proposal/scripts/tests/test_template_contract.py",
-      "checksum": "a1940062c083d17a5dda0a24f732256718be392bf82120f2f94e1bbd43ad348b",
-      "size": 2294,
-      "lastModified": "2026-08-07T17:25:51+07:00"
+      "checksum": "414280e42b493fd860441bf8c09015ad4b6de71ce510aec821ed4c2295256678",
+      "size": 5926,
+      "lastModified": "2026-09-09T13:01:05+07:00"
+    },
+    {
+      "path": "skills/bidding-proposal/scripts/tests/test_text_fit_calibration.py",
+      "checksum": "e687e84dadab82a267205533e77db35d4378249633faf2464d8313d3d49fbd7f",
+      "size": 7863,
+      "lastModified": "2026-09-09T13:01:05+07:00"
     },
     {
       "path": "skills/bidding-proposal/scripts/verify-template-contract.py",
-      "checksum": "786c45f2bc4c022921623fc62285185720ffa3ee245b3835f6d7ab081a25ddad",
-      "size": 10097,
-      "lastModified": "2026-08-13T11:08:49+07:00"
+      "checksum": "d5852e9a178f353eb6cb98281d2979b4cec5dc32363e002ef84057361c7ad18e",
+      "size": 16895,
+      "lastModified": "2026-09-09T14:33:50+07:00"
     },
     {
       "path": "skills/bidding-proposal/templates/SVN Proposal Menu.pptx",
@@ -3801,6 +4113,162 @@
       "lastModified": "2026-08-19T09:56:27+07:00"
     },
     {
+      "path": "skills/sun-estimate/SKILL.md",
+      "checksum": "0e3e67201b2a3bb37498c12f181b9bc870c5a9663c622a58c906a0d35ff0f6d1",
+      "size": 11398,
+      "lastModified": "2026-09-10T16:37:30+07:00"
+    },
+    {
+      "path": "skills/sun-estimate/references/assessment-contract.md",
+      "checksum": "a6a66e7c7126427cb62ca354f1a3ebebe57229be1d65b1343370871437299906",
+      "size": 10281,
+      "lastModified": "2026-09-09T06:41:05+07:00"
+    },
+    {
+      "path": "skills/sun-estimate/references/baseline-contract.md",
+      "checksum": "e7634067d43669b5ca10cb770d2787bd695ad98e3e92cdee390da3cf51b0b23c",
+      "size": 7467,
+      "lastModified": "2026-09-09T06:41:05+07:00"
+    },
+    {
+      "path": "skills/sun-estimate/references/html-report.md",
+      "checksum": "b3b3173297da09b98549bd945ea776369ec99a9057c823aee7116eb3d4d0c08a",
+      "size": 9174,
+      "lastModified": "2026-09-10T15:05:27+07:00"
+    },
+    {
+      "path": "skills/sun-estimate/references/representative-calibration.md",
+      "checksum": "12be43f9964909f4f7196b38e289e236f1cc0aac31078f832bd6394cd53416f5",
+      "size": 7551,
+      "lastModified": "2026-09-10T15:05:27+07:00"
+    },
+    {
+      "path": "skills/sun-estimate/references/scoring-rubric.md",
+      "checksum": "73536349e6fd66feb5dbef0317c2497e65304110b2db7a0bc6dbf5051d705813",
+      "size": 8629,
+      "lastModified": "2026-09-09T06:41:05+07:00"
+    },
+    {
+      "path": "skills/sun-estimate/references/source-adapters.md",
+      "checksum": "12f420420da4d3d2cfa3f924e0be547a569e94cbf137a69177bc23c8ed81e937",
+      "size": 9634,
+      "lastModified": "2026-09-07T10:49:29+07:00"
+    },
+    {
+      "path": "skills/sun-estimate/references/takumi-composition.md",
+      "checksum": "8ccae3ad34baf68cc74e388fd0c12d933aa0297b9afb5a913501ec9b0ad8fe18",
+      "size": 5219,
+      "lastModified": "2026-08-28T06:45:38Z"
+    },
+    {
+      "path": "skills/sun-estimate/references/worker-contract.md",
+      "checksum": "768b3fa638654849dc5bb3942f67adfc274910cc322f391bcaf108c2b791e2de",
+      "size": 4211,
+      "lastModified": "2026-09-09T06:41:05+07:00"
+    },
+    {
+      "path": "skills/sun-estimate/scripts/core/__init__.py",
+      "checksum": "f37706ca4249ec8f1ac1e5ef0a5e2e47eeb7a363615b2448c92a524e1f470b63",
+      "size": 56,
+      "lastModified": "2026-08-25T10:00:25Z"
+    },
+    {
+      "path": "skills/sun-estimate/scripts/core/calibration.py",
+      "checksum": "f309328e39a5b8742d68c8c982c2c303779351a32973aac1be1c511032a3cd71",
+      "size": 12372,
+      "lastModified": "2026-08-28T07:34:08Z"
+    },
+    {
+      "path": "skills/sun-estimate/scripts/core/render_html.py",
+      "checksum": "33e47b4f83f41be292466c3938d13faac42611f8bc69fba89e561204d48df115",
+      "size": 56038,
+      "lastModified": "2026-09-10T15:05:27+07:00"
+    },
+    {
+      "path": "skills/sun-estimate/scripts/core/representatives.py",
+      "checksum": "c1786fa9a18de81723b4ff43c3181bbda35ecb2d9864fe0d003e82e43c27696d",
+      "size": 4494,
+      "lastModified": "2026-08-28T06:45:38Z"
+    },
+    {
+      "path": "skills/sun-estimate/scripts/core/schema.py",
+      "checksum": "93adaa0d104e2f007610dea9354cd0ba11b4dbc0d861c70f61d636098f71bc97",
+      "size": 52351,
+      "lastModified": "2026-09-10T15:05:27+07:00"
+    },
+    {
+      "path": "skills/sun-estimate/scripts/orchestration.py",
+      "checksum": "e187d25abe5c306930730aca041d8d0bfcee84e2ab2d05b8a9fb35af2e5457f5",
+      "size": 3753,
+      "lastModified": "2026-08-28T06:45:38Z"
+    },
+    {
+      "path": "skills/sun-estimate/scripts/selection.py",
+      "checksum": "7bf23d2c38f1b8479fc09b24188971a8b8302bc3efc05641c20bbb5e8b06cc68",
+      "size": 7432,
+      "lastModified": "2026-08-28T10:02:55Z"
+    },
+    {
+      "path": "skills/sun-estimate/scripts/sun_estimate.py",
+      "checksum": "cfd9aceb97c384456649c94f3ddd8f484991d1838eb0d80d7b160a80ed061a0d",
+      "size": 4378,
+      "lastModified": "2026-08-25T10:00:25Z"
+    },
+    {
+      "path": "skills/sun-estimate/scripts/tests/fixtures/issues.json",
+      "checksum": "ff172f87d2834b19d587d79210c93c09e12251014d5e477a2e88ba3b9c464e9e",
+      "size": 11944,
+      "lastModified": "2026-09-09T06:41:05+07:00"
+    },
+    {
+      "path": "skills/sun-estimate/scripts/tests/fixtures/malicious-content.json",
+      "checksum": "6a5413fbc952b9f98868dc86a61d87c06fb359bdb3c020a9e27d7d3ba1aa9873",
+      "size": 1827,
+      "lastModified": "2026-09-09T06:41:05+07:00"
+    },
+    {
+      "path": "skills/sun-estimate/scripts/tests/helpers.py",
+      "checksum": "011fe24ffc14c3293927eba95851a3cd021a9b3a8a8c66a7e5c9afb4183c8bfc",
+      "size": 1460,
+      "lastModified": "2026-08-28T07:34:08Z"
+    },
+    {
+      "path": "skills/sun-estimate/scripts/tests/test_calibration.py",
+      "checksum": "b053fb4c34b60a26898ebbd37a3a805fceabcaba611e31d1a243ceba1ef34349",
+      "size": 6733,
+      "lastModified": "2026-09-09T06:41:05+07:00"
+    },
+    {
+      "path": "skills/sun-estimate/scripts/tests/test_render_html.py",
+      "checksum": "aeac29a381ffa085cfcbc0aa0e6fbca152eaa426accbddba1126da8e661b24b2",
+      "size": 12350,
+      "lastModified": "2026-09-10T15:05:27+07:00"
+    },
+    {
+      "path": "skills/sun-estimate/scripts/tests/test_representatives.py",
+      "checksum": "cf1f337765239dc98515cac2e13e4fc981dd21479ece88f5234bb82ea293996a",
+      "size": 2612,
+      "lastModified": "2026-08-25T10:00:40Z"
+    },
+    {
+      "path": "skills/sun-estimate/scripts/tests/test_schema.py",
+      "checksum": "df3abc355fd636dd3f2452d539a761c14860bd98e1afebbc6332080cace80a68",
+      "size": 11419,
+      "lastModified": "2026-09-10T15:05:27+07:00"
+    },
+    {
+      "path": "skills/sun-estimate/scripts/tests/test_selection.py",
+      "checksum": "fe7dbfffb04d03bce83be518758e388f0f12aa98cc6665fc3ed87720607a725d",
+      "size": 6344,
+      "lastModified": "2026-08-28T10:02:55Z"
+    },
+    {
+      "path": "skills/sun-estimate/scripts/tool_policy.py",
+      "checksum": "47671c66da0dc5f4bd78cfbf5c5dd15abee91cceebddaed036360d11b4ecd9e2",
+      "size": 3344,
+      "lastModified": "2026-08-25T10:00:25Z"
+    },
+    {
       "path": "skills/translate-file/SKILL.md",
       "checksum": "5b408fc4c0a110af3483895fe7fe5b67f1971f17b980a2638870fa1df4238eba",
       "size": 21000,
@@ -6190,9 +6658,9 @@
     },
     {
       "path": ".gitignore",
-      "checksum": "a4a80e9f1200190efeb2818a6f44e849399644af44f4abc55ec88cb00b49e59e",
-      "size": 1390,
-      "lastModified": "2026-08-24T06:45:06+07:00"
+      "checksum": "9ba0918e6ef50d211a99097272cd022c038b12f700c926e841731e65eede9687",
+      "size": 1545,
+      "lastModified": "2026-09-09T13:01:05+07:00"
     },
     {
       "path": ".repomixignore",
@@ -6214,9 +6682,9 @@
     },
     {
       "path": "README.md",
-      "checksum": "bf5502b30f9613aeb8d27ae9a268469b5cadda3b67b4c05b3149b583f7832730",
-      "size": 16530,
-      "lastModified": "2026-08-27T16:36:43+07:00"
+      "checksum": "80a69c3d5563ec5ce5580150d149a69cb8e852df1343892c28dd0466f6673b2b",
+      "size": 16773,
+      "lastModified": "2026-08-28T06:45:38Z"
     }
   ],
   "installGroups": {
@@ -6276,9 +6744,12 @@
           "ki-pm-tooling-audit",
           "ki-voice-action-plan",
           "ki-voice-campaign",
-          "ki-voice-project"
+          "ki-voice-project",
+          "sun-estimate"
         ],
-        "agents": []
+        "agents": [
+          "sun-estimate-worker"
+        ]
       },
       "momorph": {
         "skills": [
@@ -6339,10 +6810,12 @@
           "ki-voice-action-plan",
           "ki-voice-campaign",
           "ki-voice-project",
+          "sun-estimate",
           "translate-file"
         ],
         "agents": [
-          "business-analyst"
+          "business-analyst",
+          "sun-estimate-worker"
         ]
       },
       "designer": {
@@ -6416,10 +6889,12 @@
           "pm-report-project",
           "pm-track-risks-issues",
           "propose-improvements",
+          "sun-estimate",
           "translate-file"
         ],
         "agents": [
-          "project-manager"
+          "project-manager",
+          "sun-estimate-worker"
         ]
       },
       "qa": {
