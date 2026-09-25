@@ -11,6 +11,7 @@ import {
   InternalServerErrorException,
   Logger,
   Post,
+  Put,
   Req,
   UnauthorizedException,
   UseGuards,
@@ -21,6 +22,7 @@ import type { Request } from 'express';
 import {
   LoginUserRequestDto,
   RegisterUserRequestDto,
+  UpdateUserRequestDto,
 } from '../common/dto/user-auth.dto.js';
 import {
   serializeUser,
@@ -33,13 +35,14 @@ import { AuthLoginRateLimitError } from './auth-login-rate-limiter.js';
 import {
   AuthConflictError,
   AuthInvalidCredentialsError,
-  AuthInvalidTokenError,
   AuthLogoutUnavailableError,
   AuthService,
 } from './auth.service.js';
 import { AuthTokenGuard, type AuthenticatedRequest } from './auth-token.guard.js';
-import { CurrentUserSwagger, LoginUserSwagger, LogoutUserSwagger, RegisterUserSwagger } from './auth.swagger.js';
+import { CurrentUserSwagger, LoginUserSwagger, LogoutUserSwagger, RegisterUserSwagger, UpdateUserSwagger } from './auth.swagger.js';
 import { issueToken } from './auth-token-issuer.js';
+import { AuthCurrentUserHandler } from './auth-current-user-handler.js';
+import { AuthUpdateUserHandler } from './auth-update-user-handler.js';
 
 export { AUTH_CONFIG } from './auth.constants.js';
 
@@ -51,6 +54,8 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly jwtService: JwtService,
     @Inject(AUTH_CONFIG) private readonly authConfig: AuthConfig,
+    private readonly currentUserHandler: AuthCurrentUserHandler,
+    private readonly updateUserHandler: AuthUpdateUserHandler,
   ) {}
 
   @Post('users')
@@ -123,15 +128,18 @@ export class AuthController {
   @UseGuards(AuthTokenGuard)
   @Header('Cache-Control', 'no-store')
   async currentUser(@Req() request: AuthenticatedRequest): Promise<SerializedUser> {
-    try {
-      const user = await this.authService.currentUser(request.auth.sub);
-      return serializeUser(user, request.auth.token);
-    } catch (error) {
-      if (error instanceof AuthInvalidTokenError) {
-        throw new UnauthorizedException({ errors: { token: ['is invalid'] } });
-      }
-      throw error;
-    }
+    return this.currentUserHandler.execute(request);
+  }
+
+  @Put('user')
+  @UpdateUserSwagger()
+  @UseGuards(AuthTokenGuard)
+  @Header('Cache-Control', 'no-store')
+  async updateCurrentUser(
+    @Body() request: UpdateUserRequestDto,
+    @Req() httpRequest: AuthenticatedRequest,
+  ): Promise<SerializedUser> {
+    return this.updateUserHandler.execute(httpRequest, request.user);
   }
 
   @Post('user/logout')

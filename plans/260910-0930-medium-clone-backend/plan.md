@@ -1,6 +1,6 @@
 ---
-title: "NestJS RealWorld backend API-granular PR roadmap"
-description: "Triển khai backend RealWorld bằng stack PR nhỏ, mỗi PR chỉ phục vụ một API hoặc một lớp nền tảng không có API."
+title: 'NestJS RealWorld backend API-granular PR roadmap'
+description: 'Triển khai backend RealWorld bằng stack PR nhỏ, mỗi PR chỉ phục vụ một API hoặc một lớp nền tảng không có API.'
 status: in-progress
 priority: P1
 effort: 96h
@@ -9,7 +9,7 @@ tags: [feature, backend, database, api, auth]
 blockedBy: []
 blocks: []
 work_type: feature
-spec_waived: "SDD mode disabled (takumi.sddMode: off)"
+spec_waived: 'SDD mode disabled (takumi.sddMode: off)'
 created: 2026-09-14
 ---
 
@@ -29,14 +29,14 @@ Giữ nguyên lịch sử PR1 đã hoàn thành, audit phần Phase 02 đang d�
 
 ## Phases / PR Waves
 
-| Phase | PR scope | Effort | Blocked by | Status |
-|---|---|---:|---|---|
-| 1 | [PR1 bootstrap + `GET /api/hello`](./phase-01-project-bootstrap-docs.md) | 6h | — | Complete |
-| 2 | [Audit/rebase, foundations và auth APIs](./phase-02-database-auth-background-jobs.md) | 24h | PR1 | In progress: 2B.1 validated; 2B.2 submitted in [PR #23](https://github.com/hungpv-2151/NestJS-tutorial/pull/23); 2E.2 welcome-mail relay validated in registration-only [PR #31](https://github.com/hungpv-2151/NestJS-tutorial/pull/31) |
-| 3 | [User, profile và private-file APIs](./phase-03-user-profile-private-avatar.md) | 18h | Phase 2 | Pending |
-| 4 | [Article/feed/favorite/tag APIs](./phase-04-articles-search-pagination.md) | 26h | Phase 3 | Pending |
-| 5 | [Comment APIs](./phase-05-comments.md) | 10h | Phase 4 | Pending |
-| 6 | [Stack-wide verification and remediation routing](./phase-06-unit-e2e-c2-testing.md) | 12h | Phase 5 | Pending |
+| Phase | PR scope                                                                              | Effort | Blocked by | Status                                                                                                                  |
+| ----- | ------------------------------------------------------------------------------------- | -----: | ---------- | ----------------------------------------------------------------------------------------------------------------------- |
+| 1     | [PR1 bootstrap + `GET /api/hello`](./phase-01-project-bootstrap-docs.md)              |     6h | —          | Complete                                                                                                                |
+| 2     | [Audit/rebase, foundations và auth APIs](./phase-02-database-auth-background-jobs.md) |    24h | PR1        | In progress: 2I daily training-summary is deferred until the end of the roadmap; all auth APIs through 2H are submitted |
+| 3     | [User, profile và private-file APIs](./phase-03-user-profile-private-avatar.md)       |    18h | Phase 02H  | In progress: 3A `PUT /api/user` submitted as PR #39                                                                     |
+| 4     | [Article/feed/favorite/tag APIs](./phase-04-articles-search-pagination.md)            |    26h | Phase 3    | Pending                                                                                                                 |
+| 5     | [Comment APIs](./phase-05-comments.md)                                                |    10h | Phase 4    | Pending                                                                                                                 |
+| 6     | [Stack-wide verification and remediation routing](./phase-06-unit-e2e-c2-testing.md)  |    12h | Phase 5    | Pending                                                                                                                 |
 
 ## Dependency and Data Flow
 

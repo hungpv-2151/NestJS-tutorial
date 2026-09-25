@@ -1,4 +1,4 @@
-import type { JwtService } from '@nestjs/jwt';
+import { JwtService } from '@nestjs/jwt';
 import { randomUUID } from 'node:crypto';
 
 import type { AuthConfig } from '../config/auth-config.js';

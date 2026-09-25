@@ -6,7 +6,7 @@
 
 ## Overview
 
-- Priority: P1 · Status: Pending · Effort: 18h · Blocked by: Phase 02 PR 2I
+- Priority: P1 · Status: In progress — 3A `PUT /api/user` submitted as PR #39 · Effort: 18h · Blocked by: Phase 02 PR 2H
 - Tách update-user, profile, follow/unfollow, avatar upload và file read thành PR riêng; attachment foundation không expose API.
 
 ## Key Insights
@@ -21,17 +21,17 @@
 
 ## Architecture and PR Dependency Graph
 
-`2I → 3A → 3B → 3C → 3D → 3E → 3F → 3G`. Mỗi PR rebase lên base trực tiếp trước first fix và submit.
+`2H → 3A → 3B → 3C → 3D → 3E → 3F → 3G`. PR 2I is deferred until the final roadmap pass. Mỗi PR rebase lên base trực tiếp trước first fix và submit.
 
-| PR | Only scope / public API | Base | Required evidence |
-|---|---|---|---|
-| 3A | `PUT /api/user` only | 2I | update/reissue/error E2E screenshot |
-| 3B | `GET /api/profiles/:username` only | 3A | anonymous/auth serializer result |
-| 3C | `POST /api/profiles/:username/follow` only | 3B | idempotent/self-follow result |
-| 3D | `DELETE /api/profiles/:username/follow` only | 3C | idempotent/unknown-profile result |
-| 3E | attachments migration + private storage/policy; API: none | 3D | migration + storage unit result |
-| 3F | `PUT /api/user/avatar` only | 3E | valid/fake-MIME/oversize/replace screenshot |
-| 3G | `GET /api/files/:id` only | 3F | auth/policy/headers/path-leak result |
+| PR  | Only scope / public API                                   | Base | Required evidence                           |
+| --- | --------------------------------------------------------- | ---- | ------------------------------------------- |
+| 3A  | `PUT /api/user` only                                      | 2H   | update/reissue/error E2E screenshot         |
+| 3B  | `GET /api/profiles/:username` only                        | 3A   | anonymous/auth serializer result            |
+| 3C  | `POST /api/profiles/:username/follow` only                | 3B   | idempotent/self-follow result               |
+| 3D  | `DELETE /api/profiles/:username/follow` only              | 3C   | idempotent/unknown-profile result           |
+| 3E  | attachments migration + private storage/policy; API: none | 3D   | migration + storage unit result             |
+| 3F  | `PUT /api/user/avatar` only                               | 3E   | valid/fake-MIME/oversize/replace screenshot |
+| 3G  | `GET /api/files/:id` only                                 | 3F   | auth/policy/headers/path-leak result        |
 
 ## Data Flow
 
@@ -54,7 +54,7 @@
 
 - [ ] PRs 3A–3G rebased, one-API scoped and within line limit.
 - [ ] Error-level findings zero; retained warnings documented per PR.
-- [ ] Evidence URLs: 3A `pending`; 3B `pending`; 3C `pending`; 3D `pending`; 3E `pending`; 3F `pending`; 3G `pending`.
+- [ ] Evidence URLs: 3A [PR #39 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/39#issuecomment-5753521154); 3B `pending`; 3C `pending`; 3D `pending`; 3E `pending`; 3F `pending`; 3G `pending`.
 
 ## Success Criteria
 

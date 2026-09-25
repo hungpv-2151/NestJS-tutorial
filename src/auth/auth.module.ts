@@ -31,6 +31,8 @@ import {
 import { AuthController } from './auth.controller.js';
 import { AuthLoginRateLimiter } from './auth-login-rate-limiter.js';
 import { AuthTokenGuard } from './auth-token.guard.js';
+import { AuthCurrentUserHandler } from './auth-current-user-handler.js';
+import { AuthUpdateUserHandler } from './auth-update-user-handler.js';
 import type { AuthLoginRateLimiterPort, AuthLoginTokenIssuer } from './auth-login-contracts.js';
 import { AuthService, type AuthLoginRepository, type AuthTokenVerifier } from './auth.service.js';
 import { issueToken } from './auth-token-issuer.js';
@@ -127,6 +129,8 @@ import { WELCOME_MAIL_OUTBOX_RELAY } from '../jobs/welcome-mail-outbox-relay.con
         new UserService(dataSource.getRepository(User)),
     },
     AuthTokenGuard,
+    AuthCurrentUserHandler,
+    AuthUpdateUserHandler,
     {
       provide: WELCOME_MAIL_QUEUE,
       useFactory: () => new BullMqWelcomeMailQueue(),
