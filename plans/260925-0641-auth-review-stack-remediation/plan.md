@@ -37,7 +37,7 @@ Keep PR #31 (`phase-02-register-complete`) as the base, #35 (`phase-02-login`) a
 
 ## Delivery status (2026-09-25)
 
-The rules branch (#44, `d1e288e7`), avatar branch (#45, `a8408805`), and private-file branch (#46, `5c6c4a13`) are pushed. The rebased descendant PRs retain their unique commits one-to-one; GitHub confirms the bases and heads and `mergeable=true` for all three. Post-rebase build, lint, unit, E2E, and focused checks pass; see [post-rebase test evidence](./evidence/raw-post-rebase-tests.json), [tempering results](./evidence/temper-results.json), and [inspection verdict](./evidence/inspection-verdict.json).
+The rules branch (#44, `d1e288e7`), avatar branch (#45, `a8408805`), and private-file branch (#46) are pushed. The auth logging fix is in #46 commit `5c6c4a13`, followed by plan and journal commits. The rebased descendant PRs retain their unique commits one-to-one; GitHub confirms the intended bases and heads and `mergeable=true` for all three. Post-rebase build, lint, unit, E2E, and focused checks pass; see [post-rebase test evidence](./evidence/raw-post-rebase-tests.json), [tempering results](./evidence/temper-results.json), and [inspection verdict](./evidence/inspection-verdict.json).
 
 All five planned commit-linked inline replies (four on #35 and one on #36) were attempted through the GitHub connector and returned `403 Resource not accessible by integration`. `gh auth status`, `gh api user`, and `gh stack push` hung and were interrupted, so the replies remain outstanding pending usable GitHub write access. Do not mark this plan complete until the five replies are posted. PR #37's logging suggestion remains deferred as future consideration, with no code change or reply requested.
 
