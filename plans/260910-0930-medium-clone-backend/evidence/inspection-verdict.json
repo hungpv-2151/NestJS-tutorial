@@ -3,15 +3,18 @@
   "criticalCount": 0,
   "decision": "SEALED",
   "acceptanceCovered": [
-    "The users migration has reversible apply and revert commands. Unit and isolated database checks cover both directions.",
-    "User entity metadata matches the users migration schema. Metadata regression checks cover password length and timestamps.",
-    "The foundation adds no public API route and keeps synchronize disabled. Review confirmed no controller or route change.",
-    "The users migration is applied to the configured DATABASE_URL after user confirmation. Migration show reports it applied."
+    "PUT /api/user/avatar accepts one authenticated multipart avatar upload and returns the serialized user with a private file URL. Auth guard, serializer, multipart contract, and response were reviewed; focused E2E passed.",
+    "Only JPEG, PNG, and WebP signatures are accepted, and uploads are limited to 2 MiB. Magic-byte validation, exact-limit behavior, and oversized upload behavior are covered by focused tests.",
+    "Avatar replacement serializes per-user updates and retries stale attachment cleanup on a later upload. The handler locks the user row, retains failed cleanup rows, and records failed partial-file cleanup for a later retry.",
+    "Authentication, upload validation, storage failure compensation, and API contract have focused unit and E2E coverage. Eight unit tests, three E2E tests, build, lint, and diff checks passed."
   ],
   "regressionChecked": [
-    "TypeORM migration CLI",
-    "PostgreSQL users schema",
-    "application startup schema synchronization"
+    "AuthTokenGuard before avatar handler execution",
+    "User response serialization and token preservation",
+    "Private attachment storage key and metadata ownership",
+    "Concurrent avatar replacement serialization through a pessimistic user-row lock",
+    "Stale file cleanup and durable cleanup retry markers",
+    "Multipart upload count, size, and invalid-file mapping"
   ],
   "contractStatus": "OK",
   "refuted": [],

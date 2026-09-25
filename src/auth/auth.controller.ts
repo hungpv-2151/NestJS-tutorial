@@ -39,8 +39,17 @@ import {
   AuthLogoutUnavailableError,
   AuthService,
 } from './auth.service.js';
-import { AuthTokenGuard, type AuthenticatedRequest } from './auth-token.guard.js';
-import { CurrentUserSwagger, LoginUserSwagger, LogoutUserSwagger, RegisterUserSwagger, UpdateUserSwagger } from './auth.swagger.js';
+import {
+  AuthTokenGuard,
+  type AuthenticatedRequest,
+} from './auth-token.guard.js';
+import {
+  CurrentUserSwagger,
+  LoginUserSwagger,
+  LogoutUserSwagger,
+  RegisterUserSwagger,
+  UpdateUserSwagger,
+} from './auth.swagger.js';
 import { issueToken } from './auth-token-issuer.js';
 import { AuthCurrentUserHandler } from './auth-current-user-handler.js';
 import { AuthUpdateUserHandler } from './auth-update-user-handler.js';
@@ -129,7 +138,9 @@ export class AuthController {
   @CurrentUserSwagger()
   @UseGuards(AuthTokenGuard)
   @Header('Cache-Control', 'no-store')
-  async currentUser(@Req() request: AuthenticatedRequest): Promise<SerializedUser> {
+  async currentUser(
+    @Req() request: AuthenticatedRequest,
+  ): Promise<SerializedUser> {
     return this.currentUserHandler.execute(request);
   }
 
@@ -157,7 +168,9 @@ export class AuthController {
         JSON.stringify(createRequestFailureLog(error, request)),
       );
       if (error instanceof AuthLogoutUnavailableError) {
-        throw new InternalServerErrorException({ errors: { body: ['request failed'] } });
+        throw new InternalServerErrorException({
+          errors: { body: ['request failed'] },
+        });
       }
       throw error;
     }

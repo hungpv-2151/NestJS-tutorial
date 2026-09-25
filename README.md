@@ -109,6 +109,26 @@ curl --header 'Accept-Language: vi-VN,vi;q=0.9' http://localhost:3000/api/hello
 { "message": "Xin chào!", "locale": "vi" }
 ```
 
+## User avatar upload
+
+`PUT /api/user/avatar` replaces the authenticated user's avatar.
+
+| Item | Contract |
+| --- | --- |
+| Authentication | Send the JWT as `Authorization: Token <jwt>`. |
+| Request | One required file part named `avatar` in `multipart/form-data`; extra files or form fields are rejected. |
+| Accepted files | JPEG, PNG, or WebP, identified from the file signature; maximum size is 2 MiB. |
+| Success | HTTP 200 with the authenticated-user response. `user.image` is `/api/files/{attachment-id}`; `user.token` contains the presented token. |
+| Errors | 401 for a missing or invalid token; 422 for a missing, invalid, unsupported, or oversized file; 500 if avatar persistence fails. |
+
+The file is stored under the private attachment root, which defaults to
+`storage/private`. Uploading a replacement updates the user and attachment
+metadata, then removes the previous file when cleanup succeeds.
+
+The returned `image` path is intended to be read through `GET /api/files/:id`.
+That file-read endpoint is planned for the next API PR and is not implemented in
+this checkout yet, so the avatar path cannot currently be fetched.
+
 Swagger UI is available at `http://localhost:3000/docs`, with its OpenAPI JSON
 at `http://localhost:3000/docs-json`. Both routes are enabled outside
 production. When `NODE_ENV=production`, both return `404` unless

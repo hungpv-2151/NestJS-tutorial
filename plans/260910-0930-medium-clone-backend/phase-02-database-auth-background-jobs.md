@@ -43,7 +43,7 @@
 
 | PR      | Only scope / public API                                                   | Base     | Required evidence                                                                                       |
 | ------- | ------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------- |
-| Gate G2 | Preserve local work; refresh/rebase; diff-to-plan audit; no code fix      | PR1      | stack screenshot + before/after diff-stat                                                               |
+| Gate G2 | Preserve local work; verify current stack head/base; diff-to-plan audit; no code fix | current stack head (#44) | stack topology + unchanged diff-stat |
 | 2A      | Dependency/config slices; API: none                                       | PR1      | install/compile result; size proof                                                                      |
 | 2B.1    | TypeORM data source, migration CLI, users entity/migration; API: none     | 2A       | apply/revert/apply evidence                                                                             |
 | 2B.2    | Guarded dev/test database reset tooling; API: none                        | 2B.1     | reset refusal + reset evidence                                                                          |
@@ -66,7 +66,7 @@
 
 ## Implementation Steps
 
-1. G2: record `gh stack view` and diff-stat; protect all uncommitted work without discard/reset. Refresh refs, rebase branch on declared PR1 base, then capture the same evidence again.
+1. G2: inspect the current stack head and its immediate PR base; preserve uncommitted work. Rebase only a new child onto that verified head, then compare its diff before/after any rebase. Do not rebase a later stack head back to PR1.
 2. Audit every existing hunk against rows 2A–2I. Keep only one row per branch; move mixed or oversized work into new stacked layers. Create a remediation layer when implemented behavior differs from this plan.
 3. Execute 2A–2I in order. Before each first fix and before submit, refresh/rebase on its row base and re-run the one-API/line-count audit.
 4. For each PR run compile, error-level lint/static analysis, targeted unit/integration/E2E and migration checks relevant to its scope.
@@ -74,7 +74,7 @@
 
 ## Todo List
 
-- [ ] G2 rebase/audit complete; current diff preserved and mapped, not silently marked done.
+- [x] G2 audit complete (2026-09-25): clean `chore-agent-rule-refresh` at `a6a17f2`; PR #44 base is `phase-03-private-attachments-foundation` at `eb877d5`, matching PR #43's submitted head. PR #44 delta is 54 files (+1,999/-2,610); no rebase was needed, so the before/after diff is unchanged. `gh stack view` stalled, so GitHub PR metadata and local refs provided the topology evidence. New work starts from #44.
 - [ ] PRs 2A–2I each stay within one API/foundation and ≤400 changed lines of production code; spec, Markdown, JSON, test, migration, YAML, lockfile và supporting artifact không tính.
 - [ ] Every PR has zero error-level findings; warnings fixed or logged with follow-up.
 - [x] 2E.2 welcome-mail relay validated in registration-only PR #31: Redis Cloud `PING` passed; `pnpm build` passed; targeted/full unit suite passed (77 passed, 1 skipped); `pnpm test:e2e` passed (9 passed); `pnpm lint` exit 0 with warnings only; `pnpm install --frozen-lockfile` passed.

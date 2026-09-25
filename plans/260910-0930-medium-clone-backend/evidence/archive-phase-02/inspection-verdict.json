@@ -1,0 +1,26 @@
+{
+  "score": 10,
+  "criticalCount": 0,
+  "decision": "SEALED",
+  "acceptanceCovered": [
+    "The users migration has reversible apply and revert commands. Unit and isolated database checks cover both directions.",
+    "User entity metadata matches the users migration schema. Metadata regression checks cover password length and timestamps.",
+    "The foundation adds no public API route and keeps synchronize disabled. Review confirmed no controller or route change.",
+    "The users migration is applied to the configured DATABASE_URL after user confirmation. Migration show reports it applied."
+  ],
+  "regressionChecked": [
+    "TypeORM migration CLI",
+    "PostgreSQL users schema",
+    "application startup schema synchronization"
+  ],
+  "contractStatus": "OK",
+  "refuted": [],
+  "unproven": [],
+  "reachableRegressions": [],
+  "findings": [],
+  "riskGate": {
+    "touchesSensitiveArea": true,
+    "signoffRequired": true,
+    "humanSignedOff": true
+  }
+}
