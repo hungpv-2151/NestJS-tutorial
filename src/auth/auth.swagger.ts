@@ -1,6 +1,7 @@
 import { applyDecorators } from '@nestjs/common';
 import {
   ApiBody,
+  ApiConsumes,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiHeader,
@@ -154,6 +155,43 @@ export function UpdateUserSwagger(): MethodDecorator {
     }),
     ApiInternalServerErrorResponse({
       description: 'User could not be updated.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
+  );
+}
+
+export function UserAvatarSwagger(): MethodDecorator {
+  return applyDecorators(
+    ApiOperation({ summary: 'Upload an avatar for the authenticated user' }),
+    ApiHeader({
+      description: 'JWT presented as Token <jwt>.',
+      example: 'Token <jwt>',
+      name: 'Authorization',
+      required: true,
+    }),
+    ApiSecurity(TOKEN_AUTH_SECURITY_SCHEME),
+    ApiConsumes('multipart/form-data'),
+    ApiBody({
+      schema: {
+        properties: { avatar: { format: 'binary', type: 'string' } },
+        required: ['avatar'],
+        type: 'object',
+      },
+    }),
+    ApiOkResponse({
+      description: 'Updated user with a private avatar file URL.',
+      schema: AUTHENTICATED_USER_SCHEMA,
+    }),
+    ApiUnauthorizedResponse({
+      description: 'Token is missing or invalid.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
+    ApiUnprocessableEntityResponse({
+      description: 'Avatar is unsupported or larger than 2 MiB.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
+    ApiInternalServerErrorResponse({
+      description: 'Avatar could not be stored.',
       schema: VALIDATION_ERROR_SCHEMA,
     }),
   );

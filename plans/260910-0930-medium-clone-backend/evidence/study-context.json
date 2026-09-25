@@ -1,27 +1,29 @@
 {
-  "task": "Deliver Phase 02B.1 users TypeORM migration and compiled CLI without a public API change.",
+  "task": "Deliver Phase 3F authenticated avatar upload as one API PR stacked on PR #44.",
   "mode": "interactive",
   "acceptanceCriteria": [
-    "The users migration has reversible apply and revert commands.",
-    "User entity metadata matches the users migration schema.",
-    "The foundation adds no public API route and keeps synchronize disabled.",
-    "The users migration is applied to the configured DATABASE_URL after user confirmation."
+    "PUT /api/user/avatar accepts one authenticated multipart avatar upload and returns the serialized user with a private file URL.",
+    "Only JPEG, PNG, and WebP signatures are accepted, and uploads are limited to 2 MiB.",
+    "Avatar replacement serializes per-user updates and retries stale attachment cleanup on a later upload.",
+    "Authentication, upload validation, storage failure compensation, and API contract have focused unit and E2E coverage."
   ],
   "touchpoints": [
-    "package.json",
-    "src/database/data-source.ts",
-    "src/database/data-source.spec.ts",
-    "src/database/migrations/1710000000000-create-users.ts",
-    "src/users/user.entity.ts"
+    "src/auth/user-avatar.controller.ts",
+    "src/auth/user-avatar-handler.ts",
+    "src/auth/user-avatar-upload.interceptor.ts",
+    "src/auth/auth.module.ts",
+    "src/attachments/private-attachment-storage.ts",
+    "README.md"
   ],
   "blastRadius": [
-    "TypeORM migration CLI",
-    "PostgreSQL users schema",
-    "application startup schema synchronization"
+    "authenticated user avatar replacement",
+    "private attachment metadata and storage cleanup",
+    "auth module dependency registration"
   ],
   "contracts": [
-    "pnpm db:migration:apply",
-    "pnpm db:migration:revert",
-    "pnpm db:migration:show"
+    "PUT /api/user/avatar",
+    "Authorization: Token <jwt>",
+    "multipart/form-data field avatar",
+    "GET /api/files/:id is deferred to the next stack PR"
   ]
 }

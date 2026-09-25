@@ -6,7 +6,7 @@
 
 ## Overview
 
-- Priority: P1 · Status: In progress — 3A #39, 3B #40, 3C follow #41, 3D unfollow #42 and 3E attachment foundation #43 submitted · Effort: 18h · Blocked by: Phase 02 PR 2H
+- Priority: P1 · Status: In progress — 3A #39 through 3F #45 submitted on the existing stack; 3G file-read API remains · Effort: 18h · Blocked by: Phase 02 PR 2H
 - Tách update-user, profile, follow/unfollow, avatar upload và file read thành PR riêng; attachment foundation không expose API.
 
 ## Key Insights
@@ -21,7 +21,7 @@
 
 ## Architecture and PR Dependency Graph
 
-`2H → 3A → 3B → 3C → 3D → 3E → 3F → 3G`. PR 2I is deferred until the final roadmap pass. Mỗi PR rebase lên base trực tiếp trước first fix và submit.
+`2H → 3A → 3B → 3C → 3D → 3E (#43) → #44 → 3F (#45) → 3G`. PR #44 is an intervening agent-rules stack layer. PR #45 targets `chore-agent-rule-refresh` (#44) at base SHA `a6a17f2`; its head is `0f01b4f`. Unit 8/8, E2E 3/3, build, lint with 0 errors (131 warnings), and independent final review passed. PR 2I remains deferred until the final roadmap pass. Mỗi PR rebase lên base trực tiếp trước first fix và submit.
 
 | PR  | Only scope / public API                                   | Base | Required evidence                           |
 | --- | --------------------------------------------------------- | ---- | ------------------------------------------- |
@@ -30,8 +30,8 @@
 | 3C  | `POST /api/profiles/:username/follow` only                | 3B   | idempotent/self-follow result               |
 | 3D  | `DELETE /api/profiles/:username/follow` only              | 3C   | idempotent/unknown-profile result           |
 | 3E  | attachments migration + private storage/policy; API: none | 3D   | migration + storage unit result             |
-| 3F  | `PUT /api/user/avatar` only                               | 3E   | valid/fake-MIME/oversize/replace screenshot |
-| 3G  | `GET /api/files/:id` only                                 | 3F   | auth/policy/headers/path-leak result        |
+| 3F  | `PUT /api/user/avatar` only                               | #44  | [PR #45](https://github.com/hungpv-2151/NestJS-tutorial/pull/45); unit/E2E/build/lint/review evidence below |
+| 3G  | `GET /api/files/:id` only                                 | 3F (#45) | auth/policy/headers/path-leak result   |
 
 ## Data Flow
 
@@ -52,9 +52,10 @@
 
 ## Todo List
 
-- [ ] PRs 3A–3G rebased, one-API scoped and within line limit.
-- [ ] Error-level findings zero; retained warnings documented per PR.
-- [ ] Evidence URLs: 3A [PR #39 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/39#issuecomment-5753521154); 3B [PR #40 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/40#issuecomment-5753623421); 3C [PR #41 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/41#issuecomment-5754553474); 3D [PR #42 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/42#issuecomment-5756484390); 3E [PR #43 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/43#issuecomment-5756688502); 3F `pending`; 3G `pending`.
+- [ ] PRs 3A–3G rebased, one-API scoped and within line limit. 3F #45 is submitted and independently reviewed; 3G remains.
+- [ ] Error-level findings zero; retained warnings documented per PR. 3F lint: 0 errors, 131 warnings across 90 files; see PR #45 validation comment.
+- [ ] Stack audit: #44 targets #43; #45 targets #44; 3G must target #45.
+- [ ] Evidence URLs: 3A [PR #39 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/39#issuecomment-5753521154); 3B [PR #40 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/40#issuecomment-5753623421); 3C [PR #41 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/41#issuecomment-5754553474); 3D [PR #42 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/42#issuecomment-5756484390); 3E [PR #43 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/43#issuecomment-5756688502); 3F [PR #45 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/45#issuecomment-5829598488); 3G `pending`.
 
 ## Success Criteria
 
@@ -75,4 +76,5 @@
 
 ## Next Steps
 
+- 3F PR #45 is open and based directly on #44. Continue with `GET /api/files/:id` as PR #46 targeting #45. The image URL from PR #45 does not resolve until #46 is merged.
 - Phase 04 starts after 3G and all Phase 03 evidence comments are accepted.
