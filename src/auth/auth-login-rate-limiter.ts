@@ -3,24 +3,12 @@ import { createHash } from 'node:crypto';
 import type { OnModuleDestroy } from '@nestjs/common';
 import { Redis } from 'ioredis';
 
-const MAX_LOGIN_ATTEMPTS = 5;
-const LOGIN_WINDOW_MS = 60_000;
-
-const INCREMENT_LOGIN_ATTEMPTS = `
-  local counts = {}
-  for index, key in ipairs(KEYS) do
-    local count = redis.call('INCR', key)
-    if count == 1 then redis.call('PEXPIRE', key, ARGV[1]) end
-    counts[index] = count
-  end
-  return counts
-`;
-
-interface RedisConnection {
-  connect(): Promise<unknown>;
-  eval(script: string, numberOfKeys: number, ...args: string[]): Promise<unknown>;
-  quit(): Promise<unknown>;
-}
+import {
+  AUTH_LOGIN_INCREMENT_SCRIPT,
+  AUTH_LOGIN_MAX_ATTEMPTS,
+  AUTH_LOGIN_WINDOW_MS,
+} from './auth-login-rate-limiter.constants.js';
+import type { RedisConnection } from './auth-login-redis-connection.js';
 
 export class AuthLoginRateLimitError extends Error {}
 
@@ -39,12 +27,15 @@ export class AuthLoginRateLimiter implements OnModuleDestroy {
 
   async consume(email: string, ipAddress: string | undefined): Promise<void> {
     await this.connect();
-    const attempts = await this.connection.eval(
-      INCREMENT_LOGIN_ATTEMPTS,
-      2,
+    const keys = [
       createLoginKey('email', email.toLowerCase()),
       createLoginKey('ip', ipAddress ?? 'unknown'),
-      String(LOGIN_WINDOW_MS),
+    ];
+    const attempts = await this.connection.eval(
+      AUTH_LOGIN_INCREMENT_SCRIPT,
+      keys.length,
+      ...keys,
+      String(AUTH_LOGIN_WINDOW_MS),
     );
     if (!isRateLimited(attempts)) {
       return;
@@ -90,6 +81,6 @@ function createLoginKey(type: 'email' | 'ip', value: string): string {
 function isRateLimited(attempts: unknown): boolean {
   return (
     Array.isArray(attempts) &&
-    attempts.some((attempt) => attempt > MAX_LOGIN_ATTEMPTS)
+    attempts.some((attempt) => attempt > AUTH_LOGIN_MAX_ATTEMPTS)
   );
 }

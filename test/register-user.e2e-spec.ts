@@ -5,7 +5,6 @@ import { App } from 'supertest/types';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { AuthController, AUTH_CONFIG } from '../src/auth/auth.controller.js';
-import { AUTH_LOGIN_RATE_LIMITER } from '../src/auth/auth.constants.js';
 import { AuthLoginRateLimitError } from '../src/auth/auth-login-rate-limiter.js';
 import { configureGlobalRequestHandling } from '../src/create-app.js';
 import {
@@ -94,12 +93,15 @@ describe('POST /api/users (e2e)', () => {
 
   it('logs in an existing user', async () => {
     const login = vi.fn().mockResolvedValue({
-      bio: null,
-      email: 'jane@example.com',
-      image: null,
-      username: 'jane',
+      token: 'signed-token',
+      user: {
+        bio: null,
+        email: 'jane@example.com',
+        image: null,
+        username: 'jane',
+      },
     });
-    app = await createApp(vi.fn(), vi.fn().mockResolvedValue('signed-token'), login);
+    app = await createApp(vi.fn(), vi.fn(), login);
 
     await request(app.getHttpServer())
       .post('/api/users/login')
@@ -115,7 +117,11 @@ describe('POST /api/users (e2e)', () => {
         },
       });
 
-    expect(login).toHaveBeenCalledWith('jane@example.com', 'safe-password');
+    expect(login).toHaveBeenCalledWith({
+      email: 'jane@example.com',
+      ipAddress: expect.any(String),
+      password: 'safe-password',
+    });
   });
 
   it('rejects invalid login credentials', async () => {
@@ -129,17 +135,27 @@ describe('POST /api/users (e2e)', () => {
       .expect({ errors: { credentials: ['invalid'] } });
   });
 
+  it('returns a generic server error when login token signing fails', async () => {
+    const login = vi.fn().mockRejectedValue(new Error('signer unavailable'));
+    app = await createApp(vi.fn(), vi.fn(), login);
+
+    await request(app.getHttpServer())
+      .post('/api/users/login')
+      .send({ user: { email: 'jane@example.com', password: 'safe-password' } })
+      .expect(500)
+      .expect({ errors: { body: ['request failed'] } });
+  });
+
   it('limits login attempts by email and IP address', async () => {
-    const login = vi.fn().mockRejectedValue(new AuthInvalidCredentialsError());
     let attempts = 0;
-    app = await createApp(vi.fn(), vi.fn(), login, {
-      consume: () => {
-        attempts += 1;
-        if (attempts > 5) {
-          throw new AuthLoginRateLimitError();
-        }
-      },
+    const login = vi.fn().mockImplementation(() => {
+      attempts += 1;
+      if (attempts > 5) {
+        throw new AuthLoginRateLimitError();
+      }
+      throw new AuthInvalidCredentialsError();
     });
+    app = await createApp(vi.fn(), vi.fn(), login);
     const server = request(app.getHttpServer());
 
     for (let attempt = 0; attempt < 5; attempt += 1) {
@@ -161,12 +177,10 @@ async function createApp(
   register: ReturnType<typeof vi.fn>,
   signAsync = vi.fn().mockResolvedValue('signed-token'),
   login = vi.fn(),
-  loginRateLimiter = { consume: vi.fn() },
 ): Promise<INestApplication<App>> {
   @Module({
     controllers: [AuthController],
     providers: [
-      { provide: AUTH_LOGIN_RATE_LIMITER, useValue: loginRateLimiter },
       { provide: AuthService, useValue: { login, register } },
       { provide: JwtService, useValue: { signAsync } },
       { provide: AUTH_CONFIG, useValue: { audience: 'client', issuer: 'api', secret: 'secret' } },

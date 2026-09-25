@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 
 import { getAuthConfig, toJwtModuleOptions } from '../config/auth-config.js';
+import type { AuthConfig } from '../config/auth-config.js';
 import { DatabaseModule } from '../database/database.module.js';
 import { WelcomeMailOutbox } from '../jobs/welcome-mail-outbox.entity.js';
 import {
@@ -26,7 +27,12 @@ import {
 } from './auth.constants.js';
 import { AuthController } from './auth.controller.js';
 import { AuthLoginRateLimiter } from './auth-login-rate-limiter.js';
-import { AuthService } from './auth.service.js';
+import type {
+  AuthLoginRateLimiterPort,
+  AuthLoginTokenIssuer,
+} from './auth-login-contracts.js';
+import { AuthService, type AuthLoginRepository } from './auth.service.js';
+import { issueToken } from './auth-token-issuer.js';
 import { WELCOME_MAIL_OUTBOX_RELAY } from '../jobs/welcome-mail-outbox-relay.constants.js';
 
 @Module({
@@ -55,10 +61,31 @@ import { WELCOME_MAIL_OUTBOX_RELAY } from '../jobs/welcome-mail-outbox-relay.con
       }),
     },
     {
-      inject: [DataSource, AUTH_LOGIN_REPOSITORY],
+      inject: [
+        DataSource,
+        AUTH_LOGIN_REPOSITORY,
+        AUTH_LOGIN_RATE_LIMITER,
+        JwtService,
+        AUTH_CONFIG,
+      ],
       provide: AuthService,
-      useFactory: (dataSource: DataSource, loginRepository) =>
-        new AuthService(dataSource, loginRepository),
+      useFactory: (
+        dataSource: DataSource,
+        loginRepository: AuthLoginRepository,
+        loginRateLimiter: AuthLoginRateLimiterPort,
+        jwtService: JwtService,
+        authConfig: AuthConfig,
+      ) => {
+        const tokenIssuer: AuthLoginTokenIssuer = {
+          issue: (username) => issueToken(jwtService, authConfig, username),
+        };
+        return new AuthService(
+          dataSource,
+          loginRepository,
+          loginRateLimiter,
+          tokenIssuer,
+        );
+      },
     },
     {
       provide: AUTH_LOGIN_RATE_LIMITER,

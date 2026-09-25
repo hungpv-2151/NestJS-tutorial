@@ -3,11 +3,18 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { User } from '../users/user.entity.js';
 import { WelcomeMailOutbox } from '../jobs/welcome-mail-outbox.entity.js';
+import type {
+  AuthLoginRateLimiterPort,
+  AuthLoginTokenIssuer,
+} from './auth-login-contracts.js';
+import { AuthLoginRateLimitError } from './auth-login-rate-limiter.js';
 import {
   AuthConflictError,
   AuthInvalidCredentialsError,
   AuthPersistenceError,
   AuthService,
+  type AuthLoginRepository,
+  type AuthPasswordVerifier,
   type UserRepository,
   type WelcomeMailOutboxRepository,
 } from './auth.service.js';
@@ -90,7 +97,7 @@ function createService(
       const outboxSnapshot = [...outboxRepository.savedOutbox];
       try {
         return await work({
-          getRepository: (entity) =>
+          getRepository: (entity: typeof User | typeof WelcomeMailOutbox) =>
             entity === User ? repository : outboxRepository,
         } as never);
       } catch (error) {
@@ -116,50 +123,112 @@ function createService(
       },
     },
     { findByEmail: async () => null },
+    { consume: async () => undefined },
+    { issue: async () => 'signed-token' },
   );
   return { outboxRepository, repository, rolledBack: () => isRolledBack, service };
 }
 
 describe('AuthService', () => {
-  it('logs in when the password matches', async () => {
+  it('rate limits, validates credentials, and issues a token during login', async () => {
     const user = await userWithPassword('safe-password');
-    const service = new AuthService(
-      { transaction: async (work) => work({} as never) },
+    const loginRateLimiter = { consume: vi.fn().mockResolvedValue(undefined) };
+    const tokenIssuer = { issue: vi.fn().mockResolvedValue('signed-token') };
+    const service = createLoginService(
       { findByEmail: async () => user },
+      loginRateLimiter,
+      tokenIssuer,
     );
 
-    await expect(service.login(user.email, 'safe-password')).resolves.toBe(user);
+    await expect(
+      service.login({
+        email: user.email,
+        ipAddress: '127.0.0.1',
+        password: 'safe-password',
+      }),
+    ).resolves.toEqual({ token: 'signed-token', user });
+
+    expect(loginRateLimiter.consume).toHaveBeenCalledWith(
+      user.email,
+      '127.0.0.1',
+    );
+    expect(tokenIssuer.issue).toHaveBeenCalledWith(user.username);
   });
 
   it('rejects an unknown email or incorrect password with one error', async () => {
     const user = await userWithPassword('different-password');
-    const unknownEmail = new AuthService(
-      { transaction: async (work) => work({} as never) },
-      { findByEmail: async () => null },
-    );
-    const wrongPassword = new AuthService(
-      { transaction: async (work) => work({} as never) },
+    const unknownEmail = createLoginService({ findByEmail: async () => null });
+    const wrongPassword = createLoginService({ findByEmail: async () => user });
+
+    await expect(
+      unknownEmail.login({
+        email: 'missing@example.com',
+        ipAddress: '127.0.0.1',
+        password: 'safe-password',
+      }),
+    ).rejects.toBeInstanceOf(AuthInvalidCredentialsError);
+    await expect(
+      wrongPassword.login({
+        email: user.email,
+        ipAddress: '127.0.0.1',
+        password: 'safe-password',
+      }),
+    ).rejects.toBeInstanceOf(AuthInvalidCredentialsError);
+  });
+
+  it('stops before credential lookup when login is rate limited', async () => {
+    const findByEmail = vi.fn();
+    const loginRateLimiter = {
+      consume: vi.fn().mockRejectedValue(new AuthLoginRateLimitError()),
+    };
+    const service = createLoginService({ findByEmail }, loginRateLimiter);
+
+    await expect(
+      service.login({
+        email: 'jane@example.com',
+        ipAddress: '127.0.0.1',
+        password: 'safe-password',
+      }),
+    ).rejects.toBeInstanceOf(AuthLoginRateLimitError);
+    expect(findByEmail).not.toHaveBeenCalled();
+  });
+
+  it('propagates token signing failures after valid credentials', async () => {
+    const user = await userWithPassword('safe-password');
+    const signingError = new Error('signer unavailable');
+    const tokenIssuer = {
+      issue: vi.fn().mockRejectedValue(signingError),
+    };
+    const service = createLoginService(
       { findByEmail: async () => user },
+      undefined,
+      tokenIssuer,
     );
 
     await expect(
-      unknownEmail.login('missing@example.com', 'safe-password'),
-    ).rejects.toBeInstanceOf(AuthInvalidCredentialsError);
-    await expect(
-      wrongPassword.login(user.email, 'safe-password'),
-    ).rejects.toBeInstanceOf(AuthInvalidCredentialsError);
+      service.login({
+        email: user.email,
+        ipAddress: '127.0.0.1',
+        password: 'safe-password',
+      }),
+    ).rejects.toBe(signingError);
   });
 
   it('verifies a password hash when an email is unknown', async () => {
     const matches = vi.fn().mockResolvedValue(false);
-    const service = new AuthService(
-      { transaction: async (work) => work({} as never) },
+    const service = createLoginService(
       { findByEmail: async () => null },
+      undefined,
+      undefined,
       { matches },
     );
 
     await expect(
-      service.login('missing@example.com', 'safe-password'),
+      service.login({
+        email: 'missing@example.com',
+        ipAddress: '127.0.0.1',
+        password: 'safe-password',
+      }),
     ).rejects.toBeInstanceOf(AuthInvalidCredentialsError);
 
     expect(matches).toHaveBeenCalledWith(
@@ -333,4 +402,23 @@ async function userWithPassword(password: string): Promise<User> {
     passwordHash: await hash(password),
     username: 'jane',
   } as User;
+}
+
+function createLoginService(
+  loginRepository: AuthLoginRepository,
+  loginRateLimiter: AuthLoginRateLimiterPort = {
+    consume: async () => undefined,
+  },
+  tokenIssuer: AuthLoginTokenIssuer = {
+    issue: async () => 'signed-token',
+  },
+  passwordVerifier?: AuthPasswordVerifier,
+): AuthService {
+  return new AuthService(
+    { transaction: async (work) => work({} as never) },
+    loginRepository,
+    loginRateLimiter,
+    tokenIssuer,
+    passwordVerifier,
+  );
 }

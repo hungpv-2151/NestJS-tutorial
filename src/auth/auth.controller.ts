@@ -15,7 +15,6 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import type { Request } from 'express';
-import { randomUUID } from 'node:crypto';
 
 import {
   LoginUserRequestDto,
@@ -27,22 +26,15 @@ import {
 } from '../users/user.serializer.js';
 import type { AuthConfig } from '../config/auth-config.js';
 import { createRequestFailureLog } from '../common/logging/request-failure-log.js';
-import {
-  AUTH_CONFIG,
-  AUTH_LOGIN_RATE_LIMITER,
-  TOKEN_LIFETIME_SECONDS,
-} from './auth.constants.js';
-import {
-  AuthLoginRateLimitError,
-  AuthLoginRateLimiter,
-} from './auth-login-rate-limiter.js';
+import { AUTH_CONFIG } from './auth.constants.js';
+import { AuthLoginRateLimitError } from './auth-login-rate-limiter.js';
 import {
   AuthConflictError,
   AuthInvalidCredentialsError,
   AuthService,
 } from './auth.service.js';
 import { LoginUserSwagger, RegisterUserSwagger } from './auth.swagger.js';
-import { createTokenClaims } from './token-claims.js';
+import { issueToken } from './auth-token-issuer.js';
 
 export { AUTH_CONFIG } from './auth.constants.js';
 
@@ -53,8 +45,6 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly jwtService: JwtService,
-    @Inject(AUTH_LOGIN_RATE_LIMITER)
-    private readonly loginRateLimiter: AuthLoginRateLimiter,
     @Inject(AUTH_CONFIG) private readonly authConfig: AuthConfig,
   ) {}
 
@@ -96,15 +86,12 @@ export class AuthController {
     @Req() httpRequest: Request,
   ): Promise<SerializedUser> {
     try {
-      await this.loginRateLimiter.consume(request.user.email, httpRequest.ip);
-      const user = await this.authService.login(
-        request.user.email,
-        request.user.password,
-      );
-      return serializeUser(
-        user,
-        await this.createToken(user.username, httpRequest),
-      );
+      const { token, user } = await this.authService.login({
+        email: request.user.email,
+        ipAddress: httpRequest.ip,
+        password: request.user.password,
+      });
+      return serializeUser(user, token);
     } catch (error) {
       this.logger.error(
         JSON.stringify(createRequestFailureLog(error, httpRequest)),
@@ -130,17 +117,8 @@ export class AuthController {
     username: string,
     request: Request,
   ): Promise<string> {
-    const issuedAt = Math.floor(Date.now() / 1_000);
     try {
-      return await this.jwtService.signAsync(
-        createTokenClaims(
-          this.authConfig,
-          username,
-          randomUUID(),
-          issuedAt,
-          issuedAt + TOKEN_LIFETIME_SECONDS,
-        ),
-      );
+      return await issueToken(this.jwtService, this.authConfig, username);
     } catch (error) {
       this.logger.error(
         JSON.stringify(createRequestFailureLog(error, request)),

@@ -26,7 +26,7 @@ describe('welcome-mail outbox transaction', () => {
           transaction: (work) =>
             dataSource.transaction((manager) =>
               work({
-                getRepository: (entity) =>
+                getRepository: (entity: typeof User | typeof WelcomeMailOutbox) =>
                   entity === User
                     ? manager.getRepository(User)
                     : {
@@ -39,6 +39,8 @@ describe('welcome-mail outbox transaction', () => {
             ),
         },
         { findByEmail: async () => null },
+        { consume: async () => undefined },
+        { issue: async () => 'signed-token' },
       );
 
       await expect(
