@@ -9,7 +9,7 @@ import type {
   AuthenticatedLogin,
 } from './auth-login-contracts.js';
 import {
-  INVALID_PASSWORD_HASH,
+  TIMING_PARITY_PASSWORD_HASH,
   matchesPassword,
 } from './auth-password-verifier.js';
 
@@ -92,7 +92,7 @@ export class AuthService {
     await this.loginRateLimiter.consume(request.email, request.ipAddress);
     const user = await this.loginRepository.findByEmail(request.email);
     const passwordMatches = await this.passwordVerifier.matches(
-      user?.passwordHash ?? INVALID_PASSWORD_HASH,
+      user?.passwordHash ?? TIMING_PARITY_PASSWORD_HASH,
       request.password,
     );
     if (!user || !passwordMatches) {
