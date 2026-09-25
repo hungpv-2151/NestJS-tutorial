@@ -1,4 +1,4 @@
-import { mkdir, rm, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { basename, resolve, sep } from 'node:path';
 
 export class InvalidAttachmentStorageKeyError extends Error {
@@ -21,6 +21,10 @@ export class PrivateAttachmentStorage {
 
   async remove(storageKey: string): Promise<void> {
     await rm(this.resolvePath(storageKey), { force: true });
+  }
+
+  async read(storageKey: string): Promise<Buffer> {
+    return readFile(this.resolvePath(storageKey));
   }
 
   resolvePath(storageKey: string): string {

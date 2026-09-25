@@ -7,6 +7,7 @@ import { AppService } from './app.service.js';
 import { AuthModule } from './auth/auth.module.js';
 import { ProfilesModule } from './profiles/profiles.module.js';
 import { AttachmentsModule } from './attachments/attachments.module.js';
+import { FilesModule } from './files/files.module.js';
 
 const translationsPath = join(dirname(fileURLToPath(import.meta.url)), 'i18n');
 
@@ -23,6 +24,7 @@ const translationsPath = join(dirname(fileURLToPath(import.meta.url)), 'i18n');
     AuthModule,
     ProfilesModule,
     AttachmentsModule,
+    FilesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

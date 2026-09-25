@@ -6,7 +6,7 @@
 
 ## Overview
 
-- Priority: P1 · Status: In progress — 3A #39 through 3F #45 submitted on the existing stack; 3G file-read API remains · Effort: 18h · Blocked by: Phase 02 PR 2H
+- Priority: P1 · Status: In progress — 3A #39 through 3F #45 submitted; 3G implementation/review complete, intended PR #46 stack submission pending · Effort: 18h · Blocked by: Phase 02 PR 2H
 - Tách update-user, profile, follow/unfollow, avatar upload và file read thành PR riêng; attachment foundation không expose API.
 
 ## Key Insights
@@ -21,7 +21,7 @@
 
 ## Architecture and PR Dependency Graph
 
-`2H → 3A → 3B → 3C → 3D → 3E (#43) → #44 → 3F (#45) → 3G`. PR #44 is an intervening agent-rules stack layer. PR #45 targets `chore-agent-rule-refresh` (#44) at base SHA `a6a17f2`; its head is `0f01b4f`. Unit 8/8, E2E 3/3, build, lint with 0 errors (131 warnings), and independent final review passed. PR 2I remains deferred until the final roadmap pass. Mỗi PR rebase lên base trực tiếp trước first fix và submit.
+`2H → 3A → 3B → 3C → 3D → 3E (#43) → #44 → 3F (#45) → 3G (intended #46)`. PR #44 is an intervening agent-rules stack layer. PR #45 targets `chore-agent-rule-refresh` (#44) at base SHA `a6a17f2`; its head is `0f01b4f`. 3G implements `GET /api/files/:id` with owner-only access: JWT `sub` resolves to the user by username before comparing the owner UUID. Unauthorized and missing files return non-disclosing 404s; successful private-file responses set safe private response headers. Validation: 10 unit/storage tests, 3 E2E tests, build pass, lint 0 errors/139 warnings, diff-check pass; independent review passed. Intended PR #46 must target #45; it is not open yet and stack submission is pending. The avatar URL is not fetchable until #46 merges. PR 2I remains deferred until the final roadmap pass. Mỗi PR rebase lên base trực tiếp trước first fix và submit.
 
 | PR  | Only scope / public API                                   | Base | Required evidence                           |
 | --- | --------------------------------------------------------- | ---- | ------------------------------------------- |
@@ -31,7 +31,7 @@
 | 3D  | `DELETE /api/profiles/:username/follow` only              | 3C   | idempotent/unknown-profile result           |
 | 3E  | attachments migration + private storage/policy; API: none | 3D   | migration + storage unit result             |
 | 3F  | `PUT /api/user/avatar` only                               | #44  | [PR #45](https://github.com/hungpv-2151/NestJS-tutorial/pull/45); unit/E2E/build/lint/review evidence below |
-| 3G  | `GET /api/files/:id` only                                 | 3F (#45) | auth/policy/headers/path-leak result   |
+| 3G  | `GET /api/files/:id` only                                 | #45 | Implemented/reviewed; 10 unit/storage + 3 E2E, build, lint, diff-check pass. Intended #46 not submitted. |
 
 ## Data Flow
 
@@ -52,10 +52,10 @@
 
 ## Todo List
 
-- [ ] PRs 3A–3G rebased, one-API scoped and within line limit. 3F #45 is submitted and independently reviewed; 3G remains.
-- [ ] Error-level findings zero; retained warnings documented per PR. 3F lint: 0 errors, 131 warnings across 90 files; see PR #45 validation comment.
-- [ ] Stack audit: #44 targets #43; #45 targets #44; 3G must target #45.
-- [ ] Evidence URLs: 3A [PR #39 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/39#issuecomment-5753521154); 3B [PR #40 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/40#issuecomment-5753623421); 3C [PR #41 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/41#issuecomment-5754553474); 3D [PR #42 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/42#issuecomment-5756484390); 3E [PR #43 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/43#issuecomment-5756688502); 3F [PR #45 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/45#issuecomment-5829598488); 3G `pending`.
+- [ ] PRs 3A–3G rebased, one-API scoped and within line limit. 3F #45 is submitted/reviewed; 3G is implemented and reviewed but intended #46 submission remains pending.
+- [ ] Error-level findings zero; retained warnings documented per PR. 3F lint: 0 errors, 131 warnings across 90 files; see PR #45 validation comment. 3G lint: 0 errors, 139 warnings; record retained-warning evidence with intended #46 submission.
+- [ ] Stack audit: #44 targets #43; #45 targets #44; intended #46 must target #45 (submission pending).
+- [ ] Evidence URLs: 3A [PR #39 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/39#issuecomment-5753521154); 3B [PR #40 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/40#issuecomment-5753623421); 3C [PR #41 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/41#issuecomment-5754553474); 3D [PR #42 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/42#issuecomment-5756484390); 3E [PR #43 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/43#issuecomment-5756688502); 3F [PR #45 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/45#issuecomment-5829598488); 3G validation supplied, intended PR #46 evidence comment pending.
 
 ## Success Criteria
 
@@ -65,6 +65,7 @@
 
 - DB/filesystem split-brain — Medium/High → temp file, compensation and focused tests in 3E/3F.
 - Mixed follow/unfollow diff — Medium/High → separate controller/test hunks and bases 3C/3D.
+- Private file authorization — High/High → resolve JWT `sub` by username, compare owner UUID, and return non-disclosing 404; covered in 3G implementation/review.
 
 ## Security Considerations
 
@@ -76,5 +77,5 @@
 
 ## Next Steps
 
-- 3F PR #45 is open and based directly on #44. Continue with `GET /api/files/:id` as PR #46 targeting #45. The image URL from PR #45 does not resolve until #46 is merged.
+- 3F PR #45 is open and based directly on #44. 3G is implemented and reviewed; submit as intended PR #46 targeting #45. The image URL from PR #45 is not fetchable before #46 merges.
 - Phase 04 starts after 3G and all Phase 03 evidence comments are accepted.

@@ -121,13 +121,26 @@ curl --header 'Accept-Language: vi-VN,vi;q=0.9' http://localhost:3000/api/hello
 | Success | HTTP 200 with the authenticated-user response. `user.image` is `/api/files/{attachment-id}`; `user.token` contains the presented token. |
 | Errors | 401 for a missing or invalid token; 422 for a missing, invalid, unsupported, or oversized file; 500 if avatar persistence fails. |
 
-The file is stored under the private attachment root, which defaults to
-`storage/private`. Uploading a replacement updates the user and attachment
-metadata, then removes the previous file when cleanup succeeds.
+Uploading a replacement updates the user and attachment metadata, then removes
+the previous file when cleanup succeeds.
 
-The returned `image` path is intended to be read through `GET /api/files/:id`.
-That file-read endpoint is planned for the next API PR and is not implemented in
-this checkout yet, so the avatar path cannot currently be fetched.
+## Reading a private attachment
+
+`GET /api/files/:id` returns the bytes of an attachment owned by the authenticated
+user.
+
+| Item | Contract |
+| --- | --- |
+| Authentication | Send the JWT as `Authorization: Token <jwt>`. A missing or invalid token returns HTTP 401. |
+| Authorization | The JWT subject is treated as the username, resolved to the user's UUID, and compared with the attachment owner UUID. |
+| ID | `:id` is an opaque attachment UUID; it is not the storage key. |
+| Success | HTTP 200 with a response body whose media type is `image/jpeg`, `image/png`, or `image/webp`. |
+| Response headers | `Cache-Control: private, no-store` and `X-Content-Type-Options: nosniff`. |
+| Missing or foreign attachment | HTTP 404 with the same not-found response, so the route does not disclose whether another user owns the attachment. |
+| Storage | The private storage root defaults to `storage/private`. |
+
+The file-read route is being delivered in a separate change planned as PR #46;
+that PR is not open yet. The path becomes fetchable after PR #46 is merged.
 
 Swagger UI is available at `http://localhost:3000/docs`, with its OpenAPI JSON
 at `http://localhost:3000/docs-json`. Both routes are enabled outside
