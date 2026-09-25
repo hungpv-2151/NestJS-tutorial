@@ -151,6 +151,6 @@ import { WELCOME_MAIL_OUTBOX_RELAY } from '../jobs/welcome-mail-outbox-relay.con
     },
     WelcomeMailOutboxRelayRunner,
   ],
-  exports: [UserService],
+  exports: [AuthService, AuthTokenGuard, UserService],
 })
 export class AuthModule {}

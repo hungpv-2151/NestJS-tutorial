@@ -9,7 +9,6 @@ import {
   ApiOperation,
   ApiOkResponse,
   ApiSecurity,
-  ApiTags,
   ApiTooManyRequestsResponse,
   ApiUnauthorizedResponse,
   ApiUnprocessableEntityResponse,
@@ -57,7 +56,6 @@ export const TOKEN_AUTH_SECURITY_SCHEME = 'tokenAuth';
 
 export function RegisterUserSwagger(): MethodDecorator {
   return applyDecorators(
-    ApiTags('Authentication'),
     ApiOperation({ summary: 'Register a new user' }),
     ApiBody({ type: RegisterUserRequestDto }),
     ApiCreatedResponse({
@@ -81,7 +79,6 @@ export function RegisterUserSwagger(): MethodDecorator {
 
 export function LoginUserSwagger(): MethodDecorator {
   return applyDecorators(
-    ApiTags('Authentication'),
     ApiOperation({ summary: 'Sign in with email and password' }),
     ApiBody({ type: LoginUserRequestDto }),
     ApiOkResponse({
@@ -109,7 +106,6 @@ export function LoginUserSwagger(): MethodDecorator {
 
 export function CurrentUserSwagger(): MethodDecorator {
   return applyDecorators(
-    ApiTags('Authentication'),
     ApiOperation({ summary: 'Get the authenticated user' }),
     ApiHeader({
       description: 'JWT presented as Token <jwt>.',
@@ -131,7 +127,6 @@ export function CurrentUserSwagger(): MethodDecorator {
 
 export function UpdateUserSwagger(): MethodDecorator {
   return applyDecorators(
-    ApiTags('Authentication'),
     ApiOperation({ summary: 'Update the authenticated user' }),
     ApiHeader({
       description: 'JWT presented as Token <jwt>.',
@@ -166,7 +161,6 @@ export function UpdateUserSwagger(): MethodDecorator {
 
 export function LogoutUserSwagger(): MethodDecorator {
   return applyDecorators(
-    ApiTags('Authentication'),
     ApiOperation({ summary: 'Sign out and revoke the presented token' }),
     ApiHeader({
       description: 'JWT presented as Token <jwt>.',
