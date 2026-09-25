@@ -2,9 +2,15 @@ const REDACTED_VALUE = '[REDACTED]';
 const SENSITIVE_FIELD_NAMES = new Set([
   'authorization',
   'cookie',
+  'email',
+  'firstname',
+  'lastname',
+  'displayname',
   'password',
   'passwordhash',
   'token',
+  'username',
+  'userid',
 ]);
 
 export interface RequestForLog {

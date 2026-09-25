@@ -1,0 +1,38 @@
+{
+  "score": 9,
+  "criticalCount": 0,
+  "decision": "SEALED",
+  "acceptanceCovered": [
+    "All four actionable PR #35 comments map to verified changes and focused tests.",
+    "The actionable PR #36 comment maps to verified current-user service behavior and focused tests.",
+    "PR #37 logging feedback remains future scope unless an operational need exists.",
+    "Recurring PR #31 feedback is represented by concise tracked rules in AGENTS.md.",
+    "Stack descendants preserve their unique commits and retain the intended bases after the rules update."
+  ],
+  "regressionChecked": [
+    "The request-log sanitizer recursively and case-insensitively redacts email, username, userId, firstName, lastName, and displayName fields.",
+    "Focused logger and AppModule tests passed 7/7; full unit, E2E, build, lint, and focused auth/attachment test results are recorded in raw-post-rebase-tests.json.",
+    "The AppModule test expectation matches its five registered imports.",
+    "Auth HTTP response contracts remain unchanged; logger changes only affect log-field sanitization.",
+    "Local merge-base checks and range-diffs show one-to-one replay of the #45 and #46 unique commits."
+  ],
+  "contractStatus": "OK",
+  "refuted": [],
+  "unproven": [],
+  "reachableRegressions": [],
+  "findings": [
+    {
+      "severity": "High",
+      "category": "Security",
+      "location": "src/common/logging/request-failure-log.ts:2-13",
+      "summary": "The previous sanitizer left auth identifiers such as email and username visible in failed-request logs. The current change redacts these fields recursively, with nested-field coverage in the logger test.",
+      "disposition": "Accept"
+    },
+    {
+      "severity": "Medium",
+      "category": "Completeness",
+      "summary": "The validated working-tree changes must be committed, and the pending commit-linked replies and updated remote PR refs must be completed during delivery. GitHub reply calls currently return 403 and gh auth status times out.",
+      "disposition": "Defer"
+    }
+  ]
+}

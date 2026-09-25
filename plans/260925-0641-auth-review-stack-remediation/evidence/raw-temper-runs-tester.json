@@ -1,0 +1,37 @@
+[
+  {
+    "command": "pnpm exec vitest run src/auth/auth.service.spec.ts src/auth/auth-login-rate-limiter.spec.ts src/auth/auth.module.spec.ts src/users/user.service.spec.ts",
+    "exitCode": 0,
+    "summary": "4 test files passed; 29 tests passed; no failures."
+  },
+  {
+    "command": "pnpm exec vitest run --config ./vitest.config.e2e.ts test/register-user.e2e-spec.ts test/current-user.e2e-spec.ts",
+    "exitCode": 0,
+    "summary": "2 E2E files passed; 10 tests passed; no failures. Expected error-path logs were emitted with password redaction."
+  },
+  {
+    "command": "pnpm build",
+    "exitCode": 0,
+    "summary": "Nest build completed successfully."
+  },
+  {
+    "command": "pnpm lint",
+    "exitCode": 0,
+    "summary": "86 source files analyzed; 0 errors and 119 warnings."
+  },
+  {
+    "command": "pnpm test",
+    "exitCode": 0,
+    "summary": "28 test files passed, 1 skipped; 110 tests passed, 1 skipped, 0 failed."
+  },
+  {
+    "command": "pnpm test:e2e",
+    "exitCode": 0,
+    "summary": "8 E2E files passed; 30 tests passed; no failures."
+  },
+  {
+    "command": "pnpm exec vitest run --coverage src/auth/auth.service.spec.ts src/auth/auth-login-rate-limiter.spec.ts src/auth/auth.module.spec.ts src/users/user.service.spec.ts",
+    "exitCode": 0,
+    "summary": "4 files and 29 tests passed. Coverage: 60.47% statements, 54.54% branches, 59.23% functions, 61.01% lines across loaded modules; auth.service.ts 94.11% statements/97.91% lines; auth-login-rate-limiter.ts 95.83% statements/95.65% lines; user.service.ts 76.66% statements/80.76% lines."
+  }
+]

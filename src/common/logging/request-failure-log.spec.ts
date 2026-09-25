@@ -7,8 +7,13 @@ describe('createRequestFailureLog', () => {
     expect(
       createRequestFailureLog(new Error('database unavailable'), {
         body: {
+          email: 'jane@example.com',
           password: 'safe-password',
-          user: { passwordHash: 'hash', username: 'jane' },
+          user: {
+            email: 'jane@example.com',
+            passwordHash: 'hash',
+            username: 'jane',
+          },
         },
         method: 'POST',
         path: '/api/users',
@@ -18,8 +23,13 @@ describe('createRequestFailureLog', () => {
       error: { category: 'Error' },
       request: {
         body: {
+          email: '[REDACTED]',
           password: '[REDACTED]',
-          user: { passwordHash: '[REDACTED]', username: 'jane' },
+          user: {
+            email: '[REDACTED]',
+            passwordHash: '[REDACTED]',
+            username: '[REDACTED]',
+          },
         },
         method: 'POST',
         path: '/api/users',
