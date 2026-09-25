@@ -55,6 +55,14 @@ describe('AppController (e2e)', () => {
       summary: 'Register a new user',
       tags: expect.arrayContaining(['Authentication']),
     });
+    expect(response.body.paths['/api/users/login'].post).toMatchObject({
+      responses: {
+        '200': expect.any(Object),
+        '401': expect.any(Object),
+        '429': expect.any(Object),
+      },
+      summary: 'Sign in with email and password',
+    });
   });
 
   afterEach(async () => {

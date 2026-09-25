@@ -2,6 +2,16 @@ import * as argon2 from 'argon2';
 
 import { WelcomeMailOutbox } from '../jobs/welcome-mail-outbox.entity.js';
 import { User } from '../users/user.entity.js';
+import type {
+  AuthLoginRateLimiterPort,
+  AuthLoginRequest,
+  AuthLoginTokenIssuer,
+  AuthenticatedLogin,
+} from './auth-login-contracts.js';
+import {
+  TIMING_PARITY_PASSWORD_HASH,
+  matchesPassword,
+} from './auth-password-verifier.js';
 
 const UNIQUE_VIOLATION_CODE = '23505';
 const UNIQUE_CONSTRAINT_FIELDS = {
@@ -17,6 +27,14 @@ export type RegisterRequest = Pick<User, 'email' | 'username'> & {
 export interface AuthenticatedUser {
   email: string;
   username: string;
+}
+
+export interface AuthLoginRepository {
+  findByEmail(email: string): Promise<User | null>;
+}
+
+export interface AuthPasswordVerifier {
+  matches(hash: string, password: string): Promise<boolean>;
 }
 
 export interface UserRepository {
@@ -57,8 +75,32 @@ export class AuthPersistenceError extends Error {
   }
 }
 
+export class AuthInvalidCredentialsError extends Error {}
+
 export class AuthService {
-  constructor(private readonly dataSource: AuthTransaction) {}
+  constructor(
+    private readonly dataSource: AuthTransaction,
+    private readonly loginRepository: AuthLoginRepository,
+    private readonly loginRateLimiter: AuthLoginRateLimiterPort,
+    private readonly tokenIssuer: AuthLoginTokenIssuer,
+    private readonly passwordVerifier: AuthPasswordVerifier = {
+      matches: matchesPassword,
+    },
+  ) {}
+
+  async login(request: AuthLoginRequest): Promise<AuthenticatedLogin> {
+    await this.loginRateLimiter.consume(request.email, request.ipAddress);
+    const user = await this.loginRepository.findByEmail(request.email);
+    const passwordMatches = await this.passwordVerifier.matches(
+      user?.passwordHash ?? TIMING_PARITY_PASSWORD_HASH,
+      request.password,
+    );
+    if (!user || !passwordMatches) {
+      throw new AuthInvalidCredentialsError();
+    }
+    const token = await this.tokenIssuer.issue(user.username);
+    return { token, user };
+  }
 
   async register(request: RegisterRequest): Promise<AuthenticatedUser> {
     try {

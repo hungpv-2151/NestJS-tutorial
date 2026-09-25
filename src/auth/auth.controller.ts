@@ -4,28 +4,37 @@ import {
   Controller,
   Header,
   HttpCode,
+  HttpException,
   HttpStatus,
   Inject,
   InternalServerErrorException,
   Logger,
   Post,
   Req,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import type { Request } from 'express';
-import { randomUUID } from 'node:crypto';
 
-import { RegisterUserRequestDto } from '../common/dto/user-auth.dto.js';
+import {
+  LoginUserRequestDto,
+  RegisterUserRequestDto,
+} from '../common/dto/user-auth.dto.js';
 import {
   serializeUser,
   type SerializedUser,
 } from '../users/user.serializer.js';
 import type { AuthConfig } from '../config/auth-config.js';
 import { createRequestFailureLog } from '../common/logging/request-failure-log.js';
-import { AUTH_CONFIG, TOKEN_LIFETIME_SECONDS } from './auth.constants.js';
-import { AuthConflictError, AuthService } from './auth.service.js';
-import { RegisterUserSwagger } from './auth.swagger.js';
-import { createTokenClaims } from './token-claims.js';
+import { AUTH_CONFIG } from './auth.constants.js';
+import { AuthLoginRateLimitError } from './auth-login-rate-limiter.js';
+import {
+  AuthConflictError,
+  AuthInvalidCredentialsError,
+  AuthService,
+} from './auth.service.js';
+import { LoginUserSwagger, RegisterUserSwagger } from './auth.swagger.js';
+import { issueToken } from './auth-token-issuer.js';
 
 export { AUTH_CONFIG } from './auth.constants.js';
 
@@ -68,21 +77,48 @@ export class AuthController {
     return serializeUser({ ...user, bio: null, image: null }, token);
   }
 
+  @Post('login')
+  @LoginUserSwagger()
+  @HttpCode(HttpStatus.OK)
+  @Header('Cache-Control', 'no-store')
+  async login(
+    @Body() request: LoginUserRequestDto,
+    @Req() httpRequest: Request,
+  ): Promise<SerializedUser> {
+    try {
+      const { token, user } = await this.authService.login({
+        email: request.user.email,
+        ipAddress: httpRequest.ip,
+        password: request.user.password,
+      });
+      return serializeUser(user, token);
+    } catch (error) {
+      this.logger.error(
+        JSON.stringify(createRequestFailureLog(error, httpRequest)),
+      );
+      if (error instanceof AuthInvalidCredentialsError) {
+        throw new UnauthorizedException({
+          errors: { credentials: ['invalid'] },
+        });
+      }
+      if (error instanceof AuthLoginRateLimitError) {
+        throw new HttpException(
+          { errors: { body: ['too many requests'] } },
+          HttpStatus.TOO_MANY_REQUESTS,
+        );
+      }
+      throw new InternalServerErrorException({
+        errors: { body: ['request failed'] },
+      });
+    }
+  }
+
   private async createToken(
     username: string,
     request: Request,
   ): Promise<string> {
-    const issuedAt = Math.floor(Date.now() / 1_000);
     try {
-      return await this.jwtService.signAsync(
-        createTokenClaims(
-          this.authConfig,
-          username,
-          randomUUID(),
-          issuedAt,
-          issuedAt + TOKEN_LIFETIME_SECONDS,
-        ),
-      );
+      return await issueToken(this.jwtService, this.authConfig, username);
     } catch (error) {
       this.logger.error(
         JSON.stringify(createRequestFailureLog(error, request)),
