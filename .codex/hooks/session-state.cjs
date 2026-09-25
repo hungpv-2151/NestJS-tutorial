@@ -1,94 +1,91 @@
 #!/usr/bin/env node
+'use strict';
+
 /**
- * Session-state hook — preserves Forge progress so the next Study finds solid ground.
+ * session-state — persists Forge progress so the next Study finds solid ground.
  *
- * Fires on three events:
- * - PostToolUse (Task/TaskCreate/TaskUpdate/TodoWrite) → refresh statusline activity cache
- * - Stop / SubagentStop → persist markdown state snapshot + refresh cache
- * - (legacy path) no event_name → load previous state text at SessionStart
+ * Genuinely kit-owned residual (no full CLI replacement): the CLI intentionally
+ * leaves persist/restore kit-side (see the CLI's install-statusline.ts, which
+ * supersedes session-state on PostToolUse ONLY and keeps the SessionStart/Stop/
+ * SubagentStop load+persist roles here).
  *
- * Exit codes:
- *   0 — always (fail-open, never blocks session)
+ * Slim dual-mode form:
+ *   - SessionStart (startup|compact) → RESTORE: emit the previous / post-compaction
+ *     state as context.
+ *   - Stop / SubagentStop → PERSIST: write the markdown snapshot (+ archive/prune).
+ *   - The old PostToolUse activity-refresh role is DROPPED — the CLI's
+ *     `session-activity` built-in owns the statusline activity cache now.
+ *
+ * DUAL-MODE KIT HOOK — see docs/hook-authoring.md. `run(input, ctx)` is the pure
+ * decision (persist/restore side effects, but no stdin/stdout/exit); the
+ * `require.main === module` branch preserves the legacy `node "<path>"` invocation.
  */
 
-try {
-  const fs = require('fs');
-  const { isHookEnabled } = require('./lib/tkm-config-utils.cjs');
+const { isHookEnabled } = require('./lib/tkm-config-utils.cjs');
+const { loadState, persistState } = require('./lib/session-state-manager.cjs');
+const { runSelfExec } = require('./lib/hook-dual-mode.cjs');
 
-  if (!isHookEnabled('session-state')) process.exit(0);
+/** Build the restore-context text for a startup vs post-compaction resume. */
+function renderRestore(state, isCompact) {
+  if (isCompact) {
+    return [
+      '',
+      '--- Session State (Post-Compaction Recovery) ---',
+      state,
+      '--- End Session State ---',
+      '',
+      'Context was compacted. Above is your last saved progress. Resume from where you left off.',
+      'IMPORTANT: Re-read active plan files and todo list. Do NOT re-do completed work.',
+    ].join('\n');
+  }
+  return [
+    '',
+    '--- Previous Session State ---',
+    state,
+    '--- End Session State ---',
+    '',
+    'Review above state from your last session. Continue where you left off or start fresh.',
+  ].join('\n');
+}
 
-  const {
-    loadState,
-    persistState,
-    refreshStatuslineSnapshot
-  } = require('./lib/session-state-manager.cjs');
-
-  const TRACKED_POST_TOOL_EVENTS = new Set(['Task', 'TaskCreate', 'TaskUpdate', 'TodoWrite']);
-
-  async function main() {
-    const stdin = fs.readFileSync(0, 'utf-8').trim();
-    const data = stdin ? JSON.parse(stdin) : {};
-    const eventType = data.hook_event_name || null;
-
-    if (eventType === 'PostToolUse') {
-      const toolName = data.tool_name || '';
-      if (TRACKED_POST_TOOL_EVENTS.has(toolName)) {
-        await refreshStatuslineSnapshot(data);
-      }
-      console.log(JSON.stringify({ continue: true }));
-      process.exit(0);
-    }
+/**
+ * Pure decision. Persists on Stop/SubagentStop; restores on SessionStart. Reads
+ * no stdin, writes no stdout, never exits — the caller owns process I/O.
+ * Fail-open: any error → allow silently (`{status:'ok'}`).
+ */
+function run(input, _ctx) {
+  try {
+    if (!isHookEnabled('session-state')) return { status: 'ok' };
+    const eventType = input.hook_event_name || null;
 
     if (eventType === 'Stop' || eventType === 'SubagentStop') {
-      await refreshStatuslineSnapshot(data);
-      persistState(data, { eventType });
-      process.exit(0);
+      persistState(input, { eventType });
+      return { status: 'ok' };
     }
 
-    // Legacy: hook wired to SessionStart — reproduce old load-state behavior.
-    if (!eventType) {
-      const isCompact = data.source === 'compact';
-      if (data.source && data.source !== 'startup' && !isCompact) process.exit(0);
-
-      const state = loadState(process.cwd());
-      if (state) {
-        if (isCompact) {
-          console.log('\n--- Session State (Post-Compaction Recovery) ---');
-          console.log(state);
-          console.log('--- End Session State ---\n');
-          console.log('Context was compacted. Above is your last saved progress. Resume from where you left off.');
-          console.log('IMPORTANT: Re-read active plan files and todo list. Do NOT re-do completed work.');
-        } else {
-          console.log('\n--- Previous Session State ---');
-          console.log(state);
-          console.log('--- End Session State ---\n');
-          console.log('Review above state from your last session. Continue where you left off or start fresh.');
-        }
-      }
-      process.exit(0);
+    // SessionStart restore — also covers the legacy no-event-name wiring.
+    if (eventType === 'SessionStart' || !eventType) {
+      const isCompact = input.source === 'compact';
+      // Only startup / compact resume restores; resume/clear do not.
+      if (input.source && input.source !== 'startup' && !isCompact) return { status: 'ok' };
+      const state = loadState(input.cwd || process.cwd());
+      if (!state) return { status: 'ok' };
+      return { status: 'context', output: renderRestore(state, isCompact) };
     }
 
-    process.exit(0);
+    return { status: 'ok' };
+  } catch (_) {
+    return { status: 'ok' };
   }
+}
 
-  main().catch(() => {
-    process.exit(0);
-  });
-} catch (e) {
-  try {
-    const fs = require('fs');
-    const p = require('path');
-    const logDir = p.join(__dirname, '.logs');
-    if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true });
-    fs.appendFileSync(
-      p.join(logDir, 'hook-log.jsonl'),
-      JSON.stringify({
-        ts: new Date().toISOString(),
-        hook: 'session-state',
-        status: 'crash',
-        error: e.message
-      }) + '\n'
-    );
-  } catch (_) {}
-  process.exit(0);
+module.exports.run = run;
+module.exports.meta = {
+  events: ['SessionStart', 'Stop', 'SubagentStop'],
+  matchers: { SessionStart: 'startup|resume|clear|compact' },
+  timeout: 10,
+};
+
+if (require.main === module) {
+  runSelfExec(run);
 }

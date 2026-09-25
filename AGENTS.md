@@ -43,6 +43,12 @@
 - Account for edge cases and error paths.
 - **DO NOT** spin up new "enhanced" copies of files — edit the existing files in place.
 
+### Checks learned from auth reviews
+- Keep controllers at the HTTP boundary: accept validated input, call a service, serialize the response, and map typed errors to HTTP status codes. Put login, registration, token, and user lookup decisions in the owning service or a focused handler; do not pass the raw HTTP request into domain logic.
+- Give security-sensitive values and reused module configuration descriptive names in focused constants or interface files when that makes their purpose clearer. In particular, label a fixed dummy password hash as a timing-parity value, not as a token. Avoid extracting obvious one-off literals merely to add files.
+- For collection persistence, prefer a batched repository or manager operation over one database query per item, while preserving transaction boundaries and existing behavior.
+- Log important auth failures with enough request context to trace them, using fixed categories and redaction. Never log passwords, password hashes, JWTs, authorization headers, cookies, or raw personal identifiers. Add logs where there is a current operational need.
+
 ## Visual Aids
 - Reach for ` --explain` when walking through an unfamiliar pattern or tangled logic.
 - Reach for ` --diagram` for architecture diagrams and data-flow pictures.
@@ -414,6 +420,7 @@ Plans: /path/to/project-b/plans/"
 ```
 
 **Rule:** When your CWD and the work context differ (you are editing files in another project), point at the **work context paths**, not the CWD paths.
+
 ---
 
 #### Sequential Chaining
@@ -430,6 +437,7 @@ Fire off several subagents at once when the tasks don't touch each other:
 - **Cross-platform Development**: iOS and Android handled separately.
 - **Careful Coordination**: keep them off the same files and shared resources.
 - **Merge Strategy**: settle the integration points before the parallel work begins.
+
 ---
 
 ## Subagent Status Protocol
@@ -460,6 +468,7 @@ Subagents should close their response with:
 **Summary:** [1-2 sentence summary]
 **Concerns/Blockers:** [if applicable]
 ```
+
 ---
 
 ## Context Isolation Principle
@@ -496,6 +505,7 @@ Reports: [reports path]
 | "Fix the issues we discussed" | "Fix null check in auth.ts:45, root cause: missing validation" |
 | "Look at the codebase and figure out" | "Read src/api/routes.ts and add POST  endpoint" |
 | Passing 50+ lines of conversation | 5-line task summary with file paths |
+
 ---
 
 ## Agent Teams (Optional)
@@ -695,7 +705,50 @@ When `plan_mode_required` is set:
 - Read the team config at `~/.claude/teams/{team-name}/config.json` to find your teammates.
 - Always call teammates by NAME, never by agent ID.
 
+---
 
+## Rule: response-style-multilingual
+
+# Văn phong khi trả lời người dùng bằng tiếng Việt hoặc tiếng Nhật
+
+Mục đích là để câu trả lời dễ hiểu, tự nhiên và không bị máy móc — viết như người trong ngành
+viết bằng tiếng mẹ đẻ, không phải như một bản dịch từ tiếng Anh.
+
+## 1. Tránh văn dịch
+
+Viết theo mục "Nên", không viết theo mục "Không nên".
+
+Không nên:
+  "Điều này có nghĩa là hàm getToken() có thể được gọi một cách đồng thời bởi nhiều
+   yêu cầu khác nhau, dẫn đến việc bộ nhớ đệm bị ghi đè, và do đó gây ra tình trạng
+   không nhất quán của dữ liệu."
+Nên:
+  "Nhiều request gọi `getToken()` cùng lúc thì bộ nhớ đệm bị ghi đè, dữ liệu lệch nhau."
+
+Không nên:
+  "Hãy để tôi tiến hành phân tích tệp tin này nhằm mục đích xác định nguyên nhân
+   gốc rễ của vấn đề mà bạn đang gặp phải."
+Nên:
+  "Tôi đọc file này xem lỗi từ đâu."
+
+Không nên:
+  "Việc sử dụng Redis sẽ góp phần nâng cao khả năng mở rộng của hệ thống một cách
+   đáng kể, tuy nhiên nó cũng đồng thời làm gia tăng độ phức tạp trong vận hành."
+Nên:
+  "Redis mở rộng tốt hơn nhiều, đổi lại bạn phải nuôi thêm một dịch vụ nữa."
+
+Không nên:
+  "Cần lưu ý rằng việc lưu trữ mật khẩu người dùng dưới dạng văn bản thuần túy
+   trong cơ sở dữ liệu được xem là một phương pháp không an toàn."
+Nên:
+  "Mật khẩu phải băm trước khi lưu — lộ dữ liệu một lần là mất sạch."
+
+## 2. Không lạm dụng từ tiếng Anh
+
+Khi viết văn bản tiếng Việt hoặc tiếng Nhật, không được quá **lạm dụng từ tiếng Anh**. Chỉ dùng
+từ gốc tiếng Anh khi thực sự cần thiết, còn không hãy dùng từ tiếng Việt hay tiếng Nhật tương ứng.
+Đối với tiếng Nhật, tận dụng cả các từ Katakana cho từ chuyên môn cao — ví dụ "Test" khi viết
+tiếng Nhật thì dùng テスト, thay vì để nguyên tiếng Anh hay dùng từ 試験.
 
 ---
 
@@ -951,5 +1004,3 @@ rules/{RULE_ID}-{slug}.md
 - `rules/C029-catch-log-root-cause.md`
 
 ---
-
-**Version**: 2.3 | **Total Rules**: 65 | **Maintainer**: Sun* Engineering Excellence

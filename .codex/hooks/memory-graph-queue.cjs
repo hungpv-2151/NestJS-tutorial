@@ -1,84 +1,67 @@
 #!/usr/bin/env node
+'use strict';
+
 /**
- * memory-graph-queue — Stop hook. Queues conversation deltas as .md fact-capture files
- * for later, LLM-driven extraction — tier-auto self-hosted KG memory
- * (plans/260716-1046-memory-graph-tier-auto).
+ * memory-graph-queue — Stop hook. Queues conversation deltas as .md fact-capture
+ * files for later, LLM-driven extraction — tier-auto self-hosted KG memory.
  *
- * Deterministic file I/O only — NEVER calls the Agent tool (a hook can't; this only
- * queues). Live extraction happens next session via the Phase 3 nudge hook.
+ * Deterministic file I/O only — NEVER calls the Agent tool (a hook can't; this
+ * only queues). Secret redaction is applied by the queue lib before writing.
  *
- * Opt-in: OFF by default (config memoryGraph.enabled=false). Turn on via .tkm.json
- * (memoryGraph.enabled=true) or env MEMORY_GRAPH_DISABLE=1 for a hard kill switch.
+ * Opt-in: OFF by default (config memoryGraph.enabled=false). Env
+ * MEMORY_GRAPH_DISABLE=1 is a hard kill switch. Fail-open — never blocks Stop.
  *
- * Exit codes: 0 always (fail-open, never blocks session end).
+ * DUAL-MODE KIT HOOK — see docs/hook-authoring.md. `run(input, ctx)` is the pure
+ * decision (its queue-file write is the hook's intended side effect; it emits no
+ * context, so it always returns `ok`; no stdout/exit). The `require.main === module`
+ * branch preserves the legacy `node "<path>"` invocation.
  */
 
-try {
-  const fs = require('fs');
-  const { isHookEnabled, isMemoryGraphEnabled } = require('./lib/tkm-config-utils.cjs');
-  const { createHookTimer, logHookCrash } = require('./lib/hook-logger.cjs');
+const { isHookEnabled, isMemoryGraphEnabled } = require('./lib/tkm-config-utils.cjs');
+const {
+  resolveQueueDir,
+  filterTranscript,
+  passesHeuristic,
+  capTurns,
+  renderMarkdown,
+  writeQueueFile,
+} = require('./lib/memory-graph-queue-lib.cjs');
+const { runSelfExec } = require('./lib/hook-dual-mode.cjs');
 
-  if (!isHookEnabled('memory-graph-queue') || !isMemoryGraphEnabled()) process.exit(0);
+/**
+ * Side-effect-only decision: queues the session's redacted conversation deltas
+ * when the memory graph is enabled and the turn passes the triviality heuristic.
+ * Always returns `{status:'ok'}` (this hook emits no context). Fail-open.
+ */
+function run(input, _ctx) {
+  try {
+    if (!isHookEnabled('memory-graph-queue') || !isMemoryGraphEnabled()) return { status: 'ok' };
+    if (input.hook_event_name !== 'Stop') return { status: 'ok' };
 
-  const {
-    resolveQueueDir,
-    filterTranscript,
-    passesHeuristic,
-    capTurns,
-    renderMarkdown,
-    writeQueueFile
-  } = require('./lib/memory-graph-queue-lib.cjs');
+    const sessionId = input.session_id;
+    const cwd = input.cwd || process.cwd();
+    if (!sessionId || !input.transcript_path) return { status: 'ok' };
 
-  const timer = createHookTimer('memory-graph-queue', { event: 'Stop' });
-
-  function readStdin() {
-    try {
-      const raw = fs.readFileSync(0, 'utf8').trim();
-      return raw ? JSON.parse(raw) : {};
-    } catch {
-      return {};
-    }
-  }
-
-  function main() {
-    const data = readStdin();
-    if (data.hook_event_name !== 'Stop') {
-      timer.end({ status: 'ok', exit: 0, note: 'not-stop' });
-      process.exit(0);
-    }
-
-    const sessionId = data.session_id;
-    const cwd = data.cwd || process.cwd();
-    if (!sessionId || !data.transcript_path) {
-      timer.end({ status: 'ok', exit: 0, note: 'no-session-or-transcript' });
-      process.exit(0);
-    }
-
-    const turns = filterTranscript(data.transcript_path);
-    if (!passesHeuristic(turns)) {
-      timer.end({ status: 'ok', exit: 0, note: `trivial:${turns.length}` });
-      process.exit(0);
-    }
+    const turns = filterTranscript(input.transcript_path);
+    if (!passesHeuristic(turns)) return { status: 'ok' };
 
     const capped = capTurns(turns);
-    const markdown = renderMarkdown(capped, sessionId);
+    const markdown = renderMarkdown(capped, sessionId); // redaction applied in the lib
     const queueDir = resolveQueueDir(cwd);
-    const result = writeQueueFile(queueDir, sessionId, markdown);
+    writeQueueFile(queueDir, sessionId, markdown);
 
-    timer.end({ status: 'ok', exit: 0, note: result.written ? `queued:${capped.length}` : result.reason });
-    process.exit(0);
+    return { status: 'ok' };
+  } catch (_) {
+    return { status: 'ok' };
   }
+}
 
-  try {
-    main();
-  } catch (error) {
-    logHookCrash('memory-graph-queue', error, { event: 'Stop' });
-    process.exit(0);
-  }
-} catch (e) {
-  try {
-    const { logHookCrash } = require('./lib/hook-logger.cjs');
-    logHookCrash('memory-graph-queue', e, { event: 'Stop' });
-  } catch (_) {}
-  process.exit(0); // fail-open
+module.exports.run = run;
+module.exports.meta = {
+  events: ['Stop'],
+  timeout: 15,
+};
+
+if (require.main === module) {
+  runSelfExec(run);
 }
