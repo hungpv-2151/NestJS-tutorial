@@ -1,5 +1,6 @@
 import {
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -23,7 +24,11 @@ import {
   ProfileService,
   SelfFollowError,
 } from './profile.service.js';
-import { FollowProfileSwagger, GetProfileSwagger } from './profiles.swagger.js';
+import {
+  FollowProfileSwagger,
+  GetProfileSwagger,
+  UnfollowProfileSwagger,
+} from './profiles.swagger.js';
 
 @ApiTags('Profile')
 @Controller('profiles')
@@ -66,6 +71,26 @@ export class ProfilesController {
         throw new UnprocessableEntityException({
           errors: { profile: ['cannot follow yourself'] },
         });
+      }
+      throw error;
+    }
+  }
+
+  @Delete(':username/follow')
+  @UnfollowProfileSwagger()
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthTokenGuard)
+  async unfollowProfile(
+    @Param('username') username: string,
+    @Req() request: AuthenticatedRequest,
+  ): Promise<SerializedProfile> {
+    try {
+      return serializeProfile(
+        await this.profileService.unfollow(request.auth.sub, username),
+      );
+    } catch (error) {
+      if (error instanceof ProfileNotFoundError) {
+        throw new NotFoundException({ errors: { profile: ['not found'] } });
       }
       throw error;
     }
