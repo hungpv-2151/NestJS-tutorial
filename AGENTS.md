@@ -46,6 +46,7 @@
 ### Checks learned from auth reviews
 - Keep controllers at the HTTP boundary: accept validated input, call a service, serialize the response, and map typed errors to HTTP status codes. Put login, registration, token, and user lookup decisions in the owning service or a focused handler; do not pass the raw HTTP request into domain logic.
 - Give security-sensitive values and reused module configuration descriptive names in focused constants or interface files when that makes their purpose clearer. In particular, label a fixed dummy password hash as a timing-parity value, not as a token. Avoid extracting obvious one-off literals merely to add files.
+- For collection persistence, prefer a batched repository or manager operation over one database query per item, while preserving transaction boundaries and existing behavior.
 - Log important auth failures with enough request context to trace them, using fixed categories and redaction. Never log passwords, password hashes, JWTs, authorization headers, cookies, or raw personal identifiers. Add logs where there is a current operational need.
 
 ## Visual Aids
