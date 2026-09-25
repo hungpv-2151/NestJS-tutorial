@@ -2,7 +2,7 @@
 
 ## Context and ownership
 
-Priority P2, pending, 1.5h; starts after Phase 2 is rebased into `phase-02-current-user`. Own `src/auth/auth.controller.ts`, `src/auth/auth.service.ts`, `src/auth/auth.module.ts`, `src/users/user.service.ts` only if its contract must change, and directly affected specs/e2e tests on the #36 branch. These shared auth files are sequentially owned after Phase 2.
+Priority P2, verified complete, 1.5h; starts after Phase 2 in `phase-02-current-user`. Existing implementation commit `b71cab5` owns `src/auth/auth.controller.ts`, `src/auth/auth.service.ts`, `src/auth/auth.module.ts`, `src/users/user.service.ts`, and directly affected specs/E2E tests. Do not duplicate this change.
 
 ## Requirements and design
 
@@ -10,4 +10,4 @@ Move current-user lookup and missing-user decision from the controller into Auth
 
 ## Verification and risk
 
-Unit: user found, user missing, lookup failure. E2E: valid token returns identical user body, missing/invalid token and deleted user return existing 401 contract. High risk: service injection changes can break the guard/test module; update providers and run build, focused unit, and current-user e2e tests. Done when #36 review request is satisfied without changing `GET /api/user` externally. Revert only the #36 fix commit and replay later branches if needed.
+Unit and E2E coverage maps the resolved #36 thread to `b71cab5`: `AuthService.currentUser()` owns lookup and missing-user errors; controller retains the presented token and existing 401 body. On stack snapshot `a6a17f2`, focused auth tests passed 29/29, current-user/register E2E passed 10/10, full unit passed 110 with 1 skipped, full E2E passed 30/30, build passed, and lint reported 0 errors/119 warnings. Existing #36 thread is resolved; commit-linked reply awaits inspection and final stack validation.

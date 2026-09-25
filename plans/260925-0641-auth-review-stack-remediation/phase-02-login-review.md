@@ -2,7 +2,7 @@
 
 ## Context and ownership
 
-Priority P2, pending, 2.5h; depends on Phase 1 baseline. Own `src/auth/auth.controller.ts`, `src/auth/auth.service.ts`, `src/auth/auth.module.ts`, `src/auth/auth-login-rate-limiter.ts`, focused auth constants/interfaces files, and their directly affected tests on `phase-02-login`. No concurrent Phase 3 edits to shared auth files.
+Priority P2, verified complete, 2.5h; depends on Phase 1 baseline. The review fixes already exist on `phase-02-login` in commit `336c78c`; do not duplicate them. Verify the contract and focused tests. The commit owns `src/auth/auth.controller.ts`, `src/auth/auth.service.ts`, `src/auth/auth.module.ts`, `src/auth/auth-login-rate-limiter.ts`, focused auth constants/interfaces files, and their directly affected tests. No concurrent Phase 3 edits to shared auth files.
 
 ## Requirements and design
 
@@ -13,4 +13,4 @@ Priority P2, pending, 2.5h; depends on Phase 1 baseline. Own `src/auth/auth.cont
 
 ## Verification and risk
 
-Unit: valid/invalid credentials, unknown-account dummy verification, first five allowed/sixth blocked by either key, Redis failure, token-sign failure. Integration/e2e: unchanged login 200, 401, 429, 500 shape and Cache-Control; registration still works. High risk: rate limiting or token failure could change HTTP mapping; retain typed errors and run focused tests plus build. Done when four #35 threads each map to a small diff and targeted tests pass. Roll back the fix commit, then repropagate descendants, if the contract changes.
+Unit and E2E coverage maps all four #35 threads to `336c78c`: login orchestration delegates to `AuthService`; unknown-account Argon2 verification uses the password-verifier helper and fixed hash; limiter parameters/script use a focused constants module; Redis key count comes from `keys.length`. On stack snapshot `a6a17f2`, focused auth tests passed 29/29, relevant E2E 10/10, full unit 110 passed/1 skipped, full E2E 30/30, build passed, and lint reported 0 errors/119 warnings. Existing #35 threads are resolved. Commit-linked replies await inspection and final stack validation.
