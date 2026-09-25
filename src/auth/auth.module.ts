@@ -6,6 +6,8 @@ import { DataSource } from 'typeorm';
 import { getAuthConfig, toJwtModuleOptions } from '../config/auth-config.js';
 import type { AuthConfig } from '../config/auth-config.js';
 import { DatabaseModule } from '../database/database.module.js';
+import { AttachmentsModule } from '../attachments/attachments.module.js';
+import { PrivateAttachmentStorage } from '../attachments/private-attachment-storage.js';
 import { WelcomeMailOutbox } from '../jobs/welcome-mail-outbox.entity.js';
 import {
   BullMqWelcomeMailQueue,
@@ -29,10 +31,12 @@ import {
   AUTH_TOKEN_VERIFIER,
 } from './auth.constants.js';
 import { AuthController } from './auth.controller.js';
+import { UserAvatarController } from './user-avatar.controller.js';
 import { AuthLoginRateLimiter } from './auth-login-rate-limiter.js';
 import { AuthTokenGuard } from './auth-token.guard.js';
 import { AuthCurrentUserHandler } from './auth-current-user-handler.js';
 import { AuthUpdateUserHandler } from './auth-update-user-handler.js';
+import { UserAvatarHandler } from './user-avatar-handler.js';
 import type { AuthLoginRateLimiterPort, AuthLoginTokenIssuer } from './auth-login-contracts.js';
 import { AuthService, type AuthLoginRepository, type AuthTokenVerifier } from './auth.service.js';
 import { issueToken } from './auth-token-issuer.js';
@@ -41,9 +45,10 @@ import { TokenDenyListService, type TokenDenyListClient } from './token-deny-lis
 import { WELCOME_MAIL_OUTBOX_RELAY } from '../jobs/welcome-mail-outbox-relay.constants.js';
 
 @Module({
-  controllers: [AuthController],
+  controllers: [AuthController, UserAvatarController],
   imports: [
     DatabaseModule.register(),
+    AttachmentsModule,
     JwtModule.register(toJwtModuleOptions(getAuthConfig())),
     TypeOrmModule.forFeature([User, WelcomeMailOutbox]),
   ],
@@ -131,6 +136,12 @@ import { WELCOME_MAIL_OUTBOX_RELAY } from '../jobs/welcome-mail-outbox-relay.con
     AuthTokenGuard,
     AuthCurrentUserHandler,
     AuthUpdateUserHandler,
+    {
+      inject: [DataSource, PrivateAttachmentStorage],
+      provide: UserAvatarHandler,
+      useFactory: (dataSource: DataSource, storage: PrivateAttachmentStorage) =>
+        new UserAvatarHandler(dataSource, storage),
+    },
     {
       provide: WELCOME_MAIL_QUEUE,
       useFactory: () => new BullMqWelcomeMailQueue(),
