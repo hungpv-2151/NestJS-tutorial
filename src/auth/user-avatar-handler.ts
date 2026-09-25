@@ -5,7 +5,7 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { DataSource } from 'typeorm';
+import { DataSource, In } from 'typeorm';
 
 import { Attachment } from '../attachments/attachment.entity.js';
 import { PrivateAttachmentStorage } from '../attachments/private-attachment-storage.js';
@@ -97,18 +97,31 @@ export class UserAvatarHandler {
         },
       );
 
+      const removedAttachmentIds: string[] = [];
       for (const avatarToRemove of staleAttachments) {
         try {
           await this.storage.remove(avatarToRemove.storageKey);
+          removedAttachmentIds.push(avatarToRemove.id);
+        } catch (cleanupError) {
+          // Keep failed cleanup rows so the next avatar upload can retry them.
+          this.logCleanupFailure(cleanupError, 'previous_avatar_cleanup_failed');
+        }
+      }
+
+      if (removedAttachmentIds.length > 0) {
+        try {
           await this.dataSource.transaction(async (manager) => {
             await manager.getRepository(Attachment).delete({
-              id: avatarToRemove.id,
+              id: In(removedAttachmentIds),
               ownerId: user.id,
             });
           });
         } catch (cleanupError) {
-          // Keep failed cleanup rows so the next avatar upload can retry them.
-          this.logCleanupFailure(cleanupError, 'previous_avatar_cleanup_failed');
+          // Rows remain available for retry if the batch delete fails.
+          this.logCleanupFailure(
+            cleanupError,
+            'previous_avatar_records_cleanup_failed',
+          );
         }
       }
 

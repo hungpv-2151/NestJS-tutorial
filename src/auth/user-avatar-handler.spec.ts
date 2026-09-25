@@ -43,10 +43,42 @@ describe('UserAvatarHandler', () => {
       }),
     );
     expect(storage.remove).toHaveBeenCalledWith('old-avatar.png');
-    expect(manager.attachments.delete).toHaveBeenCalledWith({
-      id: '11111111-1111-4111-8111-111111111111',
+    expect(manager.attachments.delete).toHaveBeenCalledOnce();
+    expect(manager.attachments.delete.mock.calls[0][0]).toMatchObject({
       ownerId: 'user-id',
     });
+    expect(manager.attachments.delete.mock.calls[0][0].id.value).toEqual([
+      '11111111-1111-4111-8111-111111111111',
+    ]);
+  });
+
+  it('deletes successfully removed attachment rows in one batch', async () => {
+    const manager = createManager([
+      { id: '11111111-1111-4111-8111-111111111111', storageKey: 'old-1.png' },
+      { id: '22222222-2222-4222-8222-222222222222', storageKey: 'old-2.png' },
+    ]);
+    const storage = {
+      write: vi.fn(),
+      remove: vi.fn().mockImplementation(async (key: string) => {
+        if (key === 'old-1.png') throw new Error('storage unavailable');
+      }),
+    };
+    const handler = new UserAvatarHandler(
+      { transaction: (work) => work(manager) } as never,
+      storage as never,
+      () => 'new-avatar.png',
+    );
+
+    await handler.execute('jane', 'token', {
+      buffer: png(),
+      mimetype: 'image/png',
+    });
+
+    expect(manager.attachments.delete).toHaveBeenCalledOnce();
+    expect(manager.attachments.delete.mock.calls[0][0].id.value).toEqual([
+      '22222222-2222-4222-8222-222222222222',
+    ]);
+    expect(manager.attachments.delete.mock.calls[0][0].ownerId).toBe('user-id');
   });
 
   it('accepts an avatar whose size is exactly 2 MiB', async () => {
@@ -161,7 +193,14 @@ describe('UserAvatarHandler', () => {
   });
 });
 
-function createManager() {
+function createManager(
+  staleAttachments = [
+    {
+      id: '11111111-1111-4111-8111-111111111111',
+      storageKey: 'old-avatar.png',
+    },
+  ],
+) {
   const user = {
     bio: null,
     email: 'jane@example.com',
@@ -176,12 +215,7 @@ function createManager() {
   const attachments = {
     create: vi.fn((value) => value),
     delete: vi.fn().mockResolvedValue({ affected: 1 }),
-    findBy: vi.fn().mockResolvedValue([
-      {
-        id: '11111111-1111-4111-8111-111111111111',
-        storageKey: 'old-avatar.png',
-      },
-    ]),
+    findBy: vi.fn().mockResolvedValue(staleAttachments),
     save: vi.fn().mockResolvedValue({ id: 'attachment-id' }),
   };
 
