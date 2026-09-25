@@ -45,6 +45,16 @@ describe('AppController (e2e)', () => {
         expect.objectContaining({ name: 'accept-language', in: 'header' }),
       ]),
     );
+    expect(response.body.paths['/api/users'].post).toMatchObject({
+      responses: {
+        '201': expect.any(Object),
+        '409': expect.any(Object),
+        '422': expect.any(Object),
+        '500': expect.any(Object),
+      },
+      summary: 'Register a new user',
+      tags: expect.arrayContaining(['Authentication']),
+    });
   });
 
   afterEach(async () => {

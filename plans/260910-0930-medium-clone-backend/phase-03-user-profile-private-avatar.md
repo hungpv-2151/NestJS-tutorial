@@ -47,7 +47,7 @@
 
 1. Refresh/rebase each row, inspect inherited diff, confirm one API/foundation only.
 2. Implement 3A–3D through shared auth/error/serializer seams; 3E has no route; 3F and 3G remain separate.
-3. Keep preferred size ≤300 and hard limit ≤400 changed lines; oversized work splits into suffix PRs for the same API.
+3. Keep production-code size preferred ≤300 and hard limit ≤400 changed lines; spec, Markdown, JSON, test, migration, YAML, lockfile and supporting artifacts do not count. Oversized code splits into suffix PRs for the same API.
 4. Run compile, zero-error lint/static analysis, targeted tests/contract; attach screenshot/result comment and record URL.
 
 ## Todo List

@@ -35,11 +35,11 @@ pnpm install
 pnpm start:dev
 ```
 
-The service connects to PostgreSQL during startup; it does not start when
+The start scripts load the local, ignored `.env` file when it exists. The
+service connects to PostgreSQL during startup; it does not start when
 `DATABASE_URL` is absent or invalid. Copy the safe placeholders in
-`.env.example` into your local, ignored environment file, then provide those
-values to the process that starts the service. Never commit connection strings
-or credentials.
+`.env.example` into your local `.env` file. Never commit connection strings or
+credentials.
 
 The service listens on `http://localhost:3000` by default. Set overrides in
 the process environment used to start the service:
@@ -52,9 +52,16 @@ the process environment used to start the service:
 | `SWAGGER_ENABLED` | unset | Set to the exact value `true` to enable Swagger in production. |
 | `DATABASE_URL` | required | PostgreSQL connection URL used by the application at startup. |
 | `TEST_DATABASE_URL` | required for tests | PostgreSQL connection URL used only by the test runners. |
+| `REDIS_URL` | required | `redis://` or `rediss://` URL with host, username, and password for the welcome-mail queue. |
 
 `pnpm test` and `pnpm test:e2e` require `TEST_DATABASE_URL` and use it as
 their database connection.
+
+Successful registration writes a welcome-mail outbox record in the same
+database transaction as the user. A background relay polls every five seconds,
+leases up to 20 records, and enqueues idempotently to BullMQ's `welcome-mail`
+queue. If Redis is unavailable, the record remains retryable and registration
+still succeeds. Use `rediss://` for any Redis deployment that supports TLS.
 
 ## Database migrations
 
