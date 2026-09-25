@@ -2,6 +2,7 @@ import * as argon2 from 'argon2';
 
 import { WelcomeMailOutbox } from '../jobs/welcome-mail-outbox.entity.js';
 import { User } from '../users/user.entity.js';
+import { UserService } from '../users/user.service.js';
 import type {
   AuthLoginRateLimiterPort,
   AuthLoginRequest,
@@ -12,6 +13,7 @@ import {
   TIMING_PARITY_PASSWORD_HASH,
   matchesPassword,
 } from './auth-password-verifier.js';
+import type { TokenClaims } from './token-claims.js';
 
 const UNIQUE_VIOLATION_CODE = '23505';
 const UNIQUE_CONSTRAINT_FIELDS = {
@@ -35,6 +37,10 @@ export interface AuthLoginRepository {
 
 export interface AuthPasswordVerifier {
   matches(hash: string, password: string): Promise<boolean>;
+}
+
+export interface AuthTokenVerifier {
+  verify(token: string): Promise<TokenClaims>;
 }
 
 export interface UserRepository {
@@ -76,6 +82,7 @@ export class AuthPersistenceError extends Error {
 }
 
 export class AuthInvalidCredentialsError extends Error {}
+export class AuthInvalidTokenError extends Error {}
 
 export class AuthService {
   constructor(
@@ -86,7 +93,24 @@ export class AuthService {
     private readonly passwordVerifier: AuthPasswordVerifier = {
       matches: matchesPassword,
     },
+    private readonly tokenVerifier?: AuthTokenVerifier,
+    private readonly userService?: Pick<UserService, 'findByUsername'>,
   ) {}
+
+  async authenticate(token: string): Promise<TokenClaims> {
+    if (!this.tokenVerifier) throw new AuthInvalidTokenError();
+    try {
+      return await this.tokenVerifier.verify(token);
+    } catch {
+      throw new AuthInvalidTokenError();
+    }
+  }
+
+  async currentUser(username: string): Promise<User> {
+    const user = await this.userService?.findByUsername(username);
+    if (!user) throw new AuthInvalidTokenError();
+    return user;
+  }
 
   async login(request: AuthLoginRequest): Promise<AuthenticatedLogin> {
     await this.loginRateLimiter.consume(request.email, request.ipAddress);

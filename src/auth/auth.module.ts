@@ -20,18 +20,21 @@ import {
   WelcomeMailOutboxRelayRunner,
 } from '../jobs/welcome-mail-outbox-relay.js';
 import { User } from '../users/user.entity.js';
+import { UserService } from '../users/user.service.js';
 import {
   AUTH_CONFIG,
   AUTH_LOGIN_RATE_LIMITER,
   AUTH_LOGIN_REPOSITORY,
+  AUTH_TOKEN_VERIFIER,
 } from './auth.constants.js';
 import { AuthController } from './auth.controller.js';
 import { AuthLoginRateLimiter } from './auth-login-rate-limiter.js';
+import { AuthTokenGuard } from './auth-token.guard.js';
 import type {
   AuthLoginRateLimiterPort,
   AuthLoginTokenIssuer,
 } from './auth-login-contracts.js';
-import { AuthService, type AuthLoginRepository } from './auth.service.js';
+import { AuthService, type AuthLoginRepository, type AuthTokenVerifier } from './auth.service.js';
 import { issueToken } from './auth-token-issuer.js';
 import { WELCOME_MAIL_OUTBOX_RELAY } from '../jobs/welcome-mail-outbox-relay.constants.js';
 
@@ -67,6 +70,8 @@ import { WELCOME_MAIL_OUTBOX_RELAY } from '../jobs/welcome-mail-outbox-relay.con
         AUTH_LOGIN_RATE_LIMITER,
         JwtService,
         AUTH_CONFIG,
+        AUTH_TOKEN_VERIFIER,
+        UserService,
       ],
       provide: AuthService,
       useFactory: (
@@ -75,6 +80,8 @@ import { WELCOME_MAIL_OUTBOX_RELAY } from '../jobs/welcome-mail-outbox-relay.con
         loginRateLimiter: AuthLoginRateLimiterPort,
         jwtService: JwtService,
         authConfig: AuthConfig,
+        tokenVerifier: AuthTokenVerifier,
+        userService: UserService,
       ) => {
         const tokenIssuer: AuthLoginTokenIssuer = {
           issue: (username) => issueToken(jwtService, authConfig, username),
@@ -84,13 +91,30 @@ import { WELCOME_MAIL_OUTBOX_RELAY } from '../jobs/welcome-mail-outbox-relay.con
           loginRepository,
           loginRateLimiter,
           tokenIssuer,
+          undefined,
+          tokenVerifier,
+          userService,
         );
       },
+    },
+    {
+      inject: [JwtService],
+      provide: AUTH_TOKEN_VERIFIER,
+      useFactory: (jwtService: JwtService): AuthTokenVerifier => ({
+        verify: (token) => jwtService.verifyAsync(token),
+      }),
     },
     {
       provide: AUTH_LOGIN_RATE_LIMITER,
       useFactory: () => new AuthLoginRateLimiter(),
     },
+    {
+      inject: [DataSource],
+      provide: UserService,
+      useFactory: (dataSource: DataSource) =>
+        new UserService(dataSource.getRepository(User)),
+    },
+    AuthTokenGuard,
     {
       provide: WELCOME_MAIL_QUEUE,
       useFactory: () => new BullMqWelcomeMailQueue(),

@@ -11,6 +11,7 @@ import { AuthLoginRateLimitError } from './auth-login-rate-limiter.js';
 import {
   AuthConflictError,
   AuthInvalidCredentialsError,
+  AuthInvalidTokenError,
   AuthPersistenceError,
   AuthService,
   type AuthLoginRepository,
@@ -130,6 +131,55 @@ function createService(
 }
 
 describe('AuthService', () => {
+  it('verifies token claims and normalizes verification failures', async () => {
+    const claims = {
+      aud: 'client',
+      exp: 1900,
+      iat: 1000,
+      iss: 'api',
+      jti: 'token-id',
+      sub: 'jane',
+    };
+    const service = new AuthService(
+      { transaction: async (work) => work({} as never) },
+      { findByEmail: async () => null },
+      { consume: async () => undefined },
+      { issue: async () => 'signed-token' },
+      undefined,
+      { verify: async () => claims },
+    );
+    await expect(service.authenticate('signed-token')).resolves.toEqual(claims);
+
+    const rejected = new AuthService(
+      { transaction: async (work) => work({} as never) },
+      { findByEmail: async () => null },
+      { consume: async () => undefined },
+      { issue: async () => 'signed-token' },
+      undefined,
+      { verify: async () => Promise.reject(new Error('invalid signature')) },
+    );
+    await expect(rejected.authenticate('invalid-token')).rejects.toBeInstanceOf(
+      AuthInvalidTokenError,
+    );
+  });
+
+  it('finds the current user in the service and rejects a missing user', async () => {
+    const user = { email: 'jane@example.com', username: 'jane' } as User;
+    const findByUsername = vi.fn().mockResolvedValueOnce(user).mockResolvedValueOnce(null);
+    const service = new AuthService(
+      { transaction: async (work) => work({} as never) },
+      { findByEmail: async () => null },
+      { consume: async () => undefined },
+      { issue: async () => 'signed-token' },
+      undefined,
+      undefined,
+      { findByUsername },
+    );
+    await expect(service.currentUser('jane')).resolves.toBe(user);
+    await expect(service.currentUser('deleted')).rejects.toBeInstanceOf(AuthInvalidTokenError);
+    expect(findByUsername).toHaveBeenNthCalledWith(1, 'jane');
+  });
+
   it('rate limits, validates credentials, and issues a token during login', async () => {
     const user = await userWithPassword('safe-password');
     const loginRateLimiter = { consume: vi.fn().mockResolvedValue(undefined) };
