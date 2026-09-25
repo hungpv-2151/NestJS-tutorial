@@ -1,0 +1,27 @@
+{
+  "task": "Deliver Phase 02B.1 users TypeORM migration and compiled CLI without a public API change.",
+  "mode": "interactive",
+  "acceptanceCriteria": [
+    "The users migration has reversible apply and revert commands.",
+    "User entity metadata matches the users migration schema.",
+    "The foundation adds no public API route and keeps synchronize disabled.",
+    "The users migration is applied to the configured DATABASE_URL after user confirmation."
+  ],
+  "touchpoints": [
+    "package.json",
+    "src/database/data-source.ts",
+    "src/database/data-source.spec.ts",
+    "src/database/migrations/1710000000000-create-users.ts",
+    "src/users/user.entity.ts"
+  ],
+  "blastRadius": [
+    "TypeORM migration CLI",
+    "PostgreSQL users schema",
+    "application startup schema synchronization"
+  ],
+  "contracts": [
+    "pnpm db:migration:apply",
+    "pnpm db:migration:revert",
+    "pnpm db:migration:show"
+  ]
+}

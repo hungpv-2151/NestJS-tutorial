@@ -1,0 +1,26 @@
+{
+  "score": 10,
+  "criticalCount": 0,
+  "decision": "SEALED",
+  "acceptanceCovered": [
+    "The reset command rejects execution unless CONFIRM_DATABASE_RESET=yes is supplied by the caller.",
+    "The reset command uses a valid TEST_DATABASE_URL and never selects DATABASE_URL for its destructive connection.",
+    "The reset lifecycle initializes, drops the test database, reruns migrations, and destroys the data source on success or failure.",
+    "The foundation adds no controller or public API route."
+  ],
+  "regressionChecked": [
+    "database reset command",
+    "TypeORM migration lifecycle",
+    "test database selection"
+  ],
+  "contractStatus": "OK",
+  "refuted": [],
+  "unproven": [],
+  "reachableRegressions": [],
+  "findings": [],
+  "riskGate": {
+    "touchesSensitiveArea": true,
+    "signoffRequired": true,
+    "humanSignedOff": true
+  }
+}

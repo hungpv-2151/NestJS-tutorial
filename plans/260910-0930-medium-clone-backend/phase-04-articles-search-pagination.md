@@ -1,76 +1,84 @@
-# Phase 04 — PR4: Articles, search/filter/pagination
+# Phase 04 — Article, Feed, Favorite và Tag API Stack
 
 ## Context Links
 
-- [Article contract](../../spec/api/hurl/articles.hurl) · [feed](../../spec/api/hurl/feed.hurl) · [favorites](../../spec/api/hurl/favorites.hurl) · [pagination](../../spec/api/hurl/pagination.hurl)
+- [Articles](../../spec/api/hurl/articles.hurl) · [feed](../../spec/api/hurl/feed.hurl) · [favorites](../../spec/api/hurl/favorites.hurl) · [pagination](../../spec/api/hurl/pagination.hurl)
 
 ## Overview
 
-- Priority: P1 · Status: Pending · Effort: 18h · Blocked by: PR3
-- Implement article CRUD/list/feed/favorite, REST semantics, serializers, search/filter và pagination có giới hạn.
+- Priority: P1 · Status: Pending · Effort: 26h · Blocked by: Phase 03 PR 3G
+- Một endpoint mỗi PR. `GET /api/articles` được tách hai PR vì query/filter/pagination có rủi ro và kích thước cao.
 
 ## Key Insights
 
-- List serializer không có `body`; detail serializer có. Một query builder/service phải dùng chung cho global list và feed.
-- Offset pagination cần total order `createdAt DESC, id DESC`; count tính sau filter, trước limit/offset.
+- List không có `body`; detail có. Stable order `createdAt DESC, id DESC`; count sau filter, trước page.
+- Favorite và unfavorite là hai APIs. Feed và global list dùng chung query seam nhưng không chung PR.
 
 ## Requirements
 
-- APIs: Create/List/Feed/Get/Update/Delete Article; Favorite/Unfavorite; `GET /api/tags` để giữ RealWorld contract.
-- Query DTO: `search`, `tag`, `author`, `favorited`, `limit`, `offset`; default limit 20, max 100, offset >= 0.
-- `search` case-insensitive trên title/description, trim và max 100 ký tự; filters kết hợp AND, query parameter lạ bị validation policy chung xử lý.
-- Author-only update/delete; favorite/unfavorite idempotent; composite unique chống race.
-- Slug unique dù title trùng; `tagList` absent giữ nguyên, `[]` xóa, `null` 422; mutation đa bảng trong transaction.
-- Feed chỉ article của user đang follow, bắt buộc auth; public read có optional principal cho `favorited/following`.
+- Create/get/update/delete/list/feed/favorite/unfavorite/tags đều là API riêng.
+- Search case-insensitive; filters AND; limit default 20, max 100; ownership và idempotency dựa DB constraints.
+- Migration article/tag/favorite tách foundation, không thêm route.
 
-## Architecture
+## Architecture and PR Dependency Graph
 
-`query DTO → ArticleQueryService → TypeORM QueryBuilder → count + page → ArticleListSerializer`.
-`mutation → ArticleService transaction → slug/tags → ArticleDetailSerializer`.
-Favorite relation là source of truth; `favoritesCount` dùng aggregate, không read-modify-write.
+`3G → 4A → 4B → 4C → 4D → 4E → 4F → 4G → 4H → 4I → 4J → 4K`.
+
+| PR | Only scope / public API | Base | Required evidence |
+|---|---|---|---|
+| 4A | Article/tag/favorite schema and shared serializers; API: none | 3G | migration apply/revert screenshot |
+| 4B | `POST /api/articles` only | 4A | create/slug/tag transaction result |
+| 4C | `GET /api/articles/:slug` only | 4B | public/optional-auth detail result |
+| 4D | `PUT /api/articles/:slug` only | 4C | owner/non-owner/slug result |
+| 4E | `DELETE /api/articles/:slug` only | 4D | 204/403/404/persistence result |
+| 4F | `GET /api/articles` part 1: query/count/order core, no route | 4E | repository integration result |
+| 4G | `GET /api/articles` part 2: HTTP/filter/page contract | 4F | search/filter/page screenshot |
+| 4H | `GET /api/articles/feed` only | 4G | auth/follow/order result |
+| 4I | `POST /api/articles/:slug/favorite` only | 4H | idempotency/count result |
+| 4J | `DELETE /api/articles/:slug/favorite` only | 4I | idempotency/count result |
+| 4K | `GET /api/tags` only | 4J | envelope/order/result screenshot |
+
+## Data Flow
+
+`query DTO → query service → QueryBuilder → count/page → list serializer`; `mutation → scoped guard/service → transaction → detail serializer`; favorites use relation aggregate.
 
 ## Related Code Files
 
-- Modify: `/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/app.module.ts`, `/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/profiles/*`, `/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/package.json`.
-- Create: `/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/articles/*`, `/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/tags/*`, `/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/database/migrations/*-create-articles-tags-favorites.ts`.
-- Create/modify tests: `/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/articles/*.spec.ts`, `/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/src/tags/*.spec.ts`, `/home/pham.van.hung@sun-asterisk.com/projects/demo/nestjs-tutorial/test/articles.e2e-spec.ts`.
+- Create/modify sequentially: `src/articles/*`, `src/tags/*`, `src/profiles/*`, `src/app.module.ts`, article/tag/favorite migrations.
+- Controller/Swagger/test hunks belong only to the endpoint row. Shared query work belongs 4F and exposes no route.
 - Delete: none.
 
 ## Implementation Steps
 
-1. Viết/review migration article/tag/article-tag/favorite, FK/unique/index và `up/down`; apply/revert/apply.
-2. Tạo nested create/update/query DTO; giới hạn field/tag/search/pagination; map errors chuẩn.
-3. Implement slug collision retry hữu hạn và transactional ordered tag replacement.
-4. Implement create/get/update/delete với scoped ownership predicate để tránh TOCTOU; route `/feed` khai báo trước `/:slug`.
-5. Implement query builder chung cho search/filter/feed, stable order, cap 100, count trước page; batch author/favorite relations, không N+1.
-6. Implement favorite/unfavorite idempotent và tags read; tách list/detail serializers.
-7. Swagger hóa toàn bộ query/security/schema; unit/E2E cover CRUD, filter combinations, paging edges, duplicate title và authorization.
+1. Refresh/rebase and audit diff before fixing each row; confirm declared base, one API and line limit.
+2. Land 4A schema first; implement endpoint rows in order. Route `/feed` stays ahead of `/:slug` without editing unrelated contracts.
+3. Split any row above 400 changed lines into suffix PRs serving the same API only; preferred size ≤300.
+4. Run compile, error-free lint/static analysis, focused tests and contract checks. Attach screenshot/results in PR comment; record URL.
 
 ## Todo List
 
-- [ ] Migration reversible; indexes khớp filter/order và composite relations.
-- [ ] Toàn bộ article/favorite/feed/tag endpoints đúng contract.
-- [ ] Search/filter/pagination deterministic, max 100, không N+1/body leak.
-- [ ] Build, lint, unit, targeted E2E/Hurl article/feed/favorite/tags green.
+- [ ] PRs 4A–4K rebased, scoped and within line limit.
+- [ ] Error-level findings zero; retained warnings carry reason/follow-up.
+- [ ] Stable paging/count/no-N+1 and ownership/idempotency proven.
+- [ ] Evidence URLs: 4A `pending`; 4B `pending`; 4C `pending`; 4D `pending`; 4E `pending`; 4F `pending`; 4G `pending`; 4H `pending`; 4I `pending`; 4J `pending`; 4K `pending`.
 
 ## Success Criteria
 
-- CRUD full flow persist đúng; non-owner mutation không đổi dữ liệu.
-- Hai page liên tiếp không duplicate/skip khi timestamp bằng nhau; `articlesCount` không bị limit/offset làm sai.
+- Each API passes its exact envelope/status/persistence tests in its own PR; pages are deterministic and capped.
 
 ## Risk Assessment
 
-- Query join làm duplicate/count sai — Likelihood: Medium · Impact: High → distinct ids/subquery và integration fixtures nhiều tags/favorites.
-- Concurrent slug/favorite — Likelihood: Medium · Impact: High → DB unique + bounded retry/idempotent conflict handling.
+- Join duplicate/count error — Medium/High → distinct/subquery fixtures in 4F/4G.
+- Mixed endpoint controller edits — High/High → route ownership audit before every submit.
 
 ## Security Considerations
 
-- QueryBuilder luôn bind params; body/query caps chống resource abuse; auth identity lấy từ JWT, không từ payload.
+- Bind query params; cap body/query input; derive identity only from verified JWT; scoped mutations avoid TOCTOU.
 
 ## Rollback
 
-- Revert code + migration PR4 bằng `db:migration:revert`; migration down xóa join trước parent tables và không chạm users/attachments.
+- Revert top endpoint PR independently. 4A `down` removes joins before parents and never touches users/attachments.
 
 ## Next Steps
 
-- PR5 dùng Article lookup, auth, transaction và author serializer hiện có.
+- Phase 05 begins after 4K and all Phase 04 evidence comments are accepted.

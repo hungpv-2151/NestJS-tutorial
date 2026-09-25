@@ -25,6 +25,88 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+## API bootstrap
+
+Install dependencies, set `DATABASE_URL` to a PostgreSQL connection URL, and
+start the local server:
+
+```bash
+pnpm install
+pnpm start:dev
+```
+
+The service connects to PostgreSQL during startup; it does not start when
+`DATABASE_URL` is absent or invalid. Copy the safe placeholders in
+`.env.example` into your local, ignored environment file, then provide those
+values to the process that starts the service. Never commit connection strings
+or credentials.
+
+The service listens on `http://localhost:3000` by default. Set overrides in
+the process environment used to start the service:
+
+| Variable | Default | Valid values and behavior |
+| --- | --- | --- |
+| `PORT` | `3000` | Integer from `1` to `65535`. |
+| `BODY_LIMIT` | `100kb` | Positive integer followed by `kb` or `mb`, such as `2mb`. |
+| `NODE_ENV` | unset | Set to `production` to apply production Swagger behavior. |
+| `SWAGGER_ENABLED` | unset | Set to the exact value `true` to enable Swagger in production. |
+| `DATABASE_URL` | required | PostgreSQL connection URL used by the application at startup. |
+| `TEST_DATABASE_URL` | required for tests | PostgreSQL connection URL used only by the test runners. |
+
+`pnpm test` and `pnpm test:e2e` require `TEST_DATABASE_URL` and use it as
+their database connection.
+
+## Database migrations
+
+Set `DATABASE_URL` to the target PostgreSQL database before running a
+migration. Keep the connection string in a local ignored environment file; do
+not commit credentials.
+
+```bash
+# Apply pending migrations
+pnpm db:migration:apply
+
+# Show applied and pending migrations
+pnpm db:migration:show
+
+# Revert the most recently applied migration
+pnpm db:migration:revert
+
+# Drop and recreate the test database from all migrations
+CONFIRM_DATABASE_RESET=yes pnpm db:migration:reset
+```
+
+Each command builds the project before invoking TypeORM. Reverting the users
+migration drops the `users` table, so use it only when that data can be lost.
+
+`pnpm db:migration:reset` is destructive: it drops the database at
+`TEST_DATABASE_URL` and reruns every migration. Set `TEST_DATABASE_URL` to the
+intended PostgreSQL test database and pass the exact confirmation value
+`CONFIRM_DATABASE_RESET=yes`; the command fails without either value.
+
+`GET /api/hello` returns a localized greeting. `Accept-Language: vi` and
+`vi-*` values select Vietnamese; a missing, English, or unsupported locale
+uses English.
+
+```json
+{ "message": "Hello!", "locale": "en" }
+```
+
+For example, request Vietnamese with:
+
+```bash
+curl --header 'Accept-Language: vi-VN,vi;q=0.9' http://localhost:3000/api/hello
+```
+
+```json
+{ "message": "Xin chào!", "locale": "vi" }
+```
+
+Swagger UI is available at `http://localhost:3000/docs`, with its OpenAPI JSON
+at `http://localhost:3000/docs-json`. Both routes are enabled outside
+production. When `NODE_ENV=production`, both return `404` unless
+`SWAGGER_ENABLED=true` is set explicitly.
+
 ## Project setup
 
 ```bash
