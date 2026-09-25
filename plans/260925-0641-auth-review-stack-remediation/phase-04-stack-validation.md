@@ -2,15 +2,16 @@
 
 ## Context and ownership
 
-Priority P2, in progress, 1h; depends on Phases 2 and 3. Own git integration and review evidence; no new auth behavior. Phase 1 rules branch remains separate.
+Priority P2, partially complete, 1h; depends on Phases 2 and 3. Own git integration and review evidence; no new auth behavior. The #44 rules change is scoped to the rules branch. Rebase, validation, and pushes are complete; posting five planned inline replies is blocked by GitHub write access.
 
 ## Steps
 
-1. #35–#43 are unchanged by this plan and already retain their direct parent links. Before replay, preserve remote/local heads for #45 and #46. Rebase `phase-03-user-avatar-pr45` onto updated `chore-agent-rule-refresh` with `git rebase --onto <new-rules-head> <old-rules-head> phase-03-user-avatar-pr45`, then rebase `phase-03-private-file-read-pr46` onto the new #45 head. Resolve conflicts only on the affected child branch.
-2. For each replay, run `git range-diff oldParent..oldChild newParent..newChild`, compare changed-file scope, and verify no child-only commit or unrelated change disappeared. Verify every PR base/head pair and no unexpected code diff in #37. Stop on an ambiguous conflict and inspect the original commit before continuing.
-3. Run `pnpm build`, `pnpm lint`, focused auth unit tests, `pnpm test`, and `pnpm test:e2e` where required services are available. Record exact command, exit code, and SHA; report infrastructure failures separately from product failures. Check redacted logs and no secret files in the diff. Run reviewer pass, update PR evidence, and reply to the four #35 and one #36 threads with the verified commit links. Keep #37 logging deferred and unchanged.
-4. Push the #44 rules update normally. For rebased #45/#46 descendants, use `git push --force-with-lease` after confirming each saved remote head still matches. Never use unconditional force. Leave pre-existing untracked backup files untouched.
+1. **Complete:** Preserved the old #45/#46 remote and local heads, then rebased `phase-03-user-avatar-pr45` onto `chore-agent-rule-refresh` and `phase-03-private-file-read-pr46` onto the new #45 head.
+2. **Complete:** Local `git range-diff` checks retained the unique commits on #45 and #46 one-to-one. GitHub confirms the intended bases and heads and reports `mergeable=true` for #44, #45, and #46. Current pushed heads are #44 `d1e288e7`, #45 `a8408805`, and #46 `5c6c4a13`.
+3. **Complete:** Post-rebase checks passed: `pnpm build`; `pnpm lint` (95 files, 139 warnings, 0 errors); `pnpm test` (123 passed, 1 skipped); `pnpm test:e2e` (36 passed); focused attachment/auth tests (34 passed); focused request-failure logger tests (4 passed). Test evidence is in [raw-post-rebase-tests.json](./evidence/raw-post-rebase-tests.json); reviewer evidence is in [inspection-verdict.json](./evidence/inspection-verdict.json).
+4. **Blocked:** Attempted all four planned #35 and one #36 commit-linked inline replies through the GitHub connector; each returned `403 Resource not accessible by integration`. `gh auth status`, `gh api user`, and `gh stack push` hung and were interrupted. No reply was posted. The branch pushes are confirmed independently by GitHub. Posting the five replies needs working GitHub write access.
+5. **Complete:** PR #37's logging suggestion remains deferred for future operational need; no #37 code change or reply was made.
 
 ## Risk, proof, and rollback
 
-High likelihood/impact: a descendant rebase may drop a unique commit or overwrite a newer remote update. Backup refs, `range-diff`, remote lease, and parent-first replay are mandatory. Done when all five actionable review comments have commit-linked replies, #37 is explicitly deferred, each PR shows its intended diff, all required gates pass, and every open descendant retains its unique commits. Restore from saved refs only after checking remote state; revert a faulty fix at its source branch and replay descendants again.
+The rebase risk is closed: backups were preserved, range-diffs retained the unique commits one-to-one, and GitHub confirms the pushed PR bases/heads are mergeable. The remaining completion condition is posting all five commit-linked replies after GitHub write access works. Until then, this phase and the overall plan remain partially complete. PR #37 stays deferred. If another descendant rebase is needed, verify remote leases and replay parent-first; restore from saved refs only after checking remote state, and revert a faulty fix at its source branch before replaying descendants.
