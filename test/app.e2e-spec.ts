@@ -73,6 +73,15 @@ describe('AppController (e2e)', () => {
       name: 'Authorization',
       type: 'apiKey',
     });
+    expect(response.body.paths['/api/user/logout'].post).toMatchObject({
+      responses: {
+        '204': expect.any(Object),
+        '401': expect.any(Object),
+        '500': expect.any(Object),
+      },
+      security: [{ tokenAuth: [] }],
+      summary: 'Sign out and revoke the presented token',
+    });
   });
 
   afterEach(async () => {

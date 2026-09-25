@@ -5,6 +5,7 @@ import {
   ApiCreatedResponse,
   ApiHeader,
   ApiInternalServerErrorResponse,
+  ApiNoContentResponse,
   ApiOperation,
   ApiOkResponse,
   ApiSecurity,
@@ -122,6 +123,31 @@ export function CurrentUserSwagger(): MethodDecorator {
     }),
     ApiUnauthorizedResponse({
       description: 'Token is missing or invalid.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
+  );
+}
+
+export function LogoutUserSwagger(): MethodDecorator {
+  return applyDecorators(
+    ApiTags('Authentication'),
+    ApiOperation({ summary: 'Sign out and revoke the presented token' }),
+    ApiHeader({
+      description: 'JWT presented as Token <jwt>.',
+      example: 'Token <jwt>',
+      name: 'Authorization',
+      required: true,
+    }),
+    ApiSecurity(TOKEN_AUTH_SECURITY_SCHEME),
+    ApiNoContentResponse({
+      description: 'Token revoked for its remaining lifetime.',
+    }),
+    ApiUnauthorizedResponse({
+      description: 'Token is missing or invalid.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
+    ApiInternalServerErrorResponse({
+      description: 'Logout could not be completed.',
       schema: VALIDATION_ERROR_SCHEMA,
     }),
   );

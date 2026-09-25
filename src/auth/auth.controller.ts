@@ -34,10 +34,11 @@ import {
   AuthConflictError,
   AuthInvalidCredentialsError,
   AuthInvalidTokenError,
+  AuthLogoutUnavailableError,
   AuthService,
 } from './auth.service.js';
 import { AuthTokenGuard, type AuthenticatedRequest } from './auth-token.guard.js';
-import { CurrentUserSwagger, LoginUserSwagger, RegisterUserSwagger } from './auth.swagger.js';
+import { CurrentUserSwagger, LoginUserSwagger, LogoutUserSwagger, RegisterUserSwagger } from './auth.swagger.js';
 import { issueToken } from './auth-token-issuer.js';
 
 export { AUTH_CONFIG } from './auth.constants.js';
@@ -128,6 +129,25 @@ export class AuthController {
     } catch (error) {
       if (error instanceof AuthInvalidTokenError) {
         throw new UnauthorizedException({ errors: { token: ['is invalid'] } });
+      }
+      throw error;
+    }
+  }
+
+  @Post('user/logout')
+  @LogoutUserSwagger()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(AuthTokenGuard)
+  @Header('Cache-Control', 'no-store')
+  async logout(@Req() request: AuthenticatedRequest): Promise<void> {
+    try {
+      await this.authService.logout(request.auth);
+    } catch (error) {
+      this.logger.error(
+        JSON.stringify(createRequestFailureLog(error, request)),
+      );
+      if (error instanceof AuthLogoutUnavailableError) {
+        throw new InternalServerErrorException({ errors: { body: ['request failed'] } });
       }
       throw error;
     }
