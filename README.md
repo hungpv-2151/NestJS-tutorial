@@ -139,8 +139,8 @@ user.
 | Missing or foreign attachment | HTTP 404 with the same not-found response, so the route does not disclose whether another user owns the attachment. |
 | Storage | The private storage root defaults to `storage/private`. |
 
-The file-read route is being delivered in a separate change planned as PR #46;
-that PR is not open yet. The path becomes fetchable after PR #46 is merged.
+The file-read route is being delivered separately in [PR #46](https://github.com/hungpv-2151/NestJS-tutorial/pull/46),
+stacked on PR #45. The path becomes fetchable after PR #46 is merged.
 
 Swagger UI is available at `http://localhost:3000/docs`, with its OpenAPI JSON
 at `http://localhost:3000/docs-json`. Both routes are enabled outside
