@@ -129,7 +129,7 @@ async function createApp(
       AuthUpdateUserHandler,
       {
         provide: AuthService,
-        useValue: { authenticate },
+        useValue: { authenticate, currentUser: (username: string) => findByUsername(username) },
       },
       { provide: UserService, useValue: { findByUsername, updateCurrentUser } },
       {

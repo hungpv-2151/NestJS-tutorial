@@ -82,8 +82,11 @@ async function createApp(
   const authService = new AuthService(
     { transaction: async (work) => work({} as never) },
     { findByEmail: async () => null },
+    { consume: async () => undefined },
+    { issue: async () => 'unused-token' },
     undefined,
     { verify: async () => claims() },
+    undefined,
     denyList,
   );
   @Module({
