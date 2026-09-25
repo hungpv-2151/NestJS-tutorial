@@ -1,0 +1,31 @@
+{
+  "task": "Deliver Phase 3G authenticated private attachment read as a separate API PR stacked on PR #45.",
+  "mode": "interactive",
+  "acceptanceCriteria": [
+    "GET /api/files/:id requires a valid Token JWT and resolves its username subject to the user's UUID before checking attachment ownership.",
+    "Only the owning user can read an attachment; missing and foreign attachments return the same non-disclosing 404.",
+    "Private file reads stay below the configured private storage root and reject unsupported image metadata, invalid size metadata, missing files, and size mismatches without exposing storage paths.",
+    "Successful reads return the supported image media type and content length with private no-store, no-cache, and nosniff headers.",
+    "The API has focused unit, storage, and E2E coverage, a passing build, zero-error lint, and an independent final review."
+  ],
+  "touchpoints": [
+    "src/files/file-read.controller.ts",
+    "src/files/file-read-handler.ts",
+    "src/files/files.module.ts",
+    "src/files/files.swagger.ts",
+    "src/attachments/private-attachment-storage.ts",
+    "src/app.module.ts"
+  ],
+  "blastRadius": [
+    "authenticated private attachment reads",
+    "attachment ownership authorization",
+    "HTTP image response headers and content type"
+  ],
+  "contracts": [
+    "GET /api/files/:id",
+    "Authorization: Token <jwt>",
+    "owner-only access via AttachmentAccessPolicy",
+    "non-disclosing 404 for missing or foreign attachments",
+    "PR #46 targets PR #45"
+  ]
+}

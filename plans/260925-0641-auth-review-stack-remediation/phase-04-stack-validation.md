@@ -2,15 +2,21 @@
 
 ## Context and ownership
 
-Priority P2, in progress, 1h; depends on Phases 2 and 3. Own git integration and review evidence; no new auth behavior. Phase 1 rules branch remains separate.
+Priority P2, complete, 1h; depends on Phases 2 and 3. Own git integration and review evidence; no new auth behavior. The #44 rules change is scoped to the rules branch. Rebase, validation, pushes, and all five planned inline replies are complete.
 
 ## Steps
 
-1. #35–#43 are unchanged by this plan and already retain their direct parent links. Before replay, preserve remote/local heads for #45 and #46. Rebase `phase-03-user-avatar-pr45` onto updated `chore-agent-rule-refresh` with `git rebase --onto <new-rules-head> <old-rules-head> phase-03-user-avatar-pr45`, then rebase `phase-03-private-file-read-pr46` onto the new #45 head. Resolve conflicts only on the affected child branch.
-2. For each replay, run `git range-diff oldParent..oldChild newParent..newChild`, compare changed-file scope, and verify no child-only commit or unrelated change disappeared. Verify every PR base/head pair and no unexpected code diff in #37. Stop on an ambiguous conflict and inspect the original commit before continuing.
-3. Run `pnpm build`, `pnpm lint`, focused auth unit tests, `pnpm test`, and `pnpm test:e2e` where required services are available. Record exact command, exit code, and SHA; report infrastructure failures separately from product failures. Check redacted logs and no secret files in the diff. Run reviewer pass, update PR evidence, and reply to the four #35 and one #36 threads with the verified commit links. Keep #37 logging deferred and unchanged.
-4. Push the #44 rules update normally. For rebased #45/#46 descendants, use `git push --force-with-lease` after confirming each saved remote head still matches. Never use unconditional force. Leave pre-existing untracked backup files untouched.
+1. **Complete:** Preserved the old #45/#46 remote and local heads, then rebased `phase-03-user-avatar-pr45` onto `chore-agent-rule-refresh` and `phase-03-private-file-read-pr46` onto the new #45 head.
+2. **Complete:** Local `git range-diff` checks retained the unique commits on #45 and #46 one-to-one. GitHub confirms the intended bases and heads and reports `mergeable=true` for #44, #45, and #46. The auth logging fix is in #46 commit `5c6c4a13`; plan and journal commits were added on top afterward.
+3. **Complete:** Post-rebase checks passed: `pnpm build`; `pnpm lint` (95 files, 139 warnings, 0 errors); `pnpm test` (123 passed, 1 skipped); `pnpm test:e2e` (36 passed); focused attachment/auth tests (34 passed); focused request-failure logger tests (4 passed). Test evidence is in [raw-post-rebase-tests.json](./evidence/raw-post-rebase-tests.json); reviewer evidence is in [inspection-verdict.json](./evidence/inspection-verdict.json).
+4. **Complete:** Posted all five commit-linked replies. GitHub API list verification confirmed every reply's `in_reply_to_id` matches the intended root comment:
+   - #35 comment `4058917154`: https://github.com/hungpv-2151/NestJS-tutorial/pull/35#discussion_r4103946284
+   - #35 comment `4058920864`: https://github.com/hungpv-2151/NestJS-tutorial/pull/35#discussion_r4103947083
+   - #35 comment `4058969692`: https://github.com/hungpv-2151/NestJS-tutorial/pull/35#discussion_r4103947943
+   - #35 comment `4058971539`: https://github.com/hungpv-2151/NestJS-tutorial/pull/35#discussion_r4103948693
+   - #36 comment `4059062185`: https://github.com/hungpv-2151/NestJS-tutorial/pull/36#discussion_r4103949416
+5. **Complete:** PR #37's logging suggestion remains deferred for future operational need; no #37 code change or reply was made.
 
 ## Risk, proof, and rollback
 
-High likelihood/impact: a descendant rebase may drop a unique commit or overwrite a newer remote update. Backup refs, `range-diff`, remote lease, and parent-first replay are mandatory. Done when all five actionable review comments have commit-linked replies, #37 is explicitly deferred, each PR shows its intended diff, all required gates pass, and every open descendant retains its unique commits. Restore from saved refs only after checking remote state; revert a faulty fix at its source branch and replay descendants again.
+The rebase and reply risks are closed: backups were preserved, range-diffs retained the unique commits one-to-one, GitHub confirms the pushed PR bases/heads are mergeable, and all five replies are linked to the intended root comments. PR #37 stays deferred. If another descendant rebase is needed, verify remote leases and replay parent-first; restore from saved refs only after checking remote state, and revert a faulty fix at its source branch before replaying descendants.
