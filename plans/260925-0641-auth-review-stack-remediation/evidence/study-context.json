@@ -1,0 +1,33 @@
+{
+  "task": "Reconcile auth review feedback, add reusable generation rules, and validate the dependent PR stack.",
+  "mode": "code",
+  "acceptanceCriteria": [
+    "All four actionable PR #35 comments map to verified changes and focused tests.",
+    "The actionable PR #36 comment maps to verified current-user service behavior and focused tests.",
+    "PR #37 logging feedback remains future scope unless an operational need exists.",
+    "Recurring PR #31 feedback is represented by concise tracked rules in AGENTS.md.",
+    "Stack descendants preserve their unique commits and retain the intended bases after the rules update."
+  ],
+  "touchpoints": [
+    "AGENTS.md",
+    "src/auth/auth.controller.ts",
+    "src/auth/auth.service.ts",
+    "src/auth/auth-password-verifier.ts",
+    "src/auth/auth-login-rate-limiter.ts",
+    "src/auth/auth-login-rate-limiter.constants.ts",
+    "src/auth/auth.module.ts",
+    "plans/260925-0641-auth-review-stack-remediation/"
+  ],
+  "blastRadius": [
+    "Authentication login request, rate-limit, error, and logging behavior",
+    "GET /api/user missing-user and response-token behavior",
+    "Open stacked PR bases and unique descendant commits from #35 through #46",
+    "Future auth code generation guidance in tracked AGENTS.md"
+  ],
+  "contracts": [
+    "PR #35 targets PR #31; PR #36 targets PR #35; PR #37 targets PR #36.",
+    "PR #35 preserves login success, 401, 429, and 500 contracts.",
+    "PR #36 preserves GET /api/user response and token semantics.",
+    "PR #37 remains unchanged for deferred logging feedback."
+  ]
+}
