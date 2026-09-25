@@ -6,7 +6,7 @@
 
 ## Overview
 
-- Priority: P1 · Status: In progress — 3A `PUT /api/user` submitted as PR #39 · Effort: 18h · Blocked by: Phase 02 PR 2H
+- Priority: P1 · Status: In progress — 3A submitted as PR #39; 3B `GET /api/profiles/:username` submitted as PR #40 · Effort: 18h · Blocked by: Phase 02 PR 2H
 - Tách update-user, profile, follow/unfollow, avatar upload và file read thành PR riêng; attachment foundation không expose API.
 
 ## Key Insights
@@ -54,7 +54,7 @@
 
 - [ ] PRs 3A–3G rebased, one-API scoped and within line limit.
 - [ ] Error-level findings zero; retained warnings documented per PR.
-- [ ] Evidence URLs: 3A [PR #39 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/39#issuecomment-5753521154); 3B `pending`; 3C `pending`; 3D `pending`; 3E `pending`; 3F `pending`; 3G `pending`.
+- [ ] Evidence URLs: 3A [PR #39 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/39#issuecomment-5753521154); 3B [PR #40 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/40#issuecomment-5753623421); 3C `pending`; 3D `pending`; 3E `pending`; 3F `pending`; 3G `pending`.
 
 ## Success Criteria
 
