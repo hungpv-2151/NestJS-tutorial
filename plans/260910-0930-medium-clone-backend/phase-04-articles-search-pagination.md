@@ -6,7 +6,7 @@
 
 ## Overview
 
-- Priority: P1 · Status: In progress (4A PR #47 ready; 4B is next) · Effort: 26h · Blocked by: Phase 03 PR 3G
+- Priority: P1 · Status: In progress (4A PR #47 ready; 4B PR #48 ready on #47; 4C is next) · Effort: 26h · Blocked by: Phase 03 PR 3G
 - Một endpoint mỗi PR. `GET /api/articles` được tách hai PR vì query/filter/pagination có rủi ro và kích thước cao.
 
 ## Key Insights
@@ -27,7 +27,7 @@
 | PR | Only scope / public API | Base | Required evidence |
 |---|---|---|---|
 | 4A | Article/tag/favorite schema and shared serializers; API: none | 3G | migration apply/revert screenshot |
-| 4B | `POST /api/articles` only | 4A | create/slug/tag transaction result |
+| 4B | `POST /api/articles` only ([PR #48](https://github.com/hungpv-2151/NestJS-tutorial/pull/48)) | 4A / #47 | [create/slug/tag transaction validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/48#issuecomment-5861778843) |
 | 4C | `GET /api/articles/:slug` only | 4B | public/optional-auth detail result |
 | 4D | `PUT /api/articles/:slug` only | 4C | owner/non-owner/slug result |
 | 4E | `DELETE /api/articles/:slug` only | 4D | 204/403/404/persistence result |
@@ -57,10 +57,10 @@
 
 ## Todo List
 
-- [ ] PRs 4A–4K rebased, scoped and within line limit. 4A PR #47 is ready on #46; 4B create-article is next.
+- [ ] PRs 4A–4K rebased, scoped and within line limit. 4A PR #47 is ready on #46; 4B POST create is PR #48 ready on #47; 4C is next.
 - [ ] Error-level findings zero; retained warnings carry reason/follow-up.
 - [ ] Stable paging/count/no-N+1 and ownership/idempotency proven.
-- [ ] Evidence URLs: 4A [PR #47 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/47#issuecomment-5861324933); 4B `pending`; 4C `pending`; 4D `pending`; 4E `pending`; 4F `pending`; 4G `pending`; 4H `pending`; 4I `pending`; 4J `pending`; 4K `pending`.
+- [ ] Evidence URLs: 4A [PR #47 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/47#issuecomment-5861324933); 4B [PR #48 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/48#issuecomment-5861778843); 4C `pending`; 4D `pending`; 4E `pending`; 4F `pending`; 4G `pending`; 4H `pending`; 4I `pending`; 4J `pending`; 4K `pending`.
 
 ## Success Criteria
 

@@ -7,7 +7,7 @@
 
 ## Overview and Dependency
 
-- Priority: P1 · Status: Ready to submit · PR scope: **`POST /api/articles` only** · Base: ready [PR #47](https://github.com/hungpv-2151/NestJS-tutorial/pull/47) / `phase-04a-article-schema` · Branch: `phase-04b-create-article`.
+- Priority: P1 · Status: Submitted · PR scope: **`POST /api/articles` only** · [PR #48](https://github.com/hungpv-2151/NestJS-tutorial/pull/48) is ready for review on [PR #47](https://github.com/hungpv-2151/NestJS-tutorial/pull/47) / `phase-04a-article-schema` · Branch: `phase-04b-create-article`.
 - Requires 4A tables, entity mappings, and detail serializer. PR 4C (`GET /api/articles/:slug`) starts only after 4B is submitted on #47. No other article, feed, favorite, or tag route belongs here.
 - Before code, refresh the remote, confirm #47 is the immediate stack base, rebase 4B if needed, and audit `git diff` for this one-API boundary.
 
@@ -67,4 +67,4 @@
 - [x] PostgreSQL verifies ordered tags, duplicate-title unique slugs, atomic rollback, and concurrent shared tags; `TEST_DATABASE_URL` pointed to disposable local PostgreSQL and all fixture counts returned to zero.
 - [x] Swagger documents only POST create with `201/401/409/422`; independent review found no remaining production correctness/security/transaction defect. Targeted lint reports 0 errors and 17 warnings in `src/articles`: four `C033` warnings reflect the required `DataSource.transaction` unit of work; `C018/C030` catch-path warnings reflect propagation of typed errors to the shared exception filter.
 - [x] Hurl was unavailable (`command -v hurl` returned no path). Isolated Supertest E2E covers missing auth, validation envelopes, and authenticated persistence. OpenAPI 409 example was manually reviewed against its route/error envelope.
-- [ ] PR comment records commands/results, exit codes, commit SHA, and screenshot; link the evidence in the Phase 04 row. Submit 4B on #47 via the stack workflow, then hand 4C a clean base.
+- [x] [PR #48 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/48#issuecomment-5861778843) records commands/results, exit codes, and commit SHAs. A UI screenshot does not apply to this backend-only API. 4B is submitted on #47 via the stack workflow; 4C can now use #48 as its base.
