@@ -8,7 +8,7 @@
 
 ## Overview
 
-- Priority: P1 · Status: In progress · Effort: 4h · Dependency: delivered 4H [PR #56](https://github.com/hungpv-2151/NestJS-tutorial/pull/56). One ready PR stacked **directly on `phase-04h-article-feed-api`** with only `POST /api/articles/:slug/favorite`. Do not implement `DELETE /api/articles/:slug/favorite` (4J).
+- Priority: P1 · Status: Submitted · Effort: 4h · Dependency: delivered 4H [PR #56](https://github.com/hungpv-2151/NestJS-tutorial/pull/56). One ready PR stacked **directly on `phase-04h-article-feed-api`** with only `POST /api/articles/:slug/favorite`. Do not implement `DELETE /api/articles/:slug/favorite` (4J).
 - Before branching, PR #56 was OPEN, ready, CLEAN, Static analysis SUCCESS, head `18b1ddd3d6a0f4e873743a016ffda8b4514b468c`, base `phase-04g-article-list-api` on 2026-09-28. Branch `phase-04i-favorite-article-api` started at that exact commit.
 
 ## Key Insights and Requirements
@@ -83,12 +83,18 @@ Implementation and test ownership are disjoint. This plan file is the only plann
 - Lint retained 255 repository warnings. New warnings are heuristic matches for the existing DataSource/transaction service pattern (C033), wrapping DB causes in typed redacted errors (C018/C030), and decorated no-store headers not recognized by S037. No error-level finding remains.
 - Production diff is within the 400-line hard cap, and each production TypeScript file is under 200 lines.
 
+## Delivery
+
+- Ready PR #57: https://github.com/hungpv-2151/NestJS-tutorial/pull/57
+- Base `phase-04h-article-feed-api` at `18b1ddd3d6a0f4e873743a016ffda8b4514b468c`; head `7b79313fafa1100147f828b0aa324f8e123bedac` at initial validation. GitHub Static analysis SUCCESS and merge state CLEAN; PR remains open and unmerged.
+- [Validation evidence](https://github.com/hungpv-2151/NestJS-tutorial/pull/57#issuecomment-5867280280)
+
 ## Todo List
 
 - [x] Confirm live #56 base/head/checks and record valid missing-route RED. `pnpm exec vitest run --config ./vitest.config.e2e.ts test/article-favorite-create.e2e-spec.ts` exited 1 on missing POST (404) while GET detail control returned 200.
 - [x] Implement only favorite POST; focused PostgreSQL E2E passes 4/4, including sequential/concurrent idempotency, 401/404/500, transaction rollback, article-delete race, cache and generated `/docs-json` contract.
 - [x] Independent review found no remaining issues after the viewer lock and OpenAPI contract fixes.
-- [ ] Push and create the ready PR directly above #56 with validation evidence.
+- [x] Push and create ready PR #57 directly above #56; validation evidence is recorded in the PR comment.
 
 ## Next Steps
 
