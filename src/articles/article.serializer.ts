@@ -18,6 +18,13 @@ export interface ArticleSerializationInput {
   context: ArticleSerializationContext;
 }
 
+export type ArticleListSerializationInput = Omit<
+  ArticleSerializationInput,
+  'body' | 'author'
+> & {
+  author: Pick<User, 'username' | 'bio' | 'image'>;
+};
+
 type ArticleFields = Omit<
   ArticleSerializationInput,
   'author' | 'context' | 'body' | 'createdAt' | 'updatedAt'
@@ -40,7 +47,7 @@ export function serializeArticleDetail(article: ArticleSerializationInput) {
 }
 
 export function serializeArticleList(
-  articles: ArticleSerializationInput[],
+  articles: ArticleListSerializationInput[],
   articlesCount: number,
 ) {
   return {
@@ -49,7 +56,7 @@ export function serializeArticleList(
   };
 }
 
-function toArticleFields(article: ArticleSerializationInput): ArticleFields {
+function toArticleFields(article: ArticleListSerializationInput): ArticleFields {
   return {
     slug: article.slug,
     title: article.title,

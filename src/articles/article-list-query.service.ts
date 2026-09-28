@@ -16,8 +16,19 @@ export interface ArticleListQueryCriteria {
 }
 
 export interface ArticleListQueryResult {
-  articles: Article[];
+  articles: ArticleListQueryArticle[];
   articlesCount: number;
+}
+
+export interface ArticleListQueryArticle {
+  id: string;
+  authorId: string;
+  slug: string;
+  title: string;
+  description: string;
+  createdAt: Date;
+  updatedAt: Date;
+  author: Pick<User, 'id' | 'username' | 'bio' | 'image'>;
 }
 
 export class ArticleListQueryValidationError extends Error {
@@ -47,7 +58,20 @@ export class ArticleListQueryService {
       const query = this.dataSource
         .getRepository(Article)
         .createQueryBuilder('article')
-        .innerJoinAndSelect('article.author', 'author');
+        .innerJoinAndSelect('article.author', 'author')
+        .select([
+          'article.id',
+          'article.authorId',
+          'article.slug',
+          'article.title',
+          'article.description',
+          'article.createdAt',
+          'article.updatedAt',
+          'author.id',
+          'author.username',
+          'author.bio',
+          'author.image',
+        ]);
       addFilters(query, criteria);
 
       const countRow = await query
@@ -60,7 +84,7 @@ export class ArticleListQueryService {
         throw new ArticleListQueryPersistenceError();
       }
 
-      const articles = await query
+      const articles: ArticleListQueryArticle[] = await query
         .clone()
         .orderBy('article.createdAt', 'DESC')
         .addOrderBy('article.id', 'DESC')

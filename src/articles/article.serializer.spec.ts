@@ -50,15 +50,23 @@ describe('article serializers', () => {
     });
   });
 
-  it('omits body from list items and clamps negative aggregate counts', () => {
+  it('accepts body-free list rows, omits body, and keeps only public author fields', () => {
+    const { body: _body, ...listArticle } = article;
     const result = serializeArticleList(
-      [{ ...article, context: { ...article.context, favoritesCount: -1 } }],
+      [{ ...listArticle, context: { ...article.context, favoritesCount: 2 } }],
       7,
     );
 
     expect(result.articlesCount).toBe(7);
+    expect(result.articles[0]).toMatchObject({
+      slug: article.slug,
+      tagList: ['first', 'second'],
+      author: { username: 'writer', bio: 'Bio', image: null, following: false },
+    });
     expect(result.articles[0]).not.toHaveProperty('body');
-    expect(result.articles[0].favoritesCount).toBe(0);
+    expect(result.articles[0].author).not.toHaveProperty('email');
+    expect(result.articles[0].author).not.toHaveProperty('passwordHash');
+    expect(result.articles[0].favoritesCount).toBe(2);
   });
 
   it('serializes a guest article with empty tags and no favorite state', () => {
