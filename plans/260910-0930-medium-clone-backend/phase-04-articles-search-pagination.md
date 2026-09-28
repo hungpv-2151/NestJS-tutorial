@@ -6,7 +6,7 @@
 
 ## Overview
 
-- Priority: P1 · Status: In progress (4A–4E PRs #47–#52 ready; 4F query foundation is in progress) · Effort: 26h · Blocked by: Phase 03 PR 3G
+- Priority: P1 · Status: In progress (4A–4F PRs #47–#53 ready; 4G article-list HTTP API is next) · Effort: 26h · Blocked by: Phase 03 PR 3G
 - Một endpoint mỗi PR. `GET /api/articles` được tách hai PR vì query/filter/pagination có rủi ro và kích thước cao.
 
 ## Key Insights
@@ -57,10 +57,10 @@
 
 ## Todo List
 
-- [ ] PRs 4A–4K rebased and scoped within hard line limits. 4A PR #47 is ready on #46; 4B POST create is PR #48 ready on #47; 4C PR #49, 4D PRs #50/#51, and 4E PR #52 are ready; 4F is in progress.
+- [ ] PRs 4A–4K rebased and scoped within hard line limits. 4A PR #47 is ready on #46; 4B POST create is PR #48 ready on #47; 4C PR #49, 4D PRs #50/#51, 4E PR #52, and 4F foundation PR #53 are ready. 4G is next.
 - [ ] Error-level findings zero; retained warnings carry reason/follow-up.
 - [ ] Stable paging/count/no-N+1 and ownership/idempotency proven.
-- [ ] Evidence URLs: 4A [PR #47 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/47#issuecomment-5861324933); 4B [PR #48 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/48#issuecomment-5861778843); 4C [PR #49 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/49#issuecomment-5862775055); 4D foundation [PR #50 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/50#issuecomment-5863552132) and PUT [PR #51 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/51#issuecomment-5863610040); 4E [PR #52 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/52#issuecomment-5863972597); 4F `pending`; 4G `pending`; 4H `pending`; 4I `pending`; 4J `pending`; 4K `pending`.
+- [ ] Evidence URLs: 4A [PR #47 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/47#issuecomment-5861324933); 4B [PR #48 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/48#issuecomment-5861778843); 4C [PR #49 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/49#issuecomment-5862775055); 4D foundation [PR #50 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/50#issuecomment-5863552132) and PUT [PR #51 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/51#issuecomment-5863610040); 4E [PR #52 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/52#issuecomment-5863972597); 4F [PR #53 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/53#issuecomment-5864274902); 4G `pending`; 4H `pending`; 4I `pending`; 4J `pending`; 4K `pending`.
 
 ## Success Criteria
 

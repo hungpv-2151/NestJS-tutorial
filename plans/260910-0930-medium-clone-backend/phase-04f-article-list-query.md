@@ -8,7 +8,7 @@
 
 ## Overview and Dependency
 
-- Priority: P1 · Status: Implementation and independent review complete; preparing ready PR · Effort: 3h. One **route-free foundation PR**, directly based on `phase-04e-delete-article` / [PR #52](https://github.com/hungpv-2151/NestJS-tutorial/pull/52). Its PR body states `Public API change: none`.
+- Priority: P1 · Status: Delivered as ready [PR #53](https://github.com/hungpv-2151/NestJS-tutorial/pull/53) · Effort: 3h. One **route-free foundation PR**, directly based on `phase-04e-delete-article` / [PR #52](https://github.com/hungpv-2151/NestJS-tutorial/pull/52). Its PR body states `Public API change: none`.
 - 4E supplies the article schema and settled stack base; 4F supplies the query/count/page seam required by 4G `GET /api/articles`, then 4H feed may reuse its bounded query pattern. No migration or new package.
 - Existing `ArticleReadService.getBySlug()` handles one detail and performs relation reads per item; do not call it for each list row. Existing `serializeArticleList()` is ready for 4G but is outside this PR.
 
@@ -59,7 +59,8 @@
 - RED: focused integration reached PostgreSQL and fixture setup, then failed because `ArticleListQueryService` did not exist. The migrated `TEST_DATABASE_URL` database was ready; no migration was needed.
 - GREEN: focused PostgreSQL integration passed (1 test); `pnpm test` passed (39 files; 161 passed, 1 skipped); `pnpm test:e2e` passed (16 files; 60 passed); `pnpm build` passed; `pnpm lint` passed with 0 errors and 223 warnings; `git diff --check` passed.
 - Independent review signed off after adding assertions for unfiltered fixture results and loaded author relation. The test covers AND filters, correlated `EXISTS` cardinality, filtered count before page, empty/past-end pages, and `createdAt DESC, id DESC` ties.
-- Service and integration test are 136 and 140 lines respectively; production scope is one service plus provider registration. No route/controller or migration was added.
+- Service and integration test are 136 and 143 lines respectively; production scope is one service plus provider registration. No route/controller or migration was added.
+- Ready-PR validation evidence: [PR #53 comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/53#issuecomment-5864274902). GitHub Static analysis completed successfully; PR #53 is CLEAN and ready.
 
 | Risk | Likelihood / impact | Countermeasure |
 | --- | --- | --- |
@@ -70,4 +71,4 @@
 | Scope/size drifts into 4G | Medium / Medium | One service, one provider registration, one integration spec; route/diff audit before PR. |
 
 - Compatibility: additive internal provider only. Existing routes, envelopes, migrations, and stored data do not change. Roll back by reverting the 4F PR; dependent 4G+ PRs must then be rebased or held. No data migration or backfill is needed.
-- Next: 4G owns HTTP defaults and validation, optional auth, batch relation hydration, list serialization and response contract. Keep query statements bounded as page size grows; do not introduce per-item detail reads.
+- Next: continue with 4G `GET /api/articles` HTTP contract/API on top of PR #53; own HTTP defaults and validation, optional auth, batch relation hydration, list serialization and response contract. Keep query statements bounded as page size grows; do not introduce per-item detail reads.
