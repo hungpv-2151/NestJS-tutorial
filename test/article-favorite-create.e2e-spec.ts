@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { DataSource } from 'typeorm';
 
 import { ArticleFavorite } from '../src/articles/article-favorite.entity.js';
+import { Article } from '../src/articles/article.entity.js';
 import {
   AuthInvalidTokenError,
   AuthService,
@@ -143,5 +144,34 @@ describe('POST /api/articles/:slug/favorite (e2e)', () => {
       .set('Authorization', 'Token test-token')
       .expect(404)
       .expect({ errors: { article: ['not found'] } });
+  });
+
+  it('cleans up favorites when article deletion races with favorite creation', async () => {
+    app = await createApp({ ...process.env, NODE_ENV: 'test' });
+    fixture = await createArticleFixture(app.get(DataSource));
+    authenticateAs(app, fixture.authorUsername);
+
+    const [favorite, deletion] = await Promise.all([
+      request(app.getHttpServer())
+        .post(`/api/articles/${fixture.slug}/favorite`)
+        .set('Authorization', 'Token test-token'),
+      request(app.getHttpServer())
+        .delete(`/api/articles/${fixture.slug}`)
+        .set('Authorization', 'Token test-token'),
+    ]);
+
+    expect(deletion.status).toBe(204);
+    expect([200, 404]).toContain(favorite.status);
+    expect(
+      await app
+        .get(DataSource)
+        .getRepository(Article)
+        .findOneBy({ id: fixture.articleId }),
+    ).toBeNull();
+    expect(
+      await app.get(DataSource).getRepository(ArticleFavorite).countBy({
+        articleId: fixture.articleId,
+      }),
+    ).toBe(0);
   });
 });
