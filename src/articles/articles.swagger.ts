@@ -4,6 +4,8 @@ import {
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiHeader,
+  ApiNotFoundResponse,
+  ApiOkResponse,
   ApiOperation,
   ApiSecurity,
   ApiUnauthorizedResponse,
@@ -17,6 +19,14 @@ const AUTH_ERROR_SCHEMA = {
   example: { errors: { token: ['is missing'] } },
   type: 'object',
 };
+const INVALID_AUTH_ERROR_SCHEMA = {
+  example: { errors: { token: ['is invalid'] } },
+  type: 'object',
+};
+const ARTICLE_NOT_FOUND_SCHEMA = {
+  example: { errors: { article: ['not found'] } },
+  type: 'object',
+};
 const CONFLICT_ERROR_SCHEMA = {
   example: { errors: { slug: ['has already been taken'] } },
   type: 'object',
@@ -25,7 +35,7 @@ const VALIDATION_ERROR_SCHEMA = {
   example: { errors: { title: ["can't be blank"] } },
   type: 'object',
 };
-const CREATED_ARTICLE_SCHEMA = {
+const ARTICLE_RESPONSE_SCHEMA = {
   example: {
     article: {
       author: { bio: null, following: false, image: null, username: 'jane' },
@@ -56,7 +66,7 @@ export function CreateArticleSwagger(): MethodDecorator {
     ApiBody({ type: CreateArticleRequestDto }),
     ApiCreatedResponse({
       description: 'Article created.',
-      schema: CREATED_ARTICLE_SCHEMA,
+      schema: ARTICLE_RESPONSE_SCHEMA,
     }),
     ApiUnauthorizedResponse({
       description: 'Token is missing or invalid.',
@@ -65,6 +75,34 @@ export function CreateArticleSwagger(): MethodDecorator {
     ApiConflictResponse({
       description: 'Article slug already exists.',
       schema: CONFLICT_ERROR_SCHEMA,
+    }),
+    ApiUnprocessableEntityResponse({
+      description: 'Request validation failed.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
+  );
+}
+
+export function GetArticleSwagger(): MethodDecorator {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Get an article',
+      description:
+        'Public article detail. An optional Token authorization header personalizes favorite and follow flags; an invalid supplied token is rejected.',
+    }),
+    ApiSecurity(TOKEN_AUTH_SECURITY_SCHEME),
+    ApiSecurity({}),
+    ApiOkResponse({
+      description: 'Article details.',
+      schema: ARTICLE_RESPONSE_SCHEMA,
+    }),
+    ApiNotFoundResponse({
+      description: 'Article slug was not found.',
+      schema: ARTICLE_NOT_FOUND_SCHEMA,
+    }),
+    ApiUnauthorizedResponse({
+      description: 'Supplied token is invalid.',
+      schema: INVALID_AUTH_ERROR_SCHEMA,
     }),
     ApiUnprocessableEntityResponse({
       description: 'Request validation failed.',

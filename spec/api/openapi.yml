@@ -244,7 +244,7 @@ paths:
       tags:
         - Articles
       summary: Get an article
-      description: Get an article. Auth not required
+      description: Get a public article. Auth is optional; a valid Token authorization header personalizes favorite and follow flags. A supplied invalid token is rejected.
       operationId: GetArticle
       parameters:
         - name: slug
@@ -256,10 +256,23 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/SingleArticleResponse'
+        '401':
+          description: Supplied token is invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+              example:
+                errors:
+                  token:
+                    - "is invalid"
         '404':
           $ref: '#/components/responses/NotFound'
         '422':
           $ref: '#/components/responses/GenericError'
+      security:
+        - Token: []
+        - { }
     put:
       tags:
         - Articles
