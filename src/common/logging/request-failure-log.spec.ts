@@ -3,6 +3,32 @@ import { describe, expect, it } from 'vitest';
 import { createRequestFailureLog } from './request-failure-log.js';
 
 describe('createRequestFailureLog', () => {
+  it('redacts article content from request bodies', () => {
+    expect(
+      createRequestFailureLog(new Error('article request failed'), {
+        body: {
+          article: {
+            body: 'Private article body',
+            description: 'Private article description',
+            tagList: ['private-tag'],
+            title: 'Private article title',
+          },
+        },
+        method: 'POST',
+        path: '/api/articles',
+      }).request,
+    ).toMatchObject({
+      body: {
+        article: {
+          body: '[REDACTED]',
+          description: '[REDACTED]',
+          tagList: '[REDACTED]',
+          title: '[REDACTED]',
+        },
+      },
+    });
+  });
+
   it('records failure details while redacting sensitive request fields', () => {
     expect(
       createRequestFailureLog(new Error('database unavailable'), {

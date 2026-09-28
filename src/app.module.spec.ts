@@ -9,11 +9,15 @@ afterEach(() => {
 
 describe('AppModule database configuration', () => {
   it('always registers the database module with a valid database URL', async () => {
-    process.env.DATABASE_URL = 'postgresql://user:password@localhost:5432/app_dev';
+    process.env.DATABASE_URL =
+      'postgresql://user:password@localhost:5432/app_dev';
 
     const { AppModule } = await import('./app.module.js');
+    const { ArticlesModule } = await import('./articles/articles.module.js');
 
-    expect(Reflect.getMetadata('imports', AppModule)).toHaveLength(5);
+    const imports = Reflect.getMetadata('imports', AppModule);
+    expect(imports).toHaveLength(6);
+    expect(imports).toContain(ArticlesModule);
   });
 
   it.each([
