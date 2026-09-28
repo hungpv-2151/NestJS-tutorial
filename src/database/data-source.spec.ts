@@ -14,8 +14,8 @@ describe('data source', () => {
 
     const { default: dataSource } = await import('./data-source.js');
 
-    expect(dataSource.options.entities).toHaveLength(8);
-    expect(dataSource.options.migrations).toHaveLength(5);
+    expect(dataSource.options.entities).toHaveLength(9);
+    expect(dataSource.options.migrations).toHaveLength(6);
     expect(dataSource.options.synchronize).toBe(false);
     await expect(dataSource.buildMetadatas()).resolves.toBeUndefined();
 
@@ -86,6 +86,39 @@ describe('data source', () => {
       expect.arrayContaining([
         'fk_article_favorites_article',
         'fk_article_favorites_user',
+      ]),
+    );
+
+    const commentMetadata = dataSource.entityMetadatas.find(
+      ({ tableName }) => tableName === 'comments',
+    );
+    expect(
+      commentMetadata?.columns.map(({ databaseName, type }) => ({
+        databaseName,
+        type,
+      })),
+    ).toEqual(
+      expect.arrayContaining([
+        { databaseName: 'id', type: 'integer' },
+        { databaseName: 'body', type: 'text' },
+        { databaseName: 'article_id', type: 'uuid' },
+        { databaseName: 'author_id', type: 'uuid' },
+        { databaseName: 'created_at', type: 'timestamptz' },
+        { databaseName: 'updated_at', type: 'timestamptz' },
+      ]),
+    );
+    expect(commentMetadata?.indices.map(({ name }) => name)).toContain(
+      'idx_comments_article_created_id',
+    );
+    expect(
+      commentMetadata?.foreignKeys.map(({ name, onDelete }) => ({
+        name,
+        onDelete,
+      })),
+    ).toEqual(
+      expect.arrayContaining([
+        { name: 'fk_comments_article', onDelete: 'CASCADE' },
+        { name: 'fk_comments_author', onDelete: 'CASCADE' },
       ]),
     );
   });
