@@ -7,7 +7,7 @@
 
 ## Overview and Dependencies
 
-- Priority: P1 · Status: Pending · PR scope: **`GET /api/articles/:slug` only** · Base: `phase-04b-create-article` / [PR #48](https://github.com/hungpv-2151/NestJS-tutorial/pull/48). Create one new ready PR above #48; do not add list, feed, update, delete, favorite, or tag routes.
+- Priority: P1 · Status: In progress (test-database validation gate) · PR scope: **`GET /api/articles/:slug` only** · Base: `phase-04b-create-article` / [PR #48](https://github.com/hungpv-2151/NestJS-tutorial/pull/48). Create one new ready PR above #48; do not add list, feed, update, delete, favorite, or tag routes.
 - Requires 4A article/tag/favorite tables and serializer, plus 4B `ArticlesModule`. 4D update-article work begins only after 4C is submitted. Before code, refresh the remote, confirm #48 is the direct stack base, and audit the branch diff.
 - No migration, package, cache, or new public DTO is needed. Keep each code file under 200 lines and the PR within the Phase 04 production-line budget (target ≤300; hard gate ≤400).
 
@@ -89,3 +89,12 @@
 - [ ] Anonymous 200, valid-viewer flags, invalid-header 401, missing 404, ordered tags, exact favorite count, and public author projection pass HTTP/E2E; service behavior and fixed query shape pass focused tests.
 - [ ] Build, lint with zero errors, full unit/integration and E2E suites pass; database fixtures are cleaned. Any retained warnings are recorded with reason and follow-up.
 - [ ] Reviewer accepts security, scope, and rollback; ready PR and validation comment URLs are recorded in the parent plan. Then 4D may start above this PR.
+
+## Verification Checkpoint — 2026-09-28
+
+- Build passes. Full `pnpm lint` reports 0 errors and 185 warnings across the repository.
+- Focused read service tests pass (5/5). Read-only HTTP checks pass (5/5): unknown slug, valid-shaped invalid token, malformed token, empty header, and generated Swagger optional-security contract. The two DB-backed HTTP cases were skipped in this focused run.
+- Full unit suite reports 141 passed, 1 skipped, and 2 failures in the existing `test/create-article-transaction.integration.spec.ts`; both fail while inserting users because the configured test database rejects a null `users.updated_at`.
+- The first DB-backed detail fixture attempt also found missing `article_favorites` and `user_follows` tables. No migration or database reset was run. Retest those cases after the configured `TEST_DATABASE_URL` database has the Phase 4A schema and expected user timestamp defaults.
+- Retained changed-file lint warnings: `ArticleReadService` uses `DataSource` repository reads to match the existing article service and avoid a one-use repository abstraction (C033); the optional guard rethrows upstream guard errors after translating only the malformed-header case (C030); the controller maps typed errors and lets unexpected failures reach the shared exception filter, while route cache headers are present (C018/C030/S037 analyzer warnings). Revisit if the project introduces a shared repository abstraction or the analyzer recognizes these patterns.
+- Independent review completed with no remaining critical, high, or medium findings. PR creation and push are pending the test database/schema gate above.
