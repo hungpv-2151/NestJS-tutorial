@@ -7,7 +7,7 @@
 
 ## Overview and Dependencies
 
-- Priority: P1 · Status: Ready to submit (implementation, review, and validation complete; PR not created) · PR scope: **`GET /api/articles/:slug` only** · Planned base: `phase-04b-create-article` / [PR #48](https://github.com/hungpv-2151/NestJS-tutorial/pull/48). Submit one ready PR above #48; do not add list, feed, update, delete, favorite, or tag routes.
+- Priority: P1 · Status: Submitted as [PR #49](https://github.com/hungpv-2151/NestJS-tutorial/pull/49) (ready for review) · PR scope: **`GET /api/articles/:slug` only** · Planned base: `phase-04b-create-article` / [PR #48](https://github.com/hungpv-2151/NestJS-tutorial/pull/48). Submit one ready PR above #48; do not add list, feed, update, delete, favorite, or tag routes.
 - Requires 4A article/tag/favorite tables and serializer, plus 4B `ArticlesModule`. 4D update-article work begins only after 4C is submitted. Before code, refresh the remote, confirm #48 is the direct stack base, and audit the branch diff.
 - No migration, package, cache, or new public DTO is needed. Keep each code file under 200 lines and the PR within the Phase 04 production-line budget (target ≤300; hard gate ≤400).
 
@@ -89,7 +89,7 @@
 - [x] Anonymous 200, valid-viewer flags, invalid-header 401, missing 404, ordered tags, exact favorite count, and public author projection pass HTTP/E2E; service behavior and fixed query shape pass focused tests.
 - [x] Build, lint with zero errors, full unit/integration and E2E suites pass; database fixtures are cleaned. Reset ran only against `TEST_DATABASE_URL` using the project runner and confirmation; five migrations applied. Retained warnings are recorded with reason and follow-up.
 - [x] Independent review accepts security, scope, and rollback.
-- [ ] Submit the ready PR directly above #48 and record its validation comment URL in the parent plan. 4D implementation starts after this PR exists.
+- [x] Submitted ready PR [#49](https://github.com/hungpv-2151/NestJS-tutorial/pull/49) directly above #48; validation evidence: [comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/49#issuecomment-5862775055). 4D may proceed.
 
 ## Verification Checkpoint — 2026-09-28
 
@@ -97,4 +97,4 @@
 - `pnpm test` passed: 143 tests passed and 1 skipped across 35 files. `pnpm test:e2e` passed: 46 tests across 12 files. This includes the previously blocked database-backed article-detail and create-article integration coverage.
 - `pnpm build` passed. `pnpm lint` reported 0 errors and 185 repository warnings.
 - Retained changed-file lint warnings: `ArticleReadService` uses `DataSource` repository reads to match the existing article service and avoid a one-use repository abstraction (C033); the optional guard rethrows upstream guard errors after translating only the malformed-header case (C030); the controller maps typed errors and lets unexpected failures reach the shared exception filter, while route cache headers are present (C018/C030/S037 analyzer warnings). Revisit if the project introduces a shared repository abstraction or the analyzer recognizes these patterns.
-- Independent review completed with no remaining critical, high, or medium findings. Phase 4C validation is complete; PR submission and its validation comment remain pending. Phase 4D remains gated until 4C is submitted.
+- Independent review completed with no remaining critical, high, or medium findings. Phase 4C validation is complete; [PR #49](https://github.com/hungpv-2151/NestJS-tutorial/pull/49) is ready for review above #48. [Validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/49#issuecomment-5862775055). Phase 4D may proceed.
