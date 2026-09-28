@@ -6,7 +6,7 @@
 
 ## Overview
 
-- Priority: P1 · Status: Pending · Effort: 26h · Blocked by: Phase 03 PR 3G
+- Priority: P1 · Status: In progress (4A PR #47 ready; 4B is next) · Effort: 26h · Blocked by: Phase 03 PR 3G
 - Một endpoint mỗi PR. `GET /api/articles` được tách hai PR vì query/filter/pagination có rủi ro và kích thước cao.
 
 ## Key Insights
@@ -57,10 +57,10 @@
 
 ## Todo List
 
-- [ ] PRs 4A–4K rebased, scoped and within line limit.
+- [ ] PRs 4A–4K rebased, scoped and within line limit. 4A PR #47 is ready on #46; 4B create-article is next.
 - [ ] Error-level findings zero; retained warnings carry reason/follow-up.
 - [ ] Stable paging/count/no-N+1 and ownership/idempotency proven.
-- [ ] Evidence URLs: 4A `pending`; 4B `pending`; 4C `pending`; 4D `pending`; 4E `pending`; 4F `pending`; 4G `pending`; 4H `pending`; 4I `pending`; 4J `pending`; 4K `pending`.
+- [ ] Evidence URLs: 4A [PR #47 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/47#issuecomment-5861324933); 4B `pending`; 4C `pending`; 4D `pending`; 4E `pending`; 4F `pending`; 4G `pending`; 4H `pending`; 4I `pending`; 4J `pending`; 4K `pending`.
 
 ## Success Criteria
 

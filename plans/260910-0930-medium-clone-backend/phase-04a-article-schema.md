@@ -7,7 +7,7 @@
 
 ## Overview
 
-- Priority: P1 · Status: Pending · Base: Phase 03 PR 3G / #46 · Public API change: **none**.
+- Priority: P1 · Status: Complete · PR: [#47](https://github.com/hungpv-2151/NestJS-tutorial/pull/47) · Base: Phase 03 PR 3G / #46 · Public API change: **none**.
 - One foundation PR creates the article/tag/favorite persistence contract and pure serializers consumed by PRs 4B–4K. No controller, route, DTO, Swagger operation, or HTTP behavior ships here.
 - Dependency: merge-ready Phase 03 schema and branch #46. Verify the live stack and rebase on #46 before edits; leave every later article API for its own PR.
 
@@ -48,11 +48,13 @@ Use explicit SQL migration `1710000004000-create-articles-tags-favorites.ts` mat
 
 ## Implementation Steps and Todo
 
-1. [ ] Refresh remote, verify #46 is the immediate base, branch 4A from its current head, and audit base diff. Check `git status` first.
-2. [ ] Write the migration and matching entities with named constraints/indexes. Register them in the CLI data source and Nest runtime without exposing routes; keep `synchronize: false`.
-3. [ ] Write pure detail/list serializers and tests for the contract above. Keep files below 200 lines; production code delta target ≤300 lines, hard cap ≤400 (migration/tests/docs excluded per roadmap).
-4. [ ] Run build immediately after code edits; run focused unit/integration tests, then `pnpm lint` and the relevant suite. Apply → revert → apply on an isolated test DB; verify join tables vanish before parent tables on revert and prior tables survive.
-5. [ ] Review diff for one foundation scope and security; record command, exit code, SHA, migration screenshot/result, warnings, and PR-comment URL in [Phase 04](./phase-04-articles-search-pagination.md). Create a PR stacked directly on #46 with `Public API change: none`.
+1. [x] Verify #46 as the immediate base, branch 4A from its current head, and audit the base diff.
+2. [x] Add the migration and matching entities with named constraints/indexes. Register the schema in the CLI data source; expose no routes and keep `synchronize: false`.
+3. [x] Add pure detail/list serializers and focused contract tests. Production code remains below the 300-line target.
+4. [x] Build passes; focused Vitest: 3 files / 6 tests pass; full suite: 129 passed / 1 skipped; lint: 0 errors / 158 warnings. PostgreSQL 16 apply → revert → apply passes on a disposable local database; constraints and cascade behavior verified.
+5. [x] Reviewer found no critical/high issues; PR #47 is ready directly on #46 with `Public API change: none`; record evidence in [Phase 04](./phase-04-articles-search-pagination.md).
+
+Validation evidence: commit `c2910ec26314a26c70b818ca29963f1625ca5bc3`; build passed; focused Vitest 3 files / 6 tests passed; full suite 129 passed / 1 skipped; lint 0 errors / 158 warnings. PostgreSQL 16 apply → revert → apply passed in a disposable container: existing tables survived rollback, all 4A tables returned after reapply, duplicate slug/favorite/tag-position and negative position were rejected, deleting an author cascaded to their article and favorite rows, and unused tags remained. [Final validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/47#issuecomment-5861324933) records results; [PR #47](https://github.com/hungpv-2151/NestJS-tutorial/pull/47) is ready for review.
 
 ## Test Matrix and Observable Done
 
