@@ -89,7 +89,7 @@
 - [x] Anonymous 200, valid-viewer flags, invalid-header 401, missing 404, ordered tags, exact favorite count, and public author projection pass HTTP/E2E; service behavior and fixed query shape pass focused tests.
 - [x] Build, lint with zero errors, full unit/integration and E2E suites pass; database fixtures are cleaned. Reset ran only against `TEST_DATABASE_URL` using the project runner and confirmation; five migrations applied. Retained warnings are recorded with reason and follow-up.
 - [x] Independent review accepts security, scope, and rollback.
-- [x] Submitted ready PR [#49](https://github.com/hungpv-2151/NestJS-tutorial/pull/49) directly above #48; validation evidence: [comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/49#issuecomment-5862775055). 4D may proceed.
+- [x] Submitted ready PR [#49](https://github.com/hungpv-2151/NestJS-tutorial/pull/49) directly above #48; validation evidence: [comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/49#issuecomment-5862775055). Stop after this PR per the user's instruction to switch to a separate rule-update plan; 4D has not started.
 
 ## Verification Checkpoint — 2026-09-28
 
@@ -97,4 +97,4 @@
 - `pnpm test` passed: 143 tests passed and 1 skipped across 35 files. `pnpm test:e2e` passed: 46 tests across 12 files. This includes the previously blocked database-backed article-detail and create-article integration coverage.
 - `pnpm build` passed. `pnpm lint` reported 0 errors and 185 repository warnings.
 - Retained changed-file lint warnings: `ArticleReadService` uses `DataSource` repository reads to match the existing article service and avoid a one-use repository abstraction (C033); the optional guard rethrows upstream guard errors after translating only the malformed-header case (C030); the controller maps typed errors and lets unexpected failures reach the shared exception filter, while route cache headers are present (C018/C030/S037 analyzer warnings). Revisit if the project introduces a shared repository abstraction or the analyzer recognizes these patterns.
-- Independent review completed with no remaining critical, high, or medium findings. Phase 4C validation is complete; [PR #49](https://github.com/hungpv-2151/NestJS-tutorial/pull/49) is ready for review above #48. [Validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/49#issuecomment-5862775055). Phase 4D may proceed.
+- Independent review completed with no remaining critical, high, or medium findings. Phase 4C validation is complete; [PR #49](https://github.com/hungpv-2151/NestJS-tutorial/pull/49) is ready for review above #48. [Validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/49#issuecomment-5862775055). 4D has not started because the user requested a pause for a separate rule-update plan.
