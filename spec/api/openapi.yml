@@ -163,18 +163,35 @@ paths:
       tags:
         - Articles
       summary: Get recent articles from users you follow
-      description: Get most recent articles from users you follow. Use query parameters
-        to limit. Auth is required
+      description: Get recent articles from followed authors. Auth is required. Offset
+        defaults to 0; limit defaults to 20 and is capped at 100.
       operationId: GetArticlesFeed
       parameters:
-        - $ref: '#/components/parameters/offsetParam'
-        - $ref: '#/components/parameters/limitParam'
+        - name: offset
+          in: query
+          required: false
+          description: Items to skip. Defaults to 0.
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: limit
+          in: query
+          required: false
+          description: Items to return. Defaults to 20; maximum 100.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
       responses:
         '200':
           $ref: '#/components/responses/MultipleArticlesResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '422':
+          $ref: '#/components/responses/GenericError'
+        '500':
           $ref: '#/components/responses/GenericError'
       security:
         - Token: [ ]

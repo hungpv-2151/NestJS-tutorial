@@ -35,4 +35,11 @@ describe('ArticleListQueryDto', () => {
       await validate(dto, { whitelist: true, forbidNonWhitelisted: true }),
     ).not.toEqual([]);
   });
+
+  it('keeps inherited pagination defaults and bounds valid for the global list', async () => {
+    const dto = plainToInstance(ArticleListQueryDto, { offset: '0', limit: '100' });
+    expect(dto.offset).toBe(0);
+    expect(dto.limit).toBe(100);
+    expect(await validate(dto, { whitelist: true, forbidNonWhitelisted: true })).toEqual([]);
+  });
 });

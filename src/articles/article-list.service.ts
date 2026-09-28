@@ -28,6 +28,18 @@ export class ArticleListService {
   ) {}
 
   async list(criteria: ArticleListQueryCriteria, viewerUsername?: string) {
+    return this.load(criteria, viewerUsername);
+  }
+
+  async feed(criteria: ArticleListQueryCriteria, viewerUsername: string) {
+    return this.load(criteria, viewerUsername, true);
+  }
+
+  private async load(
+    criteria: ArticleListQueryCriteria,
+    viewerUsername?: string,
+    followedAuthorsOnly = false,
+  ) {
     try {
       const viewer = viewerUsername === undefined
         ? undefined
@@ -39,7 +51,13 @@ export class ArticleListService {
         throw new ArticleListViewerNotFoundError();
       }
 
-      const result = await this.queryService.list(criteria);
+      let queryCriteria = criteria;
+      if (followedAuthorsOnly) {
+        if (!viewer) throw new ArticleListViewerNotFoundError();
+        queryCriteria = { ...criteria, followedByUserId: viewer.id };
+      }
+
+      const result = await this.queryService.list(queryCriteria);
       if (result.articles.length === 0) {
         return serializeArticleList([], result.articlesCount);
       }

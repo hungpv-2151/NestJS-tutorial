@@ -6,11 +6,13 @@ import { ArticleFavorite } from './article-favorite.entity.js';
 import { ArticleTag } from './article-tag.entity.js';
 import { Article } from './article.entity.js';
 import { Tag } from '../tags/tag.entity.js';
+import { UserFollow } from '../profiles/user-follow.entity.js';
 
 export interface ArticleListQueryCriteria {
   tag?: string;
   authorUsername?: string;
   favoritedUsername?: string;
+  followedByUserId?: string;
   offset: number;
   limit: number;
 }
@@ -103,6 +105,19 @@ function addFilters(
   query: SelectQueryBuilder<Article>,
   criteria: ArticleListQueryCriteria,
 ): void {
+  if (criteria.followedByUserId !== undefined) {
+    const followedAuthor = query
+      .subQuery()
+      .select('1')
+      .from(UserFollow, 'userFollow')
+      .where('userFollow.followerId = :followedByUserId')
+      .andWhere('userFollow.followingId = article.authorId')
+      .getQuery();
+    query.andWhere(`EXISTS ${followedAuthor}`, {
+      followedByUserId: criteria.followedByUserId,
+    });
+  }
+
   if (criteria.authorUsername !== undefined) {
     query.andWhere('author.username = :authorUsername', {
       authorUsername: criteria.authorUsername,
@@ -147,6 +162,7 @@ function validateCriteria(criteria: ArticleListQueryCriteria): void {
     !Number.isSafeInteger(criteria.limit) ||
     criteria.limit < 1 ||
     criteria.limit > 100 ||
+    !isOptionalString(criteria.followedByUserId) ||
     !isOptionalString(criteria.tag) ||
     !isOptionalString(criteria.authorUsername) ||
     !isOptionalString(criteria.favoritedUsername)

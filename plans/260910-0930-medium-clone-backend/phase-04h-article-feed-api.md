@@ -4,11 +4,11 @@
 
 - [Phase 04 stack](./phase-04-articles-search-pagination.md) · [4F query foundation](./phase-04f-article-list-query.md) · [4G list API](./phase-04g-article-list-api.md) · [parent plan](./plan.md)
 - [static OpenAPI](../../spec/api/openapi.yml) · [feed Hurl](../../spec/api/hurl/feed.hurl) · [feed Bruno](../../spec/api/bruno/feed/07-main-checks-feed.bru) · [no-auth example](../../spec/api/bruno/errors-articles/05-get-feed-no-auth.bru)
-- Base: ready [Phase 4G PR #55](https://github.com/hungpv-2151/NestJS-tutorial/pull/55), branch `phase-04g-article-list-api`, verified current head `f473dbb368d7cfb04fb94f1b1c0875ad8aa92bce` on 2026-09-28; its Static analysis check passed.
+- Base: ready [Phase 4G PR #55](https://github.com/hungpv-2151/NestJS-tutorial/pull/55), branch `phase-04g-article-list-api`, verified current head `8dbe2827733c1cb8a39cbe5dae69cfc6802e5823` on 2026-09-28; its Static analysis check passed.
 
 ## Overview
 
-- Priority: P1 · Status: Pending · Effort: 4h · Dependency: Phase 4G PR #55. Deliver **one ready PR stacked directly on `phase-04g-article-list-api`**, adding only `GET /api/articles/feed`. No foundation PR, migration, dependency, or second public route.
+- Priority: P1 · Status: In progress · Effort: 4h · Dependency: Phase 4G PR #55. Deliver **one ready PR stacked directly on `phase-04g-article-list-api`**, adding only `GET /api/articles/feed`. No foundation PR, migration, dependency, or second public route.
 - Reuse 4F count/page ordering and 4G body-free projection, batch hydration, serialization, typed errors, and viewer lookup. Feed adds an internal followed-author predicate and a required-auth HTTP boundary.
 
 ## Key Insights and Contract Decisions
@@ -21,7 +21,7 @@
 
 - Authenticated `GET /api/articles/feed` returns 200 `{ articles, articlesCount }` containing only articles whose `authorId` belongs to a user followed by the verified viewer. No follows or no matches returns `{ articles: [], articlesCount: 0 }`, never 404. An offset past the page returns `[]` with the pre-page filtered count.
 - Stable order: `createdAt DESC, id DESC`. Defaults: `offset=0`, `limit=20`; integer bounds: offset safe and ≥0, limit safe and 1–100. Malformed, zero/negative, fractional, unsafe, over-limit, or unknown query inputs return the existing field-keyed 422 envelope. No filters beyond pagination.
-- Missing token returns `{ errors: { token: ['is missing'] } }` 401; malformed/invalid token and verified token for a deleted user return redacted `token: ['is invalid']` 401. Resolve the current user before querying, including an empty feed. Query/hydration failures return `{ errors: { body: ['request failed'] } }` 500.
+- Missing token or unsupported auth scheme returns `{ errors: { token: ['is missing'] } }` 401; malformed/invalid credential under the supported `Token` scheme and verified token for a deleted user return redacted `token: ['is invalid']` 401. Resolve the current user before querying, including an empty feed. Query/hydration failures return `{ errors: { body: ['request failed'] } }` 500.
 - Reuse list item shape: public author profile, ordered tags, ISO dates, `favorited`, `favoritesCount`, `author.following`; omit article `body`, email, hash and private user fields. Return `Cache-Control: private, no-store`.
 
 ## Architecture and Data Flow
@@ -58,7 +58,7 @@ Implementation and test ownership are disjoint; no two parallel workers edit the
 
 ## Implementation Steps and Dependencies
 
-1. **Base gate:** refresh and verify PR #55 remains ready and the direct stack base; branch from its current head, rebase if it moved, and audit the diff. Do not overwrite unrelated working-tree changes. Base was verified at `f473dbb368d7cfb04fb94f1b1c0875ad8aa92bce`; confirm again before implementation.
+1. **Base gate:** refresh and verify PR #55 remains ready and the direct stack base; branch from its current head, rebase if it moved, and audit the diff. Do not overwrite unrelated working-tree changes. Base was reverified at `8dbe2827733c1cb8a39cbe5dae69cfc6802e5823`; confirm again before delivery.
 2. **RED:** tester adds a real-database feed E2E that reaches the initialized app/fixtures, fails on missing `GET /feed`, and keeps `GET /articles/:slug` green. Record exact command, exit code and route assertion. Add focused query/validation cases; a DB setup failure is not valid RED.
 3. **GREEN:** implement shared pagination DTO, bound follow predicate, feed service entry point, controller, registration and docs in that order; run `pnpm build` after each code-file change. Keep unrelated global-list behavior green.
 4. **Verify:** run focused PostgreSQL integration/E2E, then `pnpm test`, `pnpm test:e2e`, `pnpm build`, `pnpm lint` (zero errors), static OpenAPI parse, generated `/docs-json` assertions, `git diff --check`, production-line count, and independent review. Fix findings and rerun affected gates. Run Hurl feed against the available test app when configured; record if unavailable rather than claiming it passed.
@@ -69,7 +69,7 @@ Implementation and test ownership are disjoint; no two parallel workers edit the
 | Layer | Required proof |
 | --- | --- |
 | Unit | Shared parser preserves list defaults/boundaries; feed DTO permits only pagination; unknown keys and invalid numeric forms produce 422. |
-| PostgreSQL integration | Followed vs non-followed/own authors, zero follows, unfollow change, multiple followed authors, equal-timestamp `id` tie, pre-page distinct count, past-end page, and 1 vs 3 row bounded query count. |
+| PostgreSQL integration | Followed vs non-followed/own authors, zero follows, unfollow change, multiple followed authors, equal-timestamp `id` tie, pre-page distinct count, and past-end page. Reuse the 4G real-DB fixed-query-count regression for the shared hydrator. |
 | HTTP E2E | 200 envelope/fields, omitted body/private fields, `favorited` and `following` viewer state, defaults/limit/offset/cap, 401 missing/invalid/stale subject, 422 invalid/extra query, redacted 500, cache header, `/feed` route wins over `/:slug`. |
 | Contract/regression | Static and generated feed docs agree on exactly two params, required Token, defaults/cap and 200/401/422/500; global list/detail tests remain green; build/lint/review pass; one ready PR based directly on #55 within line cap. |
 
@@ -90,8 +90,8 @@ Implementation and test ownership are disjoint; no two parallel workers edit the
 
 ## Todo List
 
-- [ ] Confirm #55 base/head and record valid feed RED.
-- [ ] Implement only feed route within production line/file caps; focused/full gates and reviewer pass.
+- [x] Confirm #55 base/head and record valid feed RED (missing route returned 404 while the detail route control passed).
+- [x] Implement only feed route within production line/file caps; focused/full gates and independent reviewer pass.
 - [ ] Ready 4H PR directly above #55 with evidence URL; update observed phase status.
 
 ## Next Steps
