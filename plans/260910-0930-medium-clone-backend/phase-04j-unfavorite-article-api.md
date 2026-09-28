@@ -6,7 +6,7 @@
 
 ## Overview
 
-- Priority: P1 · Status: In progress · Dependency: ready [PR #57](https://github.com/hungpv-2151/NestJS-tutorial/pull/57). Add only `DELETE /api/articles/:slug/favorite`, as one ready PR directly on `phase-04i-favorite-article-api`.
+- Priority: P1 · Status: Submitted · Dependency: ready [PR #57](https://github.com/hungpv-2151/NestJS-tutorial/pull/57). Add only `DELETE /api/articles/:slug/favorite`, as one ready PR directly on `phase-04i-favorite-article-api`.
 - No migration or schema change. `POST /api/articles/:slug/favorite` remains owned by 4I.
 
 ## Requirements and Contract
@@ -43,7 +43,13 @@
 - Focused PostgreSQL E2E passed: 6 tests across the main and error/docs files, including idempotency, other-viewer isolation, stale subject, read-failure rollback, generated docs, concurrent POST/DELETE consistency, and article-delete race. Full `pnpm test` passed (193 passed, 1 skipped); full `pnpm test:e2e` passed (24 files, 97 tests).
 - `pnpm build`, Prettier checks, `pnpm lint` and `git diff --check` passed. Lint reported 0 errors and 267 repository warnings. Static OpenAPI YAML parsed; DELETE has required Token security, no body, and 200/401/404/422/500 responses; POST's generated 500 description remains unchanged. Hurl and Bruno CLIs are unavailable; PostgreSQL-backed Supertest E2E covers the contract.
 - New warning rationale: C033 reflects the existing DataSource transaction/service pattern; C018/C030 flags preserving the database cause inside a typed persistence error while returning a redacted HTTP response; S037 does not recognize Nest `@Header` decorators (the E2E asserts `Cache-Control: private, no-store`).
-- Production changes are below 400 lines; all touched TypeScript and test files are below 200 lines. Independent review passed; PR submission remains pending.
+- Production changes are below 400 lines; all touched TypeScript and test files are below 200 lines. Independent review passed.
+
+## Delivery
+
+- Ready PR #58: https://github.com/hungpv-2151/NestJS-tutorial/pull/58
+- Base `phase-04i-favorite-article-api` at `e0d9d32085bad99cf0778d73b4806d3b9f638bb6`; initial validated head `d0fd43421b58d7dbf8ab1f44ae0d178fc89e28ec`. GitHub Static analysis SUCCESS and merge state CLEAN; PR remains open and unmerged.
+- [Validation evidence](https://github.com/hungpv-2151/NestJS-tutorial/pull/58#issuecomment-5867761340)
 
 ## Risks and Rollback
 
@@ -54,5 +60,5 @@
 ## Todo
 
 - [x] Record valid missing-route RED and implement only the DELETE favorite API.
-- [x] Pass focused/full gates and independent review; PR submission is pending.
-- [ ] Push and create ready stacked PR directly above #57; record evidence and continue with 4K.
+- [x] Pass focused/full gates and independent review.
+- [x] Push and create ready PR #58 directly above #57, record evidence, and update plan/roadmap/changelog. Pause here before 4K for user changes.
