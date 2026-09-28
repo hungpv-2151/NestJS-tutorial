@@ -10,6 +10,7 @@ import { Article } from './article.entity.js';
 import { ArticlesController } from './articles.controller.js';
 import { ArticleCreateService } from './article-create.service.js';
 import { ArticleReadService } from './article-read.service.js';
+import { ArticleUpdateService } from './article-update.service.js';
 import { Tag } from '../tags/tag.entity.js';
 
 @Module({
@@ -24,6 +25,11 @@ import { Tag } from '../tags/tag.entity.js';
       UserFollow,
     ]),
   ],
-  providers: [ArticleCreateService, ArticleReadService, OptionalAuthTokenGuard],
+  providers: [
+    ArticleCreateService,
+    ArticleReadService,
+    ArticleUpdateService,
+    OptionalAuthTokenGuard,
+  ],
 })
 export class ArticlesModule {}

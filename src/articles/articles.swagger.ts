@@ -3,6 +3,7 @@ import {
   ApiBody,
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiForbiddenResponse,
   ApiHeader,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -25,6 +26,10 @@ const INVALID_AUTH_ERROR_SCHEMA = {
 };
 const ARTICLE_NOT_FOUND_SCHEMA = {
   example: { errors: { article: ['not found'] } },
+  type: 'object',
+};
+const ARTICLE_FORBIDDEN_SCHEMA = {
+  example: { errors: { article: ['forbidden'] } },
   type: 'object',
 };
 const CONFLICT_ERROR_SCHEMA = {
@@ -50,6 +55,26 @@ const ARTICLE_RESPONSE_SCHEMA = {
       updatedAt: '2026-09-28T00:00:00.000Z',
     },
   },
+  type: 'object',
+};
+const UPDATE_ARTICLE_REQUEST_SCHEMA = {
+  additionalProperties: false,
+  properties: {
+    article: {
+      additionalProperties: false,
+      properties: {
+        body: { type: 'string' },
+        description: { type: 'string' },
+        tagList: {
+          items: { pattern: '\\S', type: 'string' },
+          type: 'array',
+        },
+        title: { type: 'string' },
+      },
+      type: 'object',
+    },
+  },
+  required: ['article'],
   type: 'object',
 };
 
@@ -104,6 +129,44 @@ export function GetArticleSwagger(): MethodDecorator {
       description:
         'Returned only when the supplied token is invalid; no token is required.',
       schema: INVALID_AUTH_ERROR_SCHEMA,
+    }),
+    ApiUnprocessableEntityResponse({
+      description: 'Request validation failed.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
+  );
+}
+
+export function UpdateArticleSwagger(): MethodDecorator {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Update an article',
+      description:
+        'Updates supplied fields for the authenticated owner. The slug stays stable; an empty article object leaves the article unchanged. A supplied tagList replaces the ordered list, and an empty list clears it.',
+    }),
+    ApiHeader({
+      description: 'JWT presented as Token <jwt>.',
+      example: 'Token <jwt>',
+      name: 'Authorization',
+      required: true,
+    }),
+    ApiSecurity(TOKEN_AUTH_SECURITY_SCHEME),
+    ApiBody({ schema: UPDATE_ARTICLE_REQUEST_SCHEMA }),
+    ApiOkResponse({
+      description: 'Updated article details.',
+      schema: ARTICLE_RESPONSE_SCHEMA,
+    }),
+    ApiUnauthorizedResponse({
+      description: 'Token is missing or invalid.',
+      schema: INVALID_AUTH_ERROR_SCHEMA,
+    }),
+    ApiForbiddenResponse({
+      description: 'The authenticated user does not own this article.',
+      schema: ARTICLE_FORBIDDEN_SCHEMA,
+    }),
+    ApiNotFoundResponse({
+      description: 'Article slug was not found.',
+      schema: ARTICLE_NOT_FOUND_SCHEMA,
     }),
     ApiUnprocessableEntityResponse({
       description: 'Request validation failed.',

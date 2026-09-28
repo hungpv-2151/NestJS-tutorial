@@ -2,13 +2,16 @@ import {
   Body,
   ConflictException,
   Controller,
+  ForbiddenException,
   Get,
   Header,
   HttpCode,
   HttpStatus,
   InternalServerErrorException,
+  NotFoundException,
   Param,
   Post,
+  Put,
   Req,
   UnauthorizedException,
   UseGuards,
@@ -30,9 +33,20 @@ import {
   ArticleCreateService,
   ArticleSlugConflictError,
 } from './article-create.service.js';
-import { CreateArticleSwagger } from './articles.swagger.js';
 import { ArticleReadService } from './article-read.service.js';
-import { GetArticleSwagger } from './articles.swagger.js';
+import { ArticleUpdateRequestDto } from './article-update.dto.js';
+import {
+  ArticleUpdateArticleNotFoundError,
+  ArticleUpdateForbiddenError,
+  ArticleUpdatePersistenceError,
+  ArticleUpdateService,
+  ArticleUpdateUserNotFoundError,
+} from './article-update.service.js';
+import {
+  CreateArticleSwagger,
+  GetArticleSwagger,
+  UpdateArticleSwagger,
+} from './articles.swagger.js';
 
 @ApiTags('Articles')
 @Controller('articles')
@@ -40,6 +54,7 @@ export class ArticlesController {
   constructor(
     private readonly articleCreateService: ArticleCreateService,
     private readonly articleReadService: ArticleReadService,
+    private readonly articleUpdateService: ArticleUpdateService,
   ) {}
 
   @Get(':slug')
@@ -81,6 +96,43 @@ export class ArticlesController {
         });
       }
       if (error instanceof ArticleCreatePersistenceError) {
+        throw new InternalServerErrorException({
+          errors: { body: ['request failed'] },
+        });
+      }
+      throw error;
+    }
+  }
+
+  @Put(':slug')
+  @UseGuards(AuthTokenGuard)
+  @UpdateArticleSwagger()
+  @HttpCode(HttpStatus.OK)
+  @Header('Cache-Control', 'private, no-store')
+  @Header('Pragma', 'no-cache')
+  @Header('Expires', '0')
+  async update(
+    @Param('slug') slug: string,
+    @Body() request: ArticleUpdateRequestDto,
+    @Req() auth: AuthenticatedRequest,
+  ) {
+    try {
+      return await this.articleUpdateService.update(
+        slug,
+        auth.auth.sub,
+        request.article,
+      );
+    } catch (error) {
+      if (error instanceof ArticleUpdateUserNotFoundError) {
+        throw new UnauthorizedException({ errors: { token: ['is invalid'] } });
+      }
+      if (error instanceof ArticleUpdateArticleNotFoundError) {
+        throw new NotFoundException({ errors: { article: ['not found'] } });
+      }
+      if (error instanceof ArticleUpdateForbiddenError) {
+        throw new ForbiddenException({ errors: { article: ['forbidden'] } });
+      }
+      if (error instanceof ArticleUpdatePersistenceError) {
         throw new InternalServerErrorException({
           errors: { body: ['request failed'] },
         });

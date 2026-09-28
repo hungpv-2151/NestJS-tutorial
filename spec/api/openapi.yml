@@ -277,7 +277,7 @@ paths:
       tags:
         - Articles
       summary: Update an article
-      description: Update an article. Auth is required
+      description: Update supplied fields for the authenticated owner. The slug remains stable; an empty article object leaves the article unchanged. A supplied tagList replaces the ordered list, and an empty list clears it.
       operationId: UpdateArticle
       parameters:
         - name: slug
@@ -294,9 +294,25 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
-          $ref: '#/components/responses/Forbidden'
+          description: The authenticated user does not own this article.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+              example:
+                errors:
+                  article:
+                    - "forbidden"
         '404':
-          $ref: '#/components/responses/NotFound'
+          description: Article slug was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+              example:
+                errors:
+                  article:
+                    - "not found"
         '422':
           $ref: '#/components/responses/GenericError'
       security:
@@ -611,6 +627,7 @@ components:
             type: string
     UpdateArticle:
       type: object
+      additionalProperties: false
       properties:
         title:
           type: string
@@ -622,6 +639,7 @@ components:
           type: array
           items:
             type: string
+            pattern: '\S'
     Comment:
       required:
         - author
@@ -707,6 +725,7 @@ components:
             required:
               - article
             type: object
+            additionalProperties: false
             properties:
               article:
                 $ref: '#/components/schemas/Article'
@@ -893,6 +912,7 @@ components:
             required:
               - article
             type: object
+            additionalProperties: false
             properties:
               article:
                 $ref: '#/components/schemas/UpdateArticle'
