@@ -8,7 +8,7 @@
 
 ## Overview and Dependencies
 
-- Priority: P1 · Status: In progress · Scope: **`PUT /api/articles/:slug` only** plus one supporting foundation PR with no public API change. The foundation stacks directly on `phase-04c-article-detail` / [PR #49](https://github.com/hungpv-2151/NestJS-tutorial/pull/49); the PUT PR stacks directly above that foundation. No delete, list, feed, favorite, or tag route.
+- Priority: P1 · Status: Submitted, ready for review · Scope: **`PUT /api/articles/:slug` only** plus a supporting foundation PR with no public API change. Foundation [PR #50](https://github.com/hungpv-2151/NestJS-tutorial/pull/50) stacks on `phase-04c-article-detail` / [PR #49](https://github.com/hungpv-2151/NestJS-tutorial/pull/49); PUT [PR #51](https://github.com/hungpv-2151/NestJS-tutorial/pull/51) stacks directly above #50. Both are ready, neither is merged. No delete, list, feed, favorite, or tag route.
 - Depends on 4A article/tag/favorite tables and serializer, 4B authenticated create and batch tag behavior, and 4C detail reader. User direction: continue creating the subsequent API PRs without pausing for a manual check. 4E follows the PUT PR.
 - Existing schema supports every operation. No migration, backfill, new package, or `AppModule` change. Keep code files under 200 lines; Phase 04 production diff target ≤300 lines, hard gate ≤400.
 
@@ -25,7 +25,7 @@
 - **Slug:** keep it stable when title changes. The body-only Hurl case proves a stable slug there; title-change semantics are unspecified. Stable identity is the 4D local policy, so old URLs continue working. Do not call `createArticleSlug` on update or add a 409 route response.
 - **Empty update:** `{ "article": {} }` is valid under OpenAPI and returns current detail with `200`; skip article/link writes and do not force `updatedAt` forward. A real field/tag change updates `updatedAt` while `createdAt` remains fixed. Omitted scalar fields and omitted `tagList` retain stored values.
 - **Tags:** omitted `tagList` preserves links and positions; explicit `[]` clears links; a supplied nonempty list replaces the whole ordered list. Reuse 4B's exact-case name matching, first-seen deduplication, and rejection of blank tag names as a local consistency policy. `null`, wrong item types, and whitespace-only names return `422`. Leave unused global tag rows intact. Hurl directly proves omit/clear/null; replacement order follows 4A/4B persistence policy.
-- OpenAPI declares `200/401/403/404/422` for PUT. Its shared Forbidden example uses `resource`; the resource-specific `article` key above follows existing article 404 convention and needs a focused E2E assertion. Document only this PUT policy in Swagger/OpenAPI; no other verb's contract changes.
+- OpenAPI declares `200/401/403/404/422` for PUT. Its shared Forbidden example uses `resource`; the resource-specific `article` key above follows existing article 404 convention and has a focused E2E assertion. Document only this PUT policy in Swagger/OpenAPI; no other verb's contract changes.
 
 ## Stacked PR Split
 
@@ -78,9 +78,15 @@ Push and open the foundation PR before pushing the API branch. Do not advance th
 - Compatibility: PUT is additive over the existing schema. Stable slugs preserve article URLs. Existing POST and GET response behavior remains covered by regressions; no data migration or integration version change.
 - Rollback: revert only 4D's PR/commit; existing article data, 4A tables, POST and GET remain valid. Updates already committed are ordinary rows and are not automatically undone. Rebase dependent 4E+ PRs if 4D is removed.
 
+## Delivery Evidence
+
+- Independent reviewer accepted the implementation after confirming generated `/docs-json` rejects unknown wrapper/article fields and documents the nonblank tag pattern. The reviewer also verified owner isolation, transaction rollback, concurrent updates, response personalization, and POST/GET behavior.
+- Foundation #50 validation at `f20b0cc3240b1de3740677b49e7db043d88b0d31`: `pnpm build` exit 0; `pnpm test` exit 0 (35 files, 143 passed / 1 skipped); `pnpm test:e2e` exit 0 (12 files, 46 passed); `pnpm lint` exit 0 (0 errors, 206 warnings / 117 files). [PR validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/50#issuecomment-5863552132) · [SHA correction](https://github.com/hungpv-2151/NestJS-tutorial/pull/50#issuecomment-5863556318).
+- PUT #51 validation at `b07aa2f76a95a7c62f9c8eac51a7c30770b00243`: `pnpm build` exit 0; `pnpm test` exit 0 (37 files, 155 passed / 1 skipped); `pnpm test:e2e` exit 0 (14 files, 53 passed); transaction integration 2 passed; focused PUT E2E including `/docs-json` 7 passed; `pnpm lint` exit 0 (0 errors, 206 warnings / 117 files); `git diff --check` exit 0. [PR validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/51#issuecomment-5863610040).
+
 ## Observable Done Criteria and Next Step
 
-- [ ] Foundation PR directly bases on [PR #49](https://github.com/hungpv-2151/NestJS-tutorial/pull/49), has `Public API change: none`, and meets the size gate; PUT PR directly bases on the foundation and adds exactly `PUT /api/articles/:slug`.
-- [ ] RED and GREEN evidence proves statuses/envelopes, owner/non-owner isolation, stable slug and timestamps, omitted/replace/clear tags, rollback, response privacy, and persistence through GET.
-- [ ] Build, focused and full tests, E2E, and lint finish with real exit codes; no errors are waived. Test database cleanup leaves no fixture rows.
-- [ ] Independent review accepts the final code; both ready stacked PRs have validation evidence and commit SHA. Then 4E may begin without a manual pause.
+- [x] Foundation PR directly bases on [PR #49](https://github.com/hungpv-2151/NestJS-tutorial/pull/49), has `Public API change: none`, and meets the size gate; PUT PR directly bases on the foundation and adds exactly `PUT /api/articles/:slug`.
+- [x] RED and GREEN evidence proves statuses/envelopes, owner/non-owner isolation, stable slug and timestamps, omitted/replace/clear tags, rollback, response privacy, and persistence through GET.
+- [x] Build, focused and full tests, E2E, and lint finish with real exit codes; no errors are waived. Test fixtures are cleaned up.
+- [x] Independent review accepts the final code; both ready stacked PRs have validation evidence and commit SHA. Continue to 4E without a manual pause.

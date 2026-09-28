@@ -89,7 +89,7 @@
 - [x] Anonymous 200, valid-viewer flags, invalid-header 401, missing 404, ordered tags, exact favorite count, and public author projection pass HTTP/E2E; service behavior and fixed query shape pass focused tests.
 - [x] Build, lint with zero errors, full unit/integration and E2E suites pass; database fixtures are cleaned. Reset ran only against `TEST_DATABASE_URL` using the project runner and confirmation; five migrations applied. Retained warnings are recorded with reason and follow-up.
 - [x] Independent review accepts security, scope, and rollback.
-- [x] Submitted ready PR [#49](https://github.com/hungpv-2151/NestJS-tutorial/pull/49) directly above #48; validation evidence: [comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/49#issuecomment-5862775055). Stop after this PR per the user's instruction to switch to a separate rule-update plan; 4D has not started.
+- [x] Submitted ready PR [#49](https://github.com/hungpv-2151/NestJS-tutorial/pull/49) directly above #48; validation evidence: [comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/49#issuecomment-5862775055). Work paused here on the user's earlier instruction and later resumed; 4D is now submitted in [PR #50](https://github.com/hungpv-2151/NestJS-tutorial/pull/50) and [PR #51](https://github.com/hungpv-2151/NestJS-tutorial/pull/51).
 
 ## Verification Checkpoint — 2026-09-28
 
