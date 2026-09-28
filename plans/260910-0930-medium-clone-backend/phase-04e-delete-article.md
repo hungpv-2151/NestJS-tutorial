@@ -8,7 +8,7 @@
 
 ## Overview, Dependencies, and Key Insights
 
-- Priority: P1 · Status: Implementation reviewed; PR submission in progress · Scope: **`DELETE /api/articles/:slug` only** in one ready PR, directly based on `phase-04d-update-article` / [PR #51](https://github.com/hungpv-2151/NestJS-tutorial/pull/51) at `d171b124`.
+- Priority: P1 · Status: Delivered; [PR #52](https://github.com/hungpv-2151/NestJS-tutorial/pull/52) is ready/open, directly based on `phase-04d-update-article` / [PR #51](https://github.com/hungpv-2151/NestJS-tutorial/pull/51). Validation evidence is in the [PR comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/52#issuecomment-5863972597).
 - Depends on 4A's article/tag/favorite tables and cascade foreign keys, 4C's detail GET for the post-delete check, and 4D's row-lock/typed-error convention. 4F follows this PR. Continue to the next API after this PR without waiting for a manual review check, per current user direction.
 - Hard-delete one article row. The existing foreign keys remove its `article_tags` and `article_favorites` rows; global `tags` rows remain. No migration, DTO, serializer, or new dependency.
 
@@ -73,4 +73,4 @@
 | Expanded controller/Swagger crosses 200 lines or PR absorbs another API | Medium / Medium | Focused files, route audit, production diff count, direct base check. |
 
 - Compatibility: no migration, no request/response change to 4A–4D routes; DELETE is additive. Revert only the 4E PR to remove the endpoint; already deleted records cannot be restored by code revert and require backup recovery if needed. Rebase dependent 4F+ PRs if 4E is removed.
-- Next step: start 4F's no-route list query foundation on top of this ready PR; keep its PR marked `Public API change: none` and continue the stack without a manual pause.
+- Next step: 4F's no-route list query foundation is now in progress on top of this ready PR; its PR will state `Public API change: none` and continue the stack without a manual pause.
