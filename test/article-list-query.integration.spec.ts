@@ -99,6 +99,7 @@ describe('article list query foundation', () => {
     expect(unfiltered.articles.find(({ id }) => id === articles[0].id)?.author.username).toBe(author.username);
     expect(first.articlesCount).toBe(2);
     expect(first.articles.map(({ id }) => id)).toEqual([articles[1].id]);
+    expect(first.articles[0].body).toBeUndefined();
     expect(second.articlesCount).toBe(2);
     expect(second.articles.map(({ id }) => id)).toEqual([articles[0].id]);
     expect(pastEnd).toEqual({ articles: [], articlesCount: 2 });

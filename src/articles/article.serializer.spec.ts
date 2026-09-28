@@ -67,6 +67,12 @@ describe('article serializers', () => {
     expect(result.articles[0].author).not.toHaveProperty('email');
     expect(result.articles[0].author).not.toHaveProperty('passwordHash');
     expect(result.articles[0].favoritesCount).toBe(2);
+
+    const negativeAggregate = serializeArticleList(
+      [{ ...listArticle, context: { ...article.context, favoritesCount: -1 } }],
+      7,
+    );
+    expect(negativeAggregate.articles[0].favoritesCount).toBe(0);
   });
 
   it('serializes a guest article with empty tags and no favorite state', () => {
