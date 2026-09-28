@@ -83,7 +83,6 @@ describe('article list query foundation', () => {
     const tagMatches = await service.list({ tag: tagA.name, offset: 0, limit: 10 });
     const authorMatches = await service.list({ authorUsername: author.username, offset: 0, limit: 10 });
     const favoriteMatches = await service.list({ favoritedUsername: favorite.username, offset: 0, limit: 10 });
-    const unfiltered = await service.list({ offset: 0, limit: 10 });
     const first = await service.list({ ...criteria, offset: 0, limit: 1 });
     const second = await service.list({ ...criteria, offset: 1, limit: 1 });
     const pastEnd = await service.list({ ...criteria, offset: 2, limit: 1 });
@@ -92,11 +91,11 @@ describe('article list query foundation', () => {
     expect(tagMatches.articlesCount).toBe(4);
     expect(tagMatches.articles.map(({ id }) => id)).toHaveLength(4);
     expect(authorMatches.articlesCount).toBe(4);
+    expect(authorMatches.articles.map(({ id }) => id)).toEqual([
+      articles[4].id, articles[2].id, articles[1].id, articles[0].id,
+    ]);
+    expect(authorMatches.articles[0].author.username).toBe(author.username);
     expect(favoriteMatches.articlesCount).toBe(4);
-    expect(unfiltered.articles.map(({ id }) => id)).toEqual(
-      expect.arrayContaining(articles.map(({ id }) => id)),
-    );
-    expect(unfiltered.articles.find(({ id }) => id === articles[0].id)?.author.username).toBe(author.username);
     expect(first.articlesCount).toBe(2);
     expect(first.articles.map(({ id }) => id)).toEqual([articles[1].id]);
     expect(first.articles[0].body).toBeUndefined();
