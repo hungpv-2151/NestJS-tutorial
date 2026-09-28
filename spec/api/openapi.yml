@@ -225,7 +225,15 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '409':
-          $ref: '#/components/responses/ConflictError'
+          description: Conflict - generated article slug already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+              example:
+                errors:
+                  slug:
+                    - "has already been taken"
         '422':
           $ref: '#/components/responses/GenericError'
       security:
