@@ -7,7 +7,7 @@
 
 ## Overview and Dependencies
 
-- Priority: P1 · Status: In progress (test-database validation gate) · PR scope: **`GET /api/articles/:slug` only** · Base: `phase-04b-create-article` / [PR #48](https://github.com/hungpv-2151/NestJS-tutorial/pull/48). Create one new ready PR above #48; do not add list, feed, update, delete, favorite, or tag routes.
+- Priority: P1 · Status: Ready to submit (implementation, review, and validation complete; PR not created) · PR scope: **`GET /api/articles/:slug` only** · Planned base: `phase-04b-create-article` / [PR #48](https://github.com/hungpv-2151/NestJS-tutorial/pull/48). Submit one ready PR above #48; do not add list, feed, update, delete, favorite, or tag routes.
 - Requires 4A article/tag/favorite tables and serializer, plus 4B `ArticlesModule`. 4D update-article work begins only after 4C is submitted. Before code, refresh the remote, confirm #48 is the direct stack base, and audit the branch diff.
 - No migration, package, cache, or new public DTO is needed. Keep each code file under 200 lines and the PR within the Phase 04 production-line budget (target ≤300; hard gate ≤400).
 
@@ -60,7 +60,7 @@
 
 1. Confirm stack base #48 and isolate branch 4C. Write failing focused tests for guest detail, unknown slug envelope, valid viewer favorite/following, supplied invalid token, stale viewer, ordered tags, and no private author fields. Confirm failures are caused by the missing behavior.
 2. Implement the guard, read service, controller route, module registration, Swagger, and this route's OpenAPI contract. Run `pnpm build` after code changes. Keep controller at the HTTP boundary and the service free of Express request objects.
-3. Run focused tests through the project setup: `test/setup/test-database.ts` maps configured `TEST_DATABASE_URL` to `DATABASE_URL`. Keep the configured URL; do not inspect or print credentials, hardcode or override it with a phase URL, reset the database, or run migrations. Use unique fixtures and atomic setup/cleanup. If the configured test target lacks required schema, stop DB-backed E2E and report that setup blocker; do not substitute another database silently. No migration applies in 4C.
+3. Run focused tests through the project setup: `test/setup/test-database.ts` maps configured `TEST_DATABASE_URL` to `DATABASE_URL`. If existing test tables have no migration history, use the guarded project reset runner (`pnpm db:migration:reset`) with `CONFIRM_DATABASE_RESET=yes` and `TEST_DATABASE_URL` only; never target the normal `DATABASE_URL`, print credentials, or substitute a phase-specific URL. For this phase, the test target had existing tables and empty migration history; the guarded runner was used and applied all five registered migrations. 4C adds no migration. Use unique fixtures and atomic setup/cleanup.
 4. Run `pnpm build`, `pnpm lint`, focused tests, `pnpm test`, and `pnpm test:e2e`; retain real exit codes. Check the exact anonymous 200 and missing-slug 404 Hurl cases if Hurl is installed. If it is absent, use isolated Supertest assertions for those same contract cases and report the unavailable command. Do not claim the full article Hurl suite passes before 4D–4K exist.
 5. Hand final code to an independent reviewer; fix correctness/security findings and rerun affected gates. Audit one-route scope, production-line count, and direct PR base. Submit one ready stacked PR above #48, attach validation evidence and commit SHA in a PR comment, then update Phase 04 checklist and roadmap/changelog with the PR and evidence link.
 
@@ -85,16 +85,16 @@
 
 ## Done Criteria and Next Step
 
-- [ ] Direct base is PR #48; diff exposes exactly `GET /api/articles/:slug` and stays within line limits.
-- [ ] Anonymous 200, valid-viewer flags, invalid-header 401, missing 404, ordered tags, exact favorite count, and public author projection pass HTTP/E2E; service behavior and fixed query shape pass focused tests.
-- [ ] Build, lint with zero errors, full unit/integration and E2E suites pass; database fixtures are cleaned. Any retained warnings are recorded with reason and follow-up.
-- [ ] Reviewer accepts security, scope, and rollback; ready PR and validation comment URLs are recorded in the parent plan. Then 4D may start above this PR.
+- [x] Branch is based directly on PR #48; diff exposes exactly `GET /api/articles/:slug` and stays within line limits.
+- [x] Anonymous 200, valid-viewer flags, invalid-header 401, missing 404, ordered tags, exact favorite count, and public author projection pass HTTP/E2E; service behavior and fixed query shape pass focused tests.
+- [x] Build, lint with zero errors, full unit/integration and E2E suites pass; database fixtures are cleaned. Reset ran only against `TEST_DATABASE_URL` using the project runner and confirmation; five migrations applied. Retained warnings are recorded with reason and follow-up.
+- [x] Independent review accepts security, scope, and rollback.
+- [ ] Submit the ready PR directly above #48 and record its validation comment URL in the parent plan. 4D implementation starts after this PR exists.
 
 ## Verification Checkpoint — 2026-09-28
 
-- Build passes. Full `pnpm lint` reports 0 errors and 185 warnings across the repository.
-- Focused read service tests pass (5/5). Read-only HTTP checks pass (5/5): unknown slug, valid-shaped invalid token, malformed token, empty header, and generated Swagger optional-security contract. The two DB-backed HTTP cases were skipped in this focused run.
-- Full unit suite reports 141 passed, 1 skipped, and 2 failures in the existing `test/create-article-transaction.integration.spec.ts`; both fail while inserting users because the configured test database rejects a null `users.updated_at`.
-- The first DB-backed detail fixture attempt also found missing `article_favorites` and `user_follows` tables. No migration or database reset was run. Retest those cases after the configured `TEST_DATABASE_URL` database has the Phase 4A schema and expected user timestamp defaults.
+- The configured `TEST_DATABASE_URL` target had existing tables but an empty migration history. The project reset runner was run with `CONFIRM_DATABASE_RESET=yes` against `TEST_DATABASE_URL` only; all five registered migrations applied. The normal `DATABASE_URL` was never used as the reset target.
+- `pnpm test` passed: 143 tests passed and 1 skipped across 35 files. `pnpm test:e2e` passed: 46 tests across 12 files. This includes the previously blocked database-backed article-detail and create-article integration coverage.
+- `pnpm build` passed. `pnpm lint` reported 0 errors and 185 repository warnings.
 - Retained changed-file lint warnings: `ArticleReadService` uses `DataSource` repository reads to match the existing article service and avoid a one-use repository abstraction (C033); the optional guard rethrows upstream guard errors after translating only the malformed-header case (C030); the controller maps typed errors and lets unexpected failures reach the shared exception filter, while route cache headers are present (C018/C030/S037 analyzer warnings). Revisit if the project introduces a shared repository abstraction or the analyzer recognizes these patterns.
-- Independent review completed with no remaining critical, high, or medium findings. PR creation and push are pending the test database/schema gate above.
+- Independent review completed with no remaining critical, high, or medium findings. Phase 4C validation is complete; PR submission and its validation comment remain pending. Phase 4D remains gated until 4C is submitted.
