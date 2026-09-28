@@ -6,8 +6,8 @@
 
 ### Verified
 - #54: body-free article list projection support, no route, based on #53; ready/open.
-- #55: only `GET /api/articles`, based on #54; head `d4a5498bc9f5dfd6e2dcdba48c85384bdde21d9a`; ready/open.
-- #55 validation: unit 177 passed/1 skipped; E2E 79 passed; PostgreSQL hydration integration 1 passed; build, lint (0 errors/237 warnings), OpenAPI parse, diff check, independent review, and GitHub Static analysis passed.
+- #55: only `GET /api/articles`, based on #54; API code commit `90dbca8a`; ready/open.
+- #55 validation after stack rebase: unit 193 passed/1 skipped; E2E 87 passed; PostgreSQL query/hydration integration passed; build, lint (0 errors/243 warnings), OpenAPI parse, diff check, independent review, and GitHub Static analysis passed.
 
 ### Blockers and risks
 - No active validation blocker. Delivery depends on stack merges in order; neither PR has merged.

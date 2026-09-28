@@ -37,10 +37,10 @@
 
 ## Delivery Evidence — 2026-09-28
 
-- Route-free projection support is ready as [PR #54](https://github.com/hungpv-2151/NestJS-tutorial/pull/54) on #53, head `cf1f89b33227b6e94d82ad555e5ceed616c7a251`; commits `0e224992` (projection) and `cf1f89b3` (body-free/clamp regressions). It adds no HTTP route; Static analysis passed.
-- API is ready as [PR #55](https://github.com/hungpv-2151/NestJS-tutorial/pull/55) on #54, head `d4a5498bc9f5dfd6e2dcdba48c85384bdde21d9a`; implementation `ef5e3b26`, request-log privacy fix `11593147`, docs `d4a5498b`. Source-only API diff is 368 changed lines, under the 400-line hard cap.
-- Tests: `pnpm test` passed (177 passed, 1 skipped); `pnpm test:e2e` passed (18 files, 79 tests); `pnpm build` passed; `pnpm lint` passed (0 errors, 237 warnings); real PostgreSQL query/hydration integration passed; static OpenAPI parsed; `git diff --check` passed. GitHub Static analysis passed on #54 and #55.
-- Independent review found no remaining code findings after the logging redaction fix. PR #54 validation: [comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/54#issuecomment-5865006355). PR #55 validation: [local evidence](https://github.com/hungpv-2151/NestJS-tutorial/pull/55#issuecomment-5865020735), [GitHub CI result](https://github.com/hungpv-2151/NestJS-tutorial/pull/55#issuecomment-5865035968).
+- Route-free projection support is ready as [PR #54](https://github.com/hungpv-2151/NestJS-tutorial/pull/54) on #53, current support head `1bfcfdfdce5cd33e6fb240db58a2ff547c0203b7`; it contains the projection, body-free/clamp regressions, and a stable unique-author integration assertion. It adds no HTTP route; Static analysis passed.
+- API is ready as [PR #55](https://github.com/hungpv-2151/NestJS-tutorial/pull/55) on #54; API implementation commit `90dbca8a`, request-log privacy fix `46580bb9`. Source-only API diff is 368 changed lines, under the 400-line hard cap. Later commits on the PR record plan/delivery evidence.
+- Tests: `pnpm test` passed (193 passed, 1 skipped); `pnpm test:e2e` passed (20 files, 87 tests); `pnpm build` passed; `pnpm lint` passed (0 errors, 243 warnings); real PostgreSQL query/hydration integration passed; static OpenAPI parsed; `git diff --check` passed. GitHub Static analysis passed on #54 and #55.
+- Independent review found no remaining code findings after the logging redaction fix. PR #54 validation: [initial comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/54#issuecomment-5865006355); latest head check passed. PR #55 validation: [local evidence](https://github.com/hungpv-2151/NestJS-tutorial/pull/55#issuecomment-5865020735), [CI result](https://github.com/hungpv-2151/NestJS-tutorial/pull/55#issuecomment-5865035968); add a post-rebase checkpoint comment before starting 4H implementation.
 
 ## Exact File Ownership and Implementation Steps
 
