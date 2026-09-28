@@ -11,13 +11,16 @@ import { ArticlesController } from './articles.controller.js';
 import { ArticleDeleteController } from './article-delete.controller.js';
 import { ArticleCreateService } from './article-create.service.js';
 import { ArticleDeleteService } from './article-delete.service.js';
+import { ArticleListController } from './article-list.controller.js';
+import { ArticleListHydrator } from './article-list-hydrator.js';
 import { ArticleListQueryService } from './article-list-query.service.js';
+import { ArticleListService } from './article-list.service.js';
 import { ArticleReadService } from './article-read.service.js';
 import { ArticleUpdateService } from './article-update.service.js';
 import { Tag } from '../tags/tag.entity.js';
 
 @Module({
-  controllers: [ArticlesController, ArticleDeleteController],
+  controllers: [ArticlesController, ArticleDeleteController, ArticleListController],
   imports: [
     AuthModule,
     TypeOrmModule.forFeature([
@@ -31,7 +34,9 @@ import { Tag } from '../tags/tag.entity.js';
   providers: [
     ArticleCreateService,
     ArticleDeleteService,
+    ArticleListHydrator,
     ArticleListQueryService,
+    ArticleListService,
     ArticleReadService,
     ArticleUpdateService,
     OptionalAuthTokenGuard,
