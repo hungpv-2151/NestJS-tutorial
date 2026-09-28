@@ -1,0 +1,16 @@
+[
+  {
+    "command": "pnpm test",
+    "exitCode": 0,
+    "status": "pass",
+    "summary": "Full unit suite passed: 43 files passed, 1 skipped; 193 tests passed, 1 skipped. Vitest duration 6.00s. Warnings: vite-tsconfig-paths deprecation and PostgreSQL SSL-mode future semantics.",
+    "ts": "2026-09-28T23:31:37Z"
+  },
+  {
+    "command": "pnpm test:e2e",
+    "exitCode": 0,
+    "status": "pass",
+    "summary": "Full E2E suite passed: 25 files and 98 tests. Vitest duration 12.14s. Warning: vite-tsconfig-paths deprecation; PostgreSQL SSL-mode future-semantics warnings appeared.",
+    "ts": "2026-09-28T23:31:47Z"
+  }
+]

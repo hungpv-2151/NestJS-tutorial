@@ -9,6 +9,7 @@ import { ProfilesModule } from './profiles/profiles.module.js';
 import { AttachmentsModule } from './attachments/attachments.module.js';
 import { FilesModule } from './files/files.module.js';
 import { ArticlesModule } from './articles/articles.module.js';
+import { TagsModule } from './tags/tags.module.js';
 
 const translationsPath = join(dirname(fileURLToPath(import.meta.url)), 'i18n');
 
@@ -27,6 +28,7 @@ const translationsPath = join(dirname(fileURLToPath(import.meta.url)), 'i18n');
     AttachmentsModule,
     FilesModule,
     ArticlesModule,
+    TagsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
