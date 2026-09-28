@@ -8,8 +8,8 @@
 
 ## Overview
 
-- Priority: P1 · Status: Pending · Effort: 4h · Dependency: delivered 4H [PR #56](https://github.com/hungpv-2151/NestJS-tutorial/pull/56). One ready PR stacked **directly on `phase-04h-article-feed-api`** with only `POST /api/articles/:slug/favorite`. Do not implement `DELETE /api/articles/:slug/favorite` (4J).
-- PR #56 was OPEN, ready, CLEAN, Static analysis SUCCESS, head `055cf74470991f9354f06b3b438db969e7ee4662`, base `phase-04g-article-list-api` when checked on 2026-09-28. Recheck before branching and before delivery; do not assume this snapshot remains current.
+- Priority: P1 · Status: In progress · Effort: 4h · Dependency: delivered 4H [PR #56](https://github.com/hungpv-2151/NestJS-tutorial/pull/56). One ready PR stacked **directly on `phase-04h-article-feed-api`** with only `POST /api/articles/:slug/favorite`. Do not implement `DELETE /api/articles/:slug/favorite` (4J).
+- Before branching, PR #56 was OPEN, ready, CLEAN, Static analysis SUCCESS, head `18b1ddd3d6a0f4e873743a016ffda8b4514b468c`, base `phase-04g-article-list-api` on 2026-09-28. Branch `phase-04i-favorite-article-api` started at that exact commit.
 
 ## Key Insights and Requirements
 
@@ -21,10 +21,10 @@
 
 ## Architecture and Data Flow
 
-`Token guard → verified username + slug → favorite controller → create service → transaction (viewer lookup → article lookup/lock → INSERT ... ON CONFLICT DO NOTHING → ArticleReadService.getBySlug(slug, username, manager)) → 200 detail`.
+`Token guard → verified username + slug → favorite controller → create service → transaction (lock viewer row → lock article row → INSERT ... ON CONFLICT DO NOTHING → ArticleReadService.getBySlug(slug, username, manager)) → 200 detail`.
 
 1. Put the mutation in a focused `ArticleFavoriteCreateService`; controller only accepts route/auth input and maps typed failures to HTTP. Resolve the viewer from the verified subject **before** the article lookup, including the unknown-slug path. Never accept a viewer ID from request data.
-2. Within one PostgreSQL transaction, find the article by slug with a row lock so delete/update cannot change the target before insert and detail read. Insert `(articleId, userId)` with TypeORM conflict-ignore semantics backed by the composite PK; do not perform check-then-insert. Do not swallow non-duplicate SQL failures. The lock and unique constraint make same-user concurrent POSTs safe; keep lock ordering viewer → article consistent with existing mutations.
+2. Within one PostgreSQL transaction, lock the verified viewer row first, then find the article by slug with a row lock. This prevents a concurrent username change from invalidating the serializer's second viewer lookup and prevents delete/update from changing the target before insert and detail read. Insert `(articleId, userId)` with TypeORM conflict-ignore semantics backed by the composite PK; do not perform check-then-insert. Do not swallow non-duplicate SQL failures. The locks and unique constraint make same-user concurrent POSTs safe; keep lock ordering viewer → article consistent with existing mutations.
 3. Call `ArticleReadService.getBySlug(slug, username, manager)` **inside the same transaction** after the insert. Reuse its serializer and relation lookups, so the returned detail sees this viewer's favorite and no separate article response builder is needed. Roll back the insert if serialization/read fails. Keep `updatedAt` unchanged: a favorite changes a join row, not article content.
 4. Register a dedicated favorite controller/service in `ArticlesModule`; retain feed route precedence. Add a dedicated Swagger decorator using the existing article detail response schema or a small shared export if practical. Document required Token, no `requestBody`, 200/401/404/422 and redacted 500 on this operation only. Keep static OpenAPI and `/docs-json` aligned without editing 4J's DELETE operation.
 
@@ -37,9 +37,8 @@
 | Implementer / create | `src/articles/article-favorite.swagger.ts` | Generated POST operation contract only. |
 | Implementer / modify | `src/articles/articles.module.ts` | Register favorite controller/service. |
 | Implementer / modify only if needed | `src/articles/articles.swagger.ts` | Export existing detail schema to avoid a duplicate; no other route changes. |
-| Tester / create | `test/article-favorite.e2e-spec.ts` | Success, repeat, second viewer, persistence and response shape. |
-| Tester / create | `test/article-favorite-errors.e2e-spec.ts` | 401/404, redacted 500, `/docs-json`, no request body contract. |
-| Tester / create | `test/article-favorite-transaction.integration.spec.ts` | Real PostgreSQL duplicate race, one join row, rollback and article-delete interaction. |
+| Tester / create | `test/article-favorite-create.e2e-spec.ts` | Success, repeat/concurrent POST, second viewer, and article-delete race on PostgreSQL. |
+| Tester / create | `test/article-favorite-errors.e2e-spec.ts` | 401/404, redacted 500/rollback, `/docs-json`, and no request body contract. |
 | Contract / modify | `spec/api/openapi.yml` | Add POST-local redacted 500 response if generated docs include it; preserve existing 200/401/404/422 and DELETE. |
 | Delivery docs / modify after verified PR | `plans/260910-0930-medium-clone-backend/phase-04i-favorite-article-api.md`, `plans/260910-0930-medium-clone-backend/phase-04-articles-search-pagination.md`, `plans/260910-0930-medium-clone-backend/plan.md`, `docs/development-roadmap.md`, `docs/project-changelog.md` | Record observed status, evidence link and stack progress; documentation owner checks accuracy. |
 | Delete | None | No migration or backfill. |
@@ -59,7 +58,7 @@ Implementation and test ownership are disjoint. This plan file is the only plann
 | Layer | Required proof |
 | --- | --- |
 | Unit | Service typed errors, conflict-ignore path, transaction manager handed to `ArticleReadService`; no separate serializer logic. Test only logic not already covered by real-DB cases. |
-| PostgreSQL integration | Same-user sequential and concurrent POSTs leave one PK row; other viewer adds exactly one; failed detail read rolls back new row; article delete race does not leave an orphan or leak SQL errors. |
+| PostgreSQL-backed E2E | Same-user sequential and concurrent POSTs leave one PK row; other viewer adds exactly one; failed detail read rolls back new row; concurrent article DELETE leaves no orphan or favorite row. |
 | HTTP E2E | 200 full article detail and cache header; own/non-owner favorite; repeat 200/count unchanged; second viewer count +1; later authenticated GET and favorited list reflect persisted join; guest GET sees count but `favorited: false`; no body/private fields leak. 401 missing/unsupported/invalid/stale subject, 404 unknown slug, generic 500 with no secret text. |
 | Contract/regression | Static OpenAPI and `/docs-json` show POST required Token, slug, no request body, 200/401/404/422 (plus POST-local 500 when added); 4H feed and detail/list tests stay green. Ready 4I PR directly above #56, one public route, line/file caps met, review clear. |
 
@@ -77,11 +76,19 @@ Implementation and test ownership are disjoint. This plan file is the only plann
 - Security: verified Token subject only; bind slug and IDs in queries; no token, hash, password, email or raw personal identifier in logs. Keep mutation response private/no-store.
 - Rollback: revert only the 4I PR; favorite rows may remain harmless and remain readable by existing detail/list queries. Hold or rebase dependent 4J+ PRs before reverting 4I. No schema rollback.
 
+## Local Validation
+
+- `pnpm test`: passed, 193 passed / 1 skipped. `pnpm test:e2e`: passed, 91 passed. Both ran sequentially with default timeouts.
+- Focused PostgreSQL E2E: 4 passed across two files, including rollback, delete race and `/docs-json`; build and Prettier checks passed; lint passed with 0 errors; static OpenAPI YAML parsed (12 paths); `git diff --check` passed. Independent review found no remaining issues.
+- Lint retained 255 repository warnings. New warnings are heuristic matches for the existing DataSource/transaction service pattern (C033), wrapping DB causes in typed redacted errors (C018/C030), and decorated no-store headers not recognized by S037. No error-level finding remains.
+- Production diff is within the 400-line hard cap, and each production TypeScript file is under 200 lines.
+
 ## Todo List
 
-- [ ] Confirm live #56 base/head/checks and record valid missing-route RED.
-- [ ] Implement only favorite POST; real-DB concurrency, response, error and docs gates pass within caps.
-- [ ] Independent review and ready PR directly above #56 with validation evidence.
+- [x] Confirm live #56 base/head/checks and record valid missing-route RED. `pnpm exec vitest run --config ./vitest.config.e2e.ts test/article-favorite-create.e2e-spec.ts` exited 1 on missing POST (404) while GET detail control returned 200.
+- [x] Implement only favorite POST; focused PostgreSQL E2E passes 4/4, including sequential/concurrent idempotency, 401/404/500, transaction rollback, article-delete race, cache and generated `/docs-json` contract.
+- [x] Independent review found no remaining issues after the viewer lock and OpenAPI contract fixes.
+- [ ] Push and create the ready PR directly above #56 with validation evidence.
 
 ## Next Steps
 
