@@ -3,7 +3,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+import { DataSource, type EntityManager } from 'typeorm';
 
 import { User } from '../users/user.entity.js';
 import { UserFollow } from '../profiles/user-follow.entity.js';
@@ -28,9 +28,15 @@ export class ArticleViewerNotFoundError extends UnauthorizedException {
 export class ArticleReadService {
   constructor(private readonly dataSource: DataSource) {}
 
-  async getBySlug(slug: string, viewerUsername?: string) {
-    const article = await this.dataSource
-      .getRepository(Article)
+  async getBySlug(
+    slug: string,
+    viewerUsername?: string,
+    manager?: EntityManager,
+  ) {
+    const articleRepository = manager
+      ? manager.getRepository(Article)
+      : this.dataSource.getRepository(Article);
+    const article = await articleRepository
       .createQueryBuilder('article')
       .innerJoinAndSelect('article.author', 'author')
       .where('article.slug = :slug', { slug })
@@ -38,11 +44,39 @@ export class ArticleReadService {
     if (!article) throw new ArticleNotFoundError();
 
     const viewer = viewerUsername
-      ? await this.dataSource
-          .getRepository(User)
-          .findOneBy({ username: viewerUsername })
+      ? await (
+          manager
+            ? manager.getRepository(User)
+            : this.dataSource.getRepository(User)
+        ).findOneBy({ username: viewerUsername })
       : null;
     if (viewerUsername && !viewer) throw new ArticleViewerNotFoundError();
+
+    if (manager) {
+      const tags = await this.loadOrderedTags(article.id, manager);
+      const favoritesCount = await manager
+        .getRepository(ArticleFavorite)
+        .countBy({ articleId: article.id });
+      const favorite = viewer
+        ? await manager.getRepository(ArticleFavorite).findOneBy({
+            articleId: article.id,
+            userId: viewer.id,
+          })
+        : null;
+      const follow = viewer
+        ? await manager.getRepository(UserFollow).findOneBy({
+            followerId: viewer.id,
+            followingId: article.authorId,
+          })
+        : null;
+      return this.serializeDetail(
+        article,
+        tags,
+        favoritesCount,
+        favorite,
+        follow,
+      );
+    }
 
     const [tags, favoritesCount, favorite, follow] = await Promise.all([
       this.loadOrderedTags(article.id),
@@ -62,7 +96,22 @@ export class ArticleReadService {
           })
         : Promise.resolve(null),
     ]);
+    return this.serializeDetail(
+      article,
+      tags,
+      favoritesCount,
+      favorite,
+      follow,
+    );
+  }
 
+  private serializeDetail(
+    article: Article,
+    tags: string[],
+    favoritesCount: number,
+    favorite: ArticleFavorite | null,
+    follow: UserFollow | null,
+  ) {
     return serializeArticleDetail({
       ...article,
       author: article.author,
@@ -75,9 +124,14 @@ export class ArticleReadService {
     });
   }
 
-  private async loadOrderedTags(articleId: string): Promise<string[]> {
-    const rows = await this.dataSource
-      .getRepository(ArticleTag)
+  private async loadOrderedTags(
+    articleId: string,
+    manager?: EntityManager,
+  ): Promise<string[]> {
+    const articleTagRepository = manager
+      ? manager.getRepository(ArticleTag)
+      : this.dataSource.getRepository(ArticleTag);
+    const rows = await articleTagRepository
       .createQueryBuilder('articleTag')
       .innerJoin('articleTag.tag', 'tag')
       .select('tag.name', 'name')
