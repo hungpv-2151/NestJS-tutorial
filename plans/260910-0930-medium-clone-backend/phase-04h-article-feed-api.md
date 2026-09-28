@@ -8,7 +8,7 @@
 
 ## Overview
 
-- Priority: P1 · Status: In progress · Effort: 4h · Dependency: Phase 4G PR #55. Deliver **one ready PR stacked directly on `phase-04g-article-list-api`**, adding only `GET /api/articles/feed`. No foundation PR, migration, dependency, or second public route.
+- Priority: P1 · Status: Submitted · Effort: 4h · Dependency: Phase 4G PR #55. Delivered **one ready PR stacked directly on `phase-04g-article-list-api`**, adding only `GET /api/articles/feed`. No foundation PR, migration, dependency, or second public route.
 - Reuse 4F count/page ordering and 4G body-free projection, batch hydration, serialization, typed errors, and viewer lookup. Feed adds an internal followed-author predicate and a required-auth HTTP boundary.
 
 ## Key Insights and Contract Decisions
@@ -92,8 +92,8 @@ Implementation and test ownership are disjoint; no two parallel workers edit the
 
 - [x] Confirm #55 base/head and record valid feed RED (missing route returned 404 while the detail route control passed).
 - [x] Implement only feed route within production line/file caps; focused/full gates and independent reviewer pass.
-- [ ] Ready 4H PR directly above #55 with evidence URL; update observed phase status.
+- [x] Ready 4H PR directly above #55: [PR #56](https://github.com/hungpv-2151/NestJS-tutorial/pull/56), head `055cf74470991f9354f06b3b438db969e7ee4662`, GitHub Static analysis SUCCESS, merge state CLEAN. [Validation evidence](https://github.com/hungpv-2151/NestJS-tutorial/pull/56#issuecomment-5865756862). PR remains open and unmerged.
 
 ## Next Steps
 
-- After 4H delivery, begin 4I `POST /api/articles/:slug/favorite` on the 4H branch; do not include it in 4H.
+- Begin 4I `POST /api/articles/:slug/favorite` on the 4H branch; do not include it in 4H.
