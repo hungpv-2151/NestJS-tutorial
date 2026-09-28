@@ -1,5 +1,9 @@
 # Project Changelog
 
+## 2026-09-29
+
+- Phase 4K implements public `GET /api/tags`, returning `{ tags: string[] }` ordered by name. Unit tests (43 files; 193 passed, 1 skipped), E2E tests (25 files; 98 passed), build, lint (0 errors), static OpenAPI validation, and independent review passed locally. PR submission above #58 is pending; this work is not merged. [Phase 4K checkpoint](../plans/260910-0930-medium-clone-backend/phase-04k-tags-api.md).
+
 ## 2026-09-28
 
 - Phase 4H `GET /api/articles/feed` is submitted as ready [PR #56](https://github.com/hungpv-2151/NestJS-tutorial/pull/56), stacked directly on #55 (`phase-04g-article-list-api`); head `055cf74470991f9354f06b3b438db969e7ee4662`. GitHub Static analysis is SUCCESS and merge state is CLEAN; PR remains open and unmerged. Focused feed E2E passed (8/8), PostgreSQL feed query integration (1/1), full unit tests (193 passed, 1 skipped), full E2E (87 passed), build, lint (0 errors, 243 warnings), static OpenAPI parse and diff check; independent review found no issues. Production diff is 309 lines, with every production file under 200 lines. [Validation evidence](https://github.com/hungpv-2151/NestJS-tutorial/pull/56#issuecomment-5865756862). Next is Phase 4I `POST /api/articles/:slug/favorite` on the 4H branch.
