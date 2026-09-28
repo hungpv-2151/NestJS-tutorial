@@ -8,7 +8,7 @@
 
 ## Overview and Dependency
 
-- Priority: P1 · Status: implementation, tests, and review complete; delivery in progress · Effort: 4h. Because the combined production change was 407 lines, split out the route-free body-free projection support as a separate PR above ready [PR #53](https://github.com/hungpv-2151/NestJS-tutorial/pull/53). The API PR contains exactly `GET /api/articles` and follows that support PR in the stack.
+- Priority: P1 · Status: implementation, tests, review, and CI complete; ready PRs #54/#55 are open and unmerged · Effort: 4h. Because the combined production change was 407 lines, split out the route-free body-free projection support as a separate PR above ready [PR #53](https://github.com/hungpv-2151/NestJS-tutorial/pull/53). The API PR contains exactly `GET /api/articles` and follows that support PR in the stack.
 - 4F supplies AND filters, distinct pre-page count, stable `createdAt DESC, id DESC` order and a 100-item cap. 4G supplies the HTTP boundary, viewer personalization, batch relation reads and list serialization. 4H feed depends on this delivery but owns its route separately. No schema migration or package addition.
 - Public contract has only `tag`, `author`, `favorited`, `offset`, `limit`. The umbrella note “Search case-insensitive” has no corresponding OpenAPI parameter or defined columns; defer search to a separate contract decision. Existing filter values use exact equality.
 
@@ -30,17 +30,17 @@
 4. Narrow the list serializer input type so `body` is required only for detail serialization. Leave detail output unchanged. Errors from any database read become a typed, non-sensitive list persistence error; controller maps it to the redacted 500 envelope. Bind every supplied filter, ID and viewer value.
 5. `ArticleListController` owns route, optional guard, DTO, cache headers and typed error mapping. Register it and the list service in `ArticlesModule`. Keep the current detail/create/update/delete controllers and routes unchanged.
 
-## Verification Checkpoint — 2026-09-28 (in progress)
+## RED Checkpoint — 2026-09-28
 
 - Valid RED: `pnpm exec vitest run --config ./vitest.config.e2e.ts test/article-list.e2e-spec.ts --reporter=dot` exits 1 after the app/database and fixtures start: list GET returns missing-route 404; existing article detail control passes (1 passed, 1 failed).
 - The hydration test's RED reaches the current missing list route after PostgreSQL setup. Its query-count and body-free projection assertions await the implementation.
 
 ## Delivery Evidence — 2026-09-28
 
-- Route-free projection support commit: `0e224992` (`perf(articles): project list rows without body`), with regression coverage in `cf1f89b3` (body remains undefined in the PostgreSQL result; serializer clamps negative aggregate counts). It adds no HTTP route.
-- API implementation commit: `ef5e3b26`; request-log privacy fix: `11593147` redacts `author` and `favorited` query keys. Source-only API diff is 368 changed lines, under the 400-line hard cap.
-- Tests: `pnpm test` passed (177 passed, 1 skipped); `pnpm test:e2e` passed (18 files, 79 tests); `pnpm build` passed; `pnpm lint` passed (0 errors, 237 warnings); real PostgreSQL query/hydration integration passed; static OpenAPI parsed; `git diff --check` passed.
-- Independent review found no remaining code findings after the logging redaction fix. PR URLs and final stack SHA will be added after delivery.
+- Route-free projection support is ready as [PR #54](https://github.com/hungpv-2151/NestJS-tutorial/pull/54) on #53, head `cf1f89b33227b6e94d82ad555e5ceed616c7a251`; commits `0e224992` (projection) and `cf1f89b3` (body-free/clamp regressions). It adds no HTTP route; Static analysis passed.
+- API is ready as [PR #55](https://github.com/hungpv-2151/NestJS-tutorial/pull/55) on #54, head `d4a5498bc9f5dfd6e2dcdba48c85384bdde21d9a`; implementation `ef5e3b26`, request-log privacy fix `11593147`, docs `d4a5498b`. Source-only API diff is 368 changed lines, under the 400-line hard cap.
+- Tests: `pnpm test` passed (177 passed, 1 skipped); `pnpm test:e2e` passed (18 files, 79 tests); `pnpm build` passed; `pnpm lint` passed (0 errors, 237 warnings); real PostgreSQL query/hydration integration passed; static OpenAPI parsed; `git diff --check` passed. GitHub Static analysis passed on #54 and #55.
+- Independent review found no remaining code findings after the logging redaction fix. PR #54 validation: [comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/54#issuecomment-5865006355). PR #55 validation: [local evidence](https://github.com/hungpv-2151/NestJS-tutorial/pull/55#issuecomment-5865020735), [GitHub CI result](https://github.com/hungpv-2151/NestJS-tutorial/pull/55#issuecomment-5865035968).
 
 ## Exact File Ownership and Implementation Steps
 
@@ -98,4 +98,4 @@
 - [x] Valid RED and real-DB GREEN evidence recorded.
 - [x] Query count stable with page growth; full response shape and errors proven.
 - [x] Static/generated docs and all required gates pass; reviewer signs off.
-- [ ] Route-free support PR above #53 and ready 4G API PR above support PR, with evidence URLs recorded here.
+- [x] Route-free support PR above #53 and ready 4G API PR above support PR, with evidence URLs recorded here.
