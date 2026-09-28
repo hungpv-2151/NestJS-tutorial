@@ -1,8 +1,10 @@
 const REDACTED_VALUE = '[REDACTED]';
 const SENSITIVE_FIELD_NAMES = new Set([
   'authorization',
+  'author',
   'cookie',
   'email',
+  'favorited',
   'firstname',
   'lastname',
   'displayname',

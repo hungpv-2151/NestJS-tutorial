@@ -67,6 +67,28 @@ describe('createRequestFailureLog', () => {
     );
   });
 
+  it('redacts username filters from query strings', () => {
+    expect(
+      createRequestFailureLog(new Error('list query failed'), {
+        method: 'GET',
+        path: '/api/articles',
+        query: {
+          author: 'private-author',
+          favorited: 'private-favoriter',
+          username: 'private-username',
+          tag: 'public-tag',
+        },
+      }).request,
+    ).toMatchObject({
+      query: {
+        author: '[REDACTED]',
+        favorited: '[REDACTED]',
+        username: '[REDACTED]',
+        tag: 'public-tag',
+      },
+    });
+  });
+
   it('does not log untrusted error-message content', () => {
     const log = createRequestFailureLog(
       new Error(
