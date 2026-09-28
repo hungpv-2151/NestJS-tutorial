@@ -86,11 +86,37 @@ const SINGLE_ARTICLE_RESPONSE_SCHEMA = {
   type: 'object',
 };
 
+const CREATE_FAVORITE_COPY = {
+  summary: 'Favorite an article',
+  slugDescription: 'Slug of the article to favorite.',
+  viewerAction: 'favoriting it.',
+  failureDescription: 'Favorite could not be created.',
+};
+const DELETE_FAVORITE_COPY = {
+  summary: 'Unfavorite an article',
+  slugDescription: 'Slug of the article to unfavorite.',
+  viewerAction: 'unfavoriting it.',
+  failureDescription: 'Favorite could not be deleted.',
+};
+
 export function CreateArticleFavoriteSwagger(): MethodDecorator {
+  return articleFavoriteSwagger(CREATE_FAVORITE_COPY);
+}
+
+export function DeleteArticleFavoriteSwagger(): MethodDecorator {
+  return articleFavoriteSwagger(DELETE_FAVORITE_COPY);
+}
+
+function articleFavoriteSwagger(copy: {
+  summary: string;
+  slugDescription: string;
+  viewerAction: string;
+  failureDescription: string;
+}): MethodDecorator {
   return applyDecorators(
-    ApiOperation({ summary: 'Favorite an article' }),
+    ApiOperation({ summary: copy.summary }),
     ApiParam({
-      description: 'Slug of the article to favorite.',
+      description: copy.slugDescription,
       name: 'slug',
       required: true,
       type: String,
@@ -98,8 +124,7 @@ export function CreateArticleFavoriteSwagger(): MethodDecorator {
     ApiExtraModels(FavoriteArticleProfileResponse, FavoriteArticleResponse),
     ApiSecurity(TOKEN_AUTH_SECURITY_SCHEME),
     ApiOkResponse({
-      description:
-        'Article details with the authenticated viewer favoriting it.',
+      description: `Article details with the authenticated viewer ${copy.viewerAction}`,
       schema: SINGLE_ARTICLE_RESPONSE_SCHEMA,
     }),
     ApiUnauthorizedResponse({
@@ -115,7 +140,7 @@ export function CreateArticleFavoriteSwagger(): MethodDecorator {
       schema: VALIDATION_ERROR_SCHEMA,
     }),
     ApiInternalServerErrorResponse({
-      description: 'Favorite could not be created.',
+      description: copy.failureDescription,
       schema: PERSISTENCE_ERROR_SCHEMA,
     }),
   );
