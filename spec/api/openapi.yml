@@ -745,9 +745,12 @@ components:
       required:
         - body
       type: object
+      additionalProperties: false
       properties:
         body:
           type: string
+          maxLength: 10000
+          pattern: '\S'
     GenericErrorModel:
       required:
         - errors
@@ -1005,6 +1008,7 @@ components:
             required:
               - comment
             type: object
+            additionalProperties: false
             properties:
               comment:
                 $ref: '#/components/schemas/NewComment'
