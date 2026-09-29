@@ -26,7 +26,7 @@
 |---|---|---|---|
 | 5A | Comment schema/shared serializer; API: none | 4K / PR #59 | PR #60 migration apply/revert screenshot |
 | 5B | [`POST /api/articles/:slug/comments` only](./phase-05b-create-comment-api.md) | 5A / PR #60 | PR #61 validation/auth/persistence result and response screenshot |
-| 5C | [`GET /api/articles/:slug/comments` only](./phase-05c-list-comments-api.md) | 5B / PR #61 | anonymous/auth/order/no-N+1 result |
+| 5C | [`GET /api/articles/:slug/comments` only](./phase-05c-list-comments-api.md) | 5B / PR #61 | ready PR #62; anonymous/auth/order/no-N+1 result |
 | 5D | `DELETE /api/articles/:slug/comments/:id` only | 5C | owner/403/404/persistence screenshot |
 
 ### Phase 5A — Comment Schema Foundation
@@ -48,7 +48,7 @@
 ### Phase 5C — List Comments API
 
 - [Detailed phase record](./phase-05c-list-comments-api.md)
-- Status: implementation complete; independent review score 9 `SEALED`; hard evidence gate `SEALED`; PR submission pending.
+- Status: complete; ready PR #62 on PR #61; validation comment recorded below.
 - Base: 5B PR #61. This PR adds only `GET /api/articles/:slug/comments`.
 - Evidence: [5C hard-gate artifacts](./evidence/phase-05c/), including the actual HTTP 200 response screenshot.
 - Checks: unit 202 passed/1 skipped; E2E 105 passed; build, lint, OpenAPI parse, formatting, and diff check exit 0 (lint 287 warnings, 0 errors).
@@ -76,8 +76,8 @@
 - [ ] PRs 5A–5D rebased, one-API scoped and within line limit.
 - [ ] Create/list/delete status, envelope and failed-mutation persistence proven.
 - [x] Submit PRs 5A and 5B with validation comments.
-- [ ] Submit PRs 5C and 5D with validation comments.
-- Evidence URLs: 5A [PR #60 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/60#issuecomment-5881124944); 5B [PR #61 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/61#issuecomment-5881610776); 5C pending submission; 5D pending.
+- [ ] Submit PR 5D with its validation comment.
+- Evidence URLs: 5A [PR #60 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/60#issuecomment-5881124944); 5B [PR #61 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/61#issuecomment-5881610776); 5C [PR #62 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/62#issuecomment-5882131176); 5D pending.
 
 ## Success Criteria
 
@@ -86,7 +86,7 @@
 ## Risk Assessment
 
 - Wrong article/owner scope — Medium/High → conditional delete and focused integration tests in 5D.
-- Concurrent article deletion — Low/Medium → FK/transaction mapping to 404 without DB leakage.
+- Concurrent article deletion during list reads — Medium → `REPEATABLE READ` keeps article and comment reads on one snapshot; delete API handles its own 404 mapping.
 
 ## Security Considerations
 
