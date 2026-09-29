@@ -44,3 +44,7 @@
 ## Next Steps
 
 - Submit this foundation as its own stack PR; then branch 5B directly from it for `POST /api/articles/:slug/comments` only.
+## Delivery Record
+
+- PR: [#60](https://github.com/hungpv-2151/NestJS-tutorial/pull/60), ready, stacked on #59.
+- Validation comment: https://github.com/hungpv-2151/NestJS-tutorial/pull/60#issuecomment-5881124944
