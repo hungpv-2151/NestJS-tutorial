@@ -9,7 +9,7 @@
 
 ## Overview
 
-- Priority: P1 · Status: complete · Base: Phase 05C PR #62.
+- Priority: P1 · Status: complete; ready PR #63 · Base: Phase 05C PR #62.
 - Scope: authenticated `DELETE /api/articles/:slug/comments/:id` only.
 - Success: owner deletion returns an empty 204 response and removes only the target comment.
 
@@ -38,7 +38,7 @@
 - [x] Implement transactional delete, typed errors, controller mapping and Swagger/OpenAPI/Hurl alignment.
 - [x] Pass focused and full unit/E2E, build, lint, static OpenAPI, formatter and diff checks; explain warning heuristics.
 - [x] Capture actual HTTP 204/verification evidence, seal independent review and hard evidence gate.
-- [ ] Create one ready PR stacked on #62 with validation comment and record URLs.
+- [x] Create ready [PR #63](https://github.com/hungpv-2151/NestJS-tutorial/pull/63) stacked on #62; [validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/63#issuecomment-5882455254).
 
 ## Validation
 
@@ -57,3 +57,6 @@
 ## Next Steps
 
 - Phase 06 starts after ready PR 5D and Phase 05 evidence is recorded.
+
+
+- Final validated PR head before plan-reference sync: `5afa3e91f59a13bf20a9d19259e92a31b0bf6a65`. PR #63 is open, ready, and stacked directly on PR #62.
