@@ -32,7 +32,46 @@ export function getTestDatabaseConfig(
     throw new DatabaseConfigValidationError('TEST_DATABASE_URL is required');
   }
 
-  return getDatabaseConfig({ DATABASE_URL: testDatabaseUrl });
+  const testDatabase = getDatabaseConfig({ DATABASE_URL: testDatabaseUrl });
+  const applicationDatabaseUrl = environment.DATABASE_URL;
+
+  if (applicationDatabaseUrl && !isPostgresUrl(applicationDatabaseUrl)) {
+    throw new DatabaseConfigValidationError('DATABASE_URL must be PostgreSQL');
+  }
+
+  if (
+    applicationDatabaseUrl &&
+    sameDatabaseTarget(testDatabaseUrl, applicationDatabaseUrl)
+  ) {
+    throw new DatabaseConfigValidationError(
+      'TEST_DATABASE_URL must target a different database than DATABASE_URL',
+    );
+  }
+
+  return testDatabase;
+}
+
+function sameDatabaseTarget(firstUrl: string, secondUrl: string): boolean {
+  const first = new URL(firstUrl);
+  const second = new URL(secondUrl);
+
+  return (
+    normalizeDatabaseHost(first.hostname) ===
+      normalizeDatabaseHost(second.hostname) &&
+    (first.port || '5432') === (second.port || '5432') &&
+    decodeURIComponent(first.pathname) === decodeURIComponent(second.pathname)
+  );
+}
+
+function normalizeDatabaseHost(hostname: string): string {
+  const host = hostname
+    .toLowerCase()
+    .replace(/^\[|\]$/g, '')
+    .replace(/\.$/, '');
+  if (host === 'localhost' || host === '::1' || host.startsWith('127.')) {
+    return 'loopback';
+  }
+  return host;
 }
 
 function isPostgresUrl(url: string): boolean {

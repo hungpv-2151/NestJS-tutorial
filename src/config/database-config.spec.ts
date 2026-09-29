@@ -16,9 +16,15 @@ describe('getDatabaseConfig', () => {
 
   it.each([
     [{}, 'DATABASE_URL is required'],
-    [{ DATABASE_URL: 'mysql://localhost/app_dev' }, 'DATABASE_URL must be PostgreSQL'],
+    [
+      { DATABASE_URL: 'mysql://localhost/app_dev' },
+      'DATABASE_URL must be PostgreSQL',
+    ],
     [{ DATABASE_URL: 'postgresql://' }, 'DATABASE_URL must be PostgreSQL'],
-    [{ DATABASE_URL: 'postgresql://localhost' }, 'DATABASE_URL must be PostgreSQL'],
+    [
+      { DATABASE_URL: 'postgresql://localhost' },
+      'DATABASE_URL must be PostgreSQL',
+    ],
   ])('rejects invalid configuration', (environment, message) => {
     expect(() => getDatabaseConfig(environment)).toThrow(
       DatabaseConfigValidationError,
@@ -29,7 +35,8 @@ describe('getDatabaseConfig', () => {
 
 describe('getTestDatabaseConfig', () => {
   const testEnvironment = {
-    TEST_DATABASE_URL: 'postgresql://user:password@test-db.example.com:5432/app_test',
+    TEST_DATABASE_URL:
+      'postgresql://user:password@test-db.example.com:5432/app_test',
   };
 
   it('returns a PostgreSQL test database URL', () => {
@@ -38,9 +45,52 @@ describe('getTestDatabaseConfig', () => {
     });
   });
 
+  it('rejects the application database even when credentials differ', () => {
+    expect(() =>
+      getTestDatabaseConfig({
+        DATABASE_URL: 'postgresql://app:dev@localhost:5432/nestjs_tutorial',
+        TEST_DATABASE_URL:
+          'postgres://test:other@LOCALHOST/nestjs_tutorial?sslmode=disable',
+      }),
+    ).toThrow('TEST_DATABASE_URL must target a different database');
+  });
+
+  it('rejects loopback aliases for the same database target', () => {
+    expect(() =>
+      getTestDatabaseConfig({
+        DATABASE_URL: 'postgresql://app:dev@localhost:5432/nestjs_tutorial',
+        TEST_DATABASE_URL: 'postgresql://test:other@127.0.0.1/nestjs_tutorial',
+      }),
+    ).toThrow('TEST_DATABASE_URL must target a different database');
+  });
+
+  it('rejects a trailing-dot localhost alias for the same database target', () => {
+    expect(() =>
+      getTestDatabaseConfig({
+        DATABASE_URL: 'postgresql://app:dev@localhost:5432/nestjs_tutorial',
+        TEST_DATABASE_URL: 'postgresql://test:other@localhost./nestjs_tutorial',
+      }),
+    ).toThrow('TEST_DATABASE_URL must target a different database');
+  });
+
+  it('allows a distinct database on the same PostgreSQL server', () => {
+    expect(
+      getTestDatabaseConfig({
+        DATABASE_URL: 'postgresql://app:dev@localhost:5432/nestjs_tutorial',
+        TEST_DATABASE_URL:
+          'postgresql://test:other@localhost:5432/nestjs_tutorial_test',
+      }),
+    ).toEqual({
+      url: 'postgresql://test:other@localhost:5432/nestjs_tutorial_test',
+    });
+  });
+
   it.each([
     [{}, 'TEST_DATABASE_URL is required'],
-    [{ TEST_DATABASE_URL: 'mysql://localhost/app_test' }, 'DATABASE_URL must be PostgreSQL'],
+    [
+      { TEST_DATABASE_URL: 'mysql://localhost/app_test' },
+      'DATABASE_URL must be PostgreSQL',
+    ],
   ])('rejects invalid test database configuration', (environment, message) => {
     expect(() => getTestDatabaseConfig(environment)).toThrow(
       DatabaseConfigValidationError,
