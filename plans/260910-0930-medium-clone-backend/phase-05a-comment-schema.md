@@ -8,7 +8,7 @@
 
 ## Overview
 
-- Priority: P1 · Status: In progress; PR submission pending · Base: Phase 04K / current stack tip
+- Priority: P1 · Status: complete; ready PR #60 · Base: Phase 04K / PR #59
 - Add the comment persistence schema and shared serializer. `Public API change: none`.
 
 ## Scope and Architecture
@@ -33,7 +33,7 @@
 - [x] Implement the comment schema, migration, and shared serializer without an HTTP route.
 - [x] Apply, inspect, and revert the migration using `TEST_DATABASE_URL`.
 - [x] Pass unit, E2E, build, and lint checks; record the reviewer verdict and hard-gate evidence.
-- [ ] Submit a ready foundation PR on the current stack and add its validation comment.
+- [x] Submit ready PR #60 on PR #59 and add its validation comment.
 
 ## Success Criteria
 
@@ -43,7 +43,7 @@
 
 ## Next Steps
 
-- Submit this foundation as its own stack PR; then branch 5B directly from it for `POST /api/articles/:slug/comments` only.
+- PR #60 is ready on PR #59. PR #61 implements `POST /api/articles/:slug/comments`.
 ## Delivery Record
 
 - PR: [#60](https://github.com/hungpv-2151/NestJS-tutorial/pull/60), ready, stacked on #59.

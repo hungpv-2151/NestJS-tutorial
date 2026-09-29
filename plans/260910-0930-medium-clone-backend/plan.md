@@ -35,7 +35,7 @@ Giữ nguyên lịch sử PR1 đã hoàn thành, audit phần Phase 02 đang d�
 | 2     | [Audit/rebase, foundations và auth APIs](./phase-02-database-auth-background-jobs.md) |    24h | PR1        | In progress: G2 stack audit complete; 2I daily training-summary remains deferred; auth APIs through 2H are submitted  |
 | 3     | [User, profile và private-file APIs](./phase-03-user-profile-private-avatar.md)       |    18h | Phase 02H  | In progress: 3G `GET /api/files/:id` submitted as PR #46 on #45; validation and independent review pass |
 | 4     | [Article/feed/favorite/tag APIs](./phase-04-articles-search-pagination.md)            |    26h | Phase 3    | In progress: 4A–4K PRs #47–#59 are ready, open, and stacked; 4K evidence is recorded, all remain unmerged |
-| 5     | [Comment APIs](./phase-05-comments.md)                                                |    10h | Phase 4    | In progress: 5A is PR #60; 5B POST implementation, tests, build/lint, screenshot, review and evidence gate pass; PR #61 ready on #60 |
+| 5     | [Comment APIs](./phase-05-comments.md)                                                |    10h | Phase 4    | In progress: 5A is PR #60; 5A PR #60, 5B POST PR #61, and 5C GET PR #62 are ready in sequence; all three passed their validation gates |
 | 6     | [Stack-wide verification and remediation routing](./phase-06-unit-e2e-c2-testing.md)  |    12h | Phase 5    | Pending                                                                                                                 |
 
 ## Dependency and Data Flow

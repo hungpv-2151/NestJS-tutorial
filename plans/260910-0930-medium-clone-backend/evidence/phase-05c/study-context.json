@@ -1,0 +1,32 @@
+{
+  "task": "Deliver public GET /api/articles/:slug/comments as its own API PR stacked on PR #61.",
+  "mode": "code",
+  "acceptanceCriteria": [
+    "GET /api/articles/:slug/comments is public and supports an optional valid token; missing articles return 404, invalid optional tokens return 401, and success returns { comments }.",
+    "Comments are ordered by createdAt ASC then id ASC; author following is false anonymously and reflects the authenticated viewer using one batched follow lookup; serialization exposes only public fields.",
+    "Article existence and comment rows are read in one REPEATABLE READ transaction so concurrent article deletion cannot produce a mixed-snapshot response; persistence failures return the generic documented 500 response.",
+    "Generated Swagger and static OpenAPI describe optional authentication, success, 401, 404, and 500 contracts; the PR adds only the GET comments API."
+  ],
+  "touchpoints": [
+    "src/comments/comments.controller.ts",
+    "src/comments/comments.module.ts",
+    "src/comments/comments.swagger.ts",
+    "src/comments/comment-list.service.ts",
+    "test/list-comments.e2e-spec.ts",
+    "test/list-comments-errors.e2e-spec.ts",
+    "test/create-comment.e2e-spec.ts",
+    "spec/api/openapi.yml",
+    "spec/api/hurl/errors_comments.hurl"
+  ],
+  "blastRadius": [
+    "Public article comment listing",
+    "Optional authentication for comment author following state",
+    "Comment list query consistency and serialization"
+  ],
+  "contracts": [
+    "One API endpoint per PR; base is Phase 5B PR #61.",
+    "Stable creation-time then integer-ID ordering.",
+    "No N+1 author-follow queries; anonymous responses mark authors as not followed.",
+    "Concurrent reads use a consistent database snapshot."
+  ]
+}
