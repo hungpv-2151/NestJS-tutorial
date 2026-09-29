@@ -35,8 +35,23 @@ export function getTestDatabaseConfig(
   const testDatabase = getDatabaseConfig({ DATABASE_URL: testDatabaseUrl });
   const applicationDatabaseUrl = environment.DATABASE_URL;
 
+  if (hasAmbiguousTargetOverrides(testDatabaseUrl)) {
+    throw new DatabaseConfigValidationError(
+      'TEST_DATABASE_URL must not contain empty or repeated host/port parameters',
+    );
+  }
+
   if (applicationDatabaseUrl && !isPostgresUrl(applicationDatabaseUrl)) {
     throw new DatabaseConfigValidationError('DATABASE_URL must be PostgreSQL');
+  }
+
+  if (
+    applicationDatabaseUrl &&
+    hasAmbiguousTargetOverrides(applicationDatabaseUrl)
+  ) {
+    throw new DatabaseConfigValidationError(
+      'DATABASE_URL must not contain empty or repeated host/port parameters',
+    );
   }
 
   if (
@@ -49,6 +64,17 @@ export function getTestDatabaseConfig(
   }
 
   return testDatabase;
+}
+
+function hasAmbiguousTargetOverrides(connectionUrl: string): boolean {
+  const url = new URL(connectionUrl);
+  return ['host', 'port'].some((parameter) => {
+    const values = url.searchParams.getAll(parameter);
+    return (
+      values.length > 1 ||
+      values.some((value) => value.split(',').some((part) => !part.trim()))
+    );
+  });
 }
 
 function sameDatabaseTarget(firstUrl: string, secondUrl: string): boolean {
