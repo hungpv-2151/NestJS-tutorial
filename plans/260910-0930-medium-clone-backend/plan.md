@@ -36,7 +36,7 @@ Giữ nguyên lịch sử PR1 đã hoàn thành, audit phần Phase 02 đang d�
 | 3     | [User, profile và private-file APIs](./phase-03-user-profile-private-avatar.md)       |    18h | Phase 02H  | In progress: 3G `GET /api/files/:id` submitted as PR #46 on #45; validation and independent review pass |
 | 4     | [Article/feed/favorite/tag APIs](./phase-04-articles-search-pagination.md)            |    26h | Phase 3    | In progress: 4A–4K PRs #47–#59 are ready, open, and stacked; 4K evidence is recorded, all remain unmerged |
 | 5     | [Comment APIs](./phase-05-comments.md)                                                |    10h | Phase 4    | In progress: 5A–5C PRs #60–#62 ready; 5D DELETE is ready as PR #63 above #62; all passed validation gates |
-| 6     | [Stack-wide verification and remediation routing](./phase-06-unit-e2e-c2-testing.md)  |    12h | Phase 5    | Pending                                                                                                                 |
+| 6     | [Stack-wide verification and remediation routing](./phase-06-unit-e2e-c2-testing.md)  |    12h | Phase 5    | In progress: test-only C2 ArticlesController journey is PR #64; DB/Redis isolation and remaining integration matrix continue |
 
 ## Dependency and Data Flow
 
