@@ -59,4 +59,4 @@
 - Phase 06 starts after ready PR 5D and Phase 05 evidence is recorded.
 
 
-- Final validated PR head before plan-reference sync: `0126199be18f52c02d653e52881385a6f4f9ae2b`. PR #63 is open, ready, and stacked directly on PR #62.
+- Feature and evidence commit tested by the full validation suite: `5afa3e91f59a13bf20a9d19259e92a31b0bf6a65`. PR #63 is open, ready, and stacked directly on PR #62.
