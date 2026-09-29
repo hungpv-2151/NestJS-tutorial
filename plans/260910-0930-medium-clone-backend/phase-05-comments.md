@@ -57,7 +57,7 @@
 ### Phase 5D — Delete Comment API
 
 - [Detailed phase record](./phase-05d-delete-comment-api.md)
-- Status: implementation and validation complete; PR submission follows below.
+- Status: complete; ready PR #63 on PR #62; validation comment recorded below.
 - Base: 5C PR #62. This API deletes only the authenticated author's comment scoped to the article.
 - Evidence: [5D hard-gate artifacts](./evidence/phase-05d/), including the actual empty HTTP 204 and selective persistence screenshot.
 - Checks: focused delete E2E 6 passed; full E2E 111 passed; unit 202 passed/1 skipped; build, lint, OpenAPI parse, formatter, diff check, review and hard evidence gate passed. Lint: 299 warnings, 0 errors.
@@ -85,8 +85,8 @@
 - [x] PRs 5A–5D rebased, one-API scoped and within line limit.
 - [x] Create/list/delete status, envelope and failed-mutation persistence proven.
 - [x] Submit PRs 5A and 5B with validation comments.
-- [ ] Submit PR 5D with its validation comment.
-- Evidence URLs: 5A [PR #60 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/60#issuecomment-5881124944); 5B [PR #61 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/61#issuecomment-5881610776); 5C [PR #62 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/62#issuecomment-5882131176); 5D pending.
+- [x] Submit PR 5D with its validation comment.
+- Evidence URLs: 5A [PR #60 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/60#issuecomment-5881124944); 5B [PR #61 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/61#issuecomment-5881610776); 5C [PR #62 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/62#issuecomment-5882131176); 5D [PR #63 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/63#issuecomment-5882455254).
 
 ## Success Criteria
 
