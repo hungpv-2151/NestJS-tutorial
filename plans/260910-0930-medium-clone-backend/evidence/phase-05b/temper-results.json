@@ -1,0 +1,64 @@
+{
+  "commands": [
+    {
+      "command": "pnpm test",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Full unit suite passed: 47 files passed, 1 skipped; 202 tests passed, 1 skipped."
+    },
+    {
+      "command": "pnpm test:e2e",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Full E2E suite passed: 26 files and 101 tests."
+    },
+    {
+      "command": "pnpm build",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Nest build passed."
+    },
+    {
+      "command": "pnpm lint",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Repository lint passed with 275 warnings and 0 errors."
+    },
+    {
+      "command": "pnpm exec sunlint --all --input=src/comments",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "7 warnings and 0 errors: C033 x3 for transaction-scoped TypeORM repository access needed for atomic locking and insert; C018 x3 for the typed persistence-error wrapper treated as logging; S037 x1 misses explicit Cache-Control, Pragma, and Expires decorators."
+    },
+    {
+      "command": "python3 OpenAPI YAML parse",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Static OpenAPI parsed successfully; POST comments documents maxLength 10000 and the 500 {errors:{body:[\"request failed\"]}} response."
+    },
+    {
+      "command": "pnpm exec prettier --check changed TypeScript and phase-05b JSON files",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "All changed TypeScript and Phase 5B evidence JSON files passed Prettier."
+    },
+    {
+      "command": "pnpm exec vitest run --config ./vitest.config.e2e.ts test/capture-comment-response.e2e-spec.ts",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Temporary one-test capture run passed; wrote the actual HTTP 201 POST response to post-comment-response.json, then removed the temporary test file and cleaned its article/user fixtures."
+    },
+    {
+      "command": "node .claude/skills/automate-browser/scripts/screenshot.js --url file:///home/phamvanhung/projects/nestjs-tutorial/plans/260910-0930-medium-clone-backend/evidence/phase-05b/post-comment-response.json --output plans/260910-0930-medium-clone-backend/evidence/phase-05b/post-comment-response.png --full-page true --headless true",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Chrome screenshot captured the JSON returned by the real HTTP 201 POST request."
+    },
+    {
+      "command": "TEST_DATABASE_URL query: SELECT count(*) FROM comments",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Post-capture fixture cleanup verified; no comment rows remain."
+    }
+  ]
+}

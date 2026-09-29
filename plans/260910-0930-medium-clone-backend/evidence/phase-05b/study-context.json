@@ -1,0 +1,30 @@
+{
+  "task": "Deliver authenticated POST /api/articles/:slug/comments as its own API PR stacked above PR #60.",
+  "mode": "code",
+  "acceptanceCriteria": [
+    "Authenticated POST /api/articles/:slug/comments stores a trimmed, non-whitespace body of at most 10,000 characters, assigns the token user as author, and returns HTTP 201 with the { comment } envelope serialized using the shared comment serializer.",
+    "Requests without a valid token return 401; unknown article slugs return 404; blank, whitespace-only, oversized, and client-supplied authorId input are rejected without creating a comment.",
+    "Generated Swagger and static OpenAPI document the POST request, maxLength 10000, auth and response/error contracts; this PR adds no comment GET or DELETE route."
+  ],
+  "touchpoints": [
+    "src/comments/comment-create.dto.ts",
+    "src/comments/comment-create.service.ts",
+    "src/comments/comments.controller.ts",
+    "src/comments/comments.module.ts",
+    "src/comments/comments.swagger.ts",
+    "src/articles/articles.module.ts",
+    "test/create-comment.e2e-spec.ts",
+    "spec/api/openapi.yml",
+    "spec/api/hurl/errors_comments.hurl"
+  ],
+  "blastRadius": [
+    "authenticated comment creation",
+    "article/comment transactional persistence",
+    "comment request validation and generated Swagger"
+  ],
+  "contracts": [
+    "one API endpoint per PR; base is Phase 5A PR #60",
+    "body is trimmed, non-whitespace, and limited to 10,000 characters",
+    "author identity comes from the token subject and is never client-controlled"
+  ]
+}
