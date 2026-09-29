@@ -56,11 +56,24 @@ function sameDatabaseTarget(firstUrl: string, secondUrl: string): boolean {
   const second = new URL(secondUrl);
 
   return (
-    normalizeDatabaseHost(first.hostname) ===
-      normalizeDatabaseHost(second.hostname) &&
-    (first.port || '5432') === (second.port || '5432') &&
+    connectionHosts(first).some((host) =>
+      connectionHosts(second).includes(host),
+    ) &&
+    connectionPorts(first).some((port) =>
+      connectionPorts(second).includes(port),
+    ) &&
     decodeURIComponent(first.pathname) === decodeURIComponent(second.pathname)
   );
+}
+
+function connectionHosts(url: URL): string[] {
+  return (url.searchParams.get('host') ?? url.hostname)
+    .split(',')
+    .map(normalizeDatabaseHost);
+}
+
+function connectionPorts(url: URL): string[] {
+  return (url.searchParams.get('port') ?? (url.port || '5432')).split(',');
 }
 
 function normalizeDatabaseHost(hostname: string): string {
