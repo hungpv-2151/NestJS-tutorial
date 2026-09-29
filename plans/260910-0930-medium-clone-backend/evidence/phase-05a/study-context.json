@@ -1,0 +1,28 @@
+{
+  "task": "Deliver comment schema and shared serializer as Phase 5A, stacked above Phase 4K PR #59.",
+  "mode": "code",
+  "acceptanceCriteria": [
+    "The reversible comments migration and TypeORM entity use an integer identity ID, required body/article/author fields, cascading article and author foreign keys, timestamps, and an index ordered by article_id, created_at, and id.",
+    "The shared comment serializer returns only the OpenAPI comment fields and public author profile fields, with author following state supplied separately.",
+    "Phase 5A adds no comment HTTP API route; the migration applies and reverts cleanly on TEST_DATABASE_URL."
+  ],
+  "touchpoints": [
+    "src/comments/comment.entity.ts",
+    "src/comments/comment.serializer.ts",
+    "src/database/data-source.ts",
+    "src/database/migrations/1710000005000-create-comments.ts",
+    "src/database/data-source.spec.ts",
+    "src/comments/comment.serializer.spec.ts",
+    "src/database/migrations/1710000005000-create-comments.spec.ts"
+  ],
+  "blastRadius": [
+    "comments persistence schema",
+    "TypeORM entity metadata and migration registry",
+    "future comment response serialization"
+  ],
+  "contracts": [
+    "one foundation PR with no endpoint, based on Phase 4K PR #59",
+    "comment ID is integer as specified by OpenAPI",
+    "serialized author contains bio, following, image, and username only"
+  ]
+}
