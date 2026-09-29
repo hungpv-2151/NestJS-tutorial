@@ -1,0 +1,29 @@
+{
+  "task": "Add a real C2 HTTP journey for the Articles APIs without changing production routes.",
+  "mode": "code",
+  "acceptanceCriteria": [
+    "The C2 test starts the real Nest app and registers two users through HTTP, using the signed registration tokens without mocking controller, service, repository, database, or Redis behavior.",
+    "The test creates three tagged articles, reads detail, filters list by tag and author, and verifies total count, descending order, and all three offset pages; list responses do not expose article bodies.",
+    "The test follows the author, sees the articles in feed, favorites and unfavorites one, rejects a non-owner update without mutation, accepts an owner update, deletes the article, and verifies subsequent GET returns 404.",
+    "Registration response does not expose password or passwordHash; fixtures are unique and cleanup removes users and the unique tag in finally, using migration-verified foreign-key cascades, with usernames tracked before registration calls.",
+    "The current list API has no search parameter; unknown search is rejected. Existing E2E tests cover the 100-item limit and integration tests cover timestamp tie ordering.",
+    "Registration outbox jobs use a UUID-scoped welcome-mail queue that is removed after the app and relay shut down."
+  ],
+  "touchpoints": [
+    "test/articles-controller.c2.e2e-spec.ts",
+    "test/articles-controller-c2-helpers.ts",
+    "test/article-list-errors.e2e-spec.ts",
+    "test/article-list-query.integration.spec.ts",
+    "plans/260910-0930-medium-clone-backend/phase-06-unit-e2e-c2-testing.md"
+  ],
+  "blastRadius": [
+    "Test-only coverage of existing article, feed, favorite, profile follow, and registration routes",
+    "UUID-scoped rows in TEST_DATABASE_URL are cleaned with existing foreign-key cascades",
+    "One UUID-scoped Redis queue is created for C2 and removed after relay shutdown"
+  ],
+  "contracts": [
+    "No public route or API schema changes; runtime queue behavior defaults to welcome-mail and changes only when WELCOME_MAIL_QUEUE_NAME is explicitly set.",
+    "One test-only C2 stack PR; future API implementation work remains one API per PR.",
+    "Shared database tests must not globally truncate tables while Vitest files run in parallel."
+  ]
+}
