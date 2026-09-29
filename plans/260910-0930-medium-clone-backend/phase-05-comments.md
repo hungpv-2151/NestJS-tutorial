@@ -27,7 +27,7 @@
 | 5A | Comment schema/shared serializer; API: none | 4K / PR #59 | PR #60 migration apply/revert screenshot |
 | 5B | [`POST /api/articles/:slug/comments` only](./phase-05b-create-comment-api.md) | 5A / PR #60 | PR #61 validation/auth/persistence result and response screenshot |
 | 5C | [`GET /api/articles/:slug/comments` only](./phase-05c-list-comments-api.md) | 5B / PR #61 | ready PR #62; anonymous/auth/order/no-N+1 result |
-| 5D | `DELETE /api/articles/:slug/comments/:id` only | 5C | owner/403/404/persistence screenshot |
+| 5D | [`DELETE /api/articles/:slug/comments/:id` only](./phase-05d-delete-comment-api.md) | 5C / PR #62 | owner/403/404/persistence screenshot |
 
 ### Phase 5A — Comment Schema Foundation
 
@@ -54,6 +54,15 @@
 - Checks: unit 202 passed/1 skipped; E2E 105 passed; build, lint, OpenAPI parse, formatting, and diff check exit 0 (lint 287 warnings, 0 errors).
 - Targeted SunLint: 19 warnings, 0 errors. Six findings are existing 5B warnings. New list code has 6 C018 typed-error wrapper heuristics, 1 C030 typed not-found rethrow heuristic, 4 C033 transaction-scoped TypeORM heuristics required for snapshot consistency and batched follow lookup, and S037 misses explicit anti-cache decorators. Rationale and follow-up are in the detailed phase record.
 
+### Phase 5D — Delete Comment API
+
+- [Detailed phase record](./phase-05d-delete-comment-api.md)
+- Status: implementation and validation complete; PR submission follows below.
+- Base: 5C PR #62. This API deletes only the authenticated author's comment scoped to the article.
+- Evidence: [5D hard-gate artifacts](./evidence/phase-05d/), including the actual empty HTTP 204 and selective persistence screenshot.
+- Checks: focused delete E2E 6 passed; full E2E 111 passed; unit 202 passed/1 skipped; build, lint, OpenAPI parse, formatter, diff check, review and hard evidence gate passed. Lint: 299 warnings, 0 errors.
+- Targeted SunLint: 31 comments warnings; 12 new heuristic warnings documented in the validation record. Hurl CLI was unavailable; existing authorization Hurl case was inspected and E2E covers injected persistence failure.
+
 ## Data Flow
 
 `slug → article lookup → comment service → TypeORM → serializer`; delete uses article scope plus conditional owner delete.
@@ -73,8 +82,8 @@
 
 ## Todo List
 
-- [ ] PRs 5A–5D rebased, one-API scoped and within line limit.
-- [ ] Create/list/delete status, envelope and failed-mutation persistence proven.
+- [x] PRs 5A–5D rebased, one-API scoped and within line limit.
+- [x] Create/list/delete status, envelope and failed-mutation persistence proven.
 - [x] Submit PRs 5A and 5B with validation comments.
 - [ ] Submit PR 5D with its validation comment.
 - Evidence URLs: 5A [PR #60 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/60#issuecomment-5881124944); 5B [PR #61 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/61#issuecomment-5881610776); 5C [PR #62 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/62#issuecomment-5882131176); 5D pending.

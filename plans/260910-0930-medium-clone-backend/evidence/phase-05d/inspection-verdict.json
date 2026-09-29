@@ -1,0 +1,23 @@
+{
+  "score": 9,
+  "criticalCount": 0,
+  "decision": "SEALED",
+  "acceptanceCovered": [
+    "DELETE /api/articles/:slug/comments/:id requires a valid token; the comment owner gets an empty HTTP 204 and only the selected comment is removed.",
+    "Non-integer IDs return 422; unknown articles return 404 with errors.article; missing or wrong-article comments return 404 with errors.comment; non-owners return 403 with errors.comment and no mutation.",
+    "The delete resolves and locks the article before the scoped comment, checks author ownership, deletes in the same transaction, and maps persistence failures to the generic 500 response.",
+    "Generated Swagger and static OpenAPI document 204, 401, 403, 404, 422 and 500; Hurl and E2E exercise their supported contracts, including non-owner authorization, while E2E injects persistence failure. Existing POST and GET comment behavior remains intact."
+  ],
+  "regressionChecked": [
+    "Missing and invalid authentication return 401; non-owners receive 403 without deleting the comment.",
+    "Unknown articles and missing or wrong-article comments return their distinct 404 envelopes.",
+    "Invalid IDs return 422; injected persistence failures return a generic 500 without mutation.",
+    "Deletion is scoped by article ID, comment ID, and author ID inside one transaction; the response is an empty 204.",
+    "Article and scoped comment locks follow the required order; existing POST and GET behavior remains intact."
+  ],
+  "contractStatus": "OK",
+  "refuted": [],
+  "unproven": [],
+  "reachableRegressions": [],
+  "findings": []
+}
