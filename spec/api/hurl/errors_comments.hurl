@@ -104,6 +104,13 @@ HTTP 404
 [Asserts]
 jsonpath "$.errors.comment[0]" == "not found"
 
+# Delete comment with a non-integer ID
+DELETE {{host}}/api/articles/{{slug}}/comments/not-an-integer
+Authorization: Token {{token}}
+HTTP 422
+[Asserts]
+jsonpath "$.errors.id[0]" == "must be an integer"
+
 # Cleanup
 DELETE {{host}}/api/articles/{{slug}}
 Authorization: Token {{token}}

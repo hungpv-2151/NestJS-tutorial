@@ -483,7 +483,7 @@ paths:
       tags:
         - Comments
       summary: Delete a comment for an article
-      description: Delete a comment for an article. Auth is required
+      description: Delete a comment owned by the authenticated user.
       operationId: DeleteArticleComment
       parameters:
         - name: slug
@@ -508,7 +508,25 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
         '422':
-          $ref: '#/components/responses/GenericError'
+          description: Comment ID must be an integer.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+              example:
+                errors:
+                  id:
+                    - 'must be an integer'
+        '500':
+          description: Comment deletion failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+              example:
+                errors:
+                  body:
+                    - 'request failed'
       security:
         - Token: []
   /articles/{slug}/favorite:

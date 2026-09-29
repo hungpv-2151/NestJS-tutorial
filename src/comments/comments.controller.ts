@@ -1,13 +1,16 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Header,
   HttpCode,
   HttpStatus,
+  ParseIntPipe,
   Param,
   Post,
   Req,
+  UnprocessableEntityException,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -22,6 +25,7 @@ import {
 } from '../auth/optional-auth-token.guard.js';
 import { CreateCommentRequestDto } from './comment-create.dto.js';
 import { CommentService } from './comment.service.js';
+import { DeleteArticleCommentSwagger } from './comments-delete.swagger.js';
 import {
   CreateArticleCommentSwagger,
   GetArticleCommentsSwagger,
@@ -66,5 +70,29 @@ export class CommentsController {
         request.comment.body,
       ),
     };
+  }
+
+  @Delete(':slug/comments/:id')
+  @UseGuards(AuthTokenGuard)
+  @DeleteArticleCommentSwagger()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Header('Cache-Control', 'private, no-store')
+  @Header('Pragma', 'no-cache')
+  @Header('Expires', '0')
+  async delete(
+    @Param(
+      'id',
+      new ParseIntPipe({
+        exceptionFactory: () =>
+          new UnprocessableEntityException({
+            errors: { id: ['must be an integer'] },
+          }),
+      }),
+    )
+    id: number,
+    @Param('slug') slug: string,
+    @Req() auth: AuthenticatedRequest,
+  ): Promise<void> {
+    await this.commentService.delete(slug, id, auth.auth.sub);
   }
 }

@@ -1,5 +1,6 @@
 import {
   Injectable,
+  ForbiddenException,
   InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
@@ -30,6 +31,18 @@ export class CommentArticleNotFoundError extends NotFoundException {
 export class CommentPersistenceError extends InternalServerErrorException {
   constructor(cause: unknown) {
     super({ errors: { body: ['request failed'] } }, { cause });
+  }
+}
+
+export class CommentNotFoundError extends NotFoundException {
+  constructor() {
+    super({ errors: { comment: ['not found'] } });
+  }
+}
+
+export class CommentForbiddenError extends ForbiddenException {
+  constructor() {
+    super({ errors: { comment: ['forbidden'] } });
   }
 }
 
@@ -114,6 +127,46 @@ export class CommentService {
     }
   }
 
+  async delete(slug: string, commentId: number, username: string): Promise<void> {
+    try {
+      await this.dataSource.transaction(async (manager) => {
+        const article = await manager.getRepository(Article).findOne({
+          where: { slug },
+          lock: { mode: 'pessimistic_write' },
+        });
+        if (!article) throw new CommentArticleNotFoundError();
+
+        const user = await manager.getRepository(User).findOneBy({ username });
+        if (!user) throw new CommentUserNotFoundError();
+
+        if (!Number.isSafeInteger(commentId) || commentId < 1 || commentId > 2_147_483_647) {
+          throw new CommentNotFoundError();
+        }
+
+        const repository = manager.getRepository(Comment);
+        const comment = await repository.findOne({
+          where: { articleId: article.id, id: commentId },
+          lock: { mode: 'pessimistic_write' },
+        });
+        if (!comment) throw new CommentNotFoundError();
+        if (comment.authorId !== user.id) throw new CommentForbiddenError();
+
+        const result = await repository.delete({
+          articleId: article.id,
+          authorId: user.id,
+          id: commentId,
+        });
+        if (result.affected !== 1) {
+          throw new CommentPersistenceError(
+            new Error('locked comment delete affected an unexpected row count'),
+          );
+        }
+      });
+    } catch (error) {
+      rethrowCommentError(error);
+    }
+  }
+
   private async loadFollowedAuthors(
     viewerUsername: string,
     authorIds: string[],
@@ -133,7 +186,10 @@ export class CommentService {
 function rethrowCommentError(error: unknown): never {
   if (
     error instanceof CommentUserNotFoundError ||
-    error instanceof CommentArticleNotFoundError
+    error instanceof CommentArticleNotFoundError ||
+    error instanceof CommentNotFoundError ||
+    error instanceof CommentForbiddenError ||
+    error instanceof CommentPersistenceError
   ) {
     throw error;
   }
