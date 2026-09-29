@@ -11,7 +11,7 @@
 
 ## Overview
 
-- Priority: P1 · Status: implementation and verification complete; PR submission pending.
+- Priority: P1 · Status: complete; ready PR #62.
 - Base: Phase 05B PR #61.
 - Scope: public `GET /api/articles/:slug/comments` only. No schema changes or other public API.
 - Branch: `phase-05c-list-comments`.
@@ -41,7 +41,8 @@
 - Independent review: score 9, `SEALED`, no findings. [Verdict](./evidence/phase-05c/inspection-verdict.json).
 - Hard evidence gate: `SEALED`; [machine-readable check results](./evidence/phase-05c/temper-results.json) and [study context](./evidence/phase-05c/study-context.json).
 - Hurl CLI evidence: no Hurl run is recorded for this phase; equivalent contract scenarios are covered by the passing E2E suite.
-- PR number, validation comment URL, commit SHA and PR comment screenshot attachment: pending submission; no PR number recorded for 5C.
+- PR: [#62](https://github.com/hungpv-2151/NestJS-tutorial/pull/62), ready on PR #61; head `f7798831d49d9aa7f3389ee3e157d403986026cd`.
+- Validation comment: [PR #62 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/62#issuecomment-5882131176), with screenshot attachment.
 
 ## Todo List
 
@@ -49,7 +50,7 @@
 - [x] Pass unit, E2E, build, lint, OpenAPI, formatting and diff checks; document accepted heuristic warnings.
 - [x] Capture actual HTTP 200 response and verify temporary fixture cleanup.
 - [x] Complete independent review and hard evidence gate.
-- [ ] Submit the ready API PR directly on PR #61 and add the required validation comment with results, commit SHA and screenshot; record its URL.
+- [x] Submit ready PR #62 directly on PR #61 and add the validation comment with results, commit SHA and screenshot.
 
 ## Success Criteria
 
@@ -70,4 +71,4 @@
 
 ## Next Steps
 
-- Submit this API as its own PR stacked on PR #61, attach the validation evidence, and record the PR/comment URLs. Then branch 5D directly from this PR for `DELETE /api/articles/:slug/comments/:id`.
+- PR #62 is ready on PR #61. Branch 5D directly from this PR for `DELETE /api/articles/:slug/comments/:id`.
