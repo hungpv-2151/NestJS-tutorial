@@ -41,7 +41,7 @@
 - Independent review: score 9, `SEALED`, no findings. [Verdict](./evidence/phase-05c/inspection-verdict.json).
 - Hard evidence gate: `SEALED`; [machine-readable check results](./evidence/phase-05c/temper-results.json) and [study context](./evidence/phase-05c/study-context.json).
 - Hurl CLI evidence: no Hurl run is recorded for this phase; equivalent contract scenarios are covered by the passing E2E suite.
-- PR: [#62](https://github.com/hungpv-2151/NestJS-tutorial/pull/62), ready on PR #61; head `f7798831d49d9aa7f3389ee3e157d403986026cd`.
+- PR: [#62](https://github.com/hungpv-2151/NestJS-tutorial/pull/62), ready on PR #61; latest head SHA is recorded in its validation comment.
 - Validation comment: [PR #62 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/62#issuecomment-5882131176), with screenshot attachment.
 
 ## Todo List
