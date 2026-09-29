@@ -89,7 +89,7 @@ describe('getTestDatabaseConfig', () => {
         TEST_DATABASE_URL:
           'postgresql://test:other@localhost:5432/nestjs_tutorial?host=&port=',
       }),
-    ).toThrow('TEST_DATABASE_URL must not contain empty or repeated');
+    ).toThrow('TEST_DATABASE_URL must not contain empty, repeated');
   });
 
   it('rejects repeated target parameters with ambiguous parser precedence', () => {
@@ -99,7 +99,17 @@ describe('getTestDatabaseConfig', () => {
         TEST_DATABASE_URL:
           'postgresql://test:other@different-host/nestjs_tutorial?host=other&host=localhost&port=5432&port=5432',
       }),
-    ).toThrow('TEST_DATABASE_URL must not contain empty or repeated');
+    ).toThrow('TEST_DATABASE_URL must not contain empty, repeated');
+  });
+
+  it('normalizes numeric port overrides before comparing the target', () => {
+    expect(() =>
+      getTestDatabaseConfig({
+        DATABASE_URL: 'postgresql://app:dev@localhost:5432/nestjs_tutorial',
+        TEST_DATABASE_URL:
+          'postgresql://test:other@different-host/nestjs_tutorial?host=localhost&port=05432',
+      }),
+    ).toThrow('TEST_DATABASE_URL must target a different database');
   });
 
   it('allows a distinct database on the same PostgreSQL server', () => {

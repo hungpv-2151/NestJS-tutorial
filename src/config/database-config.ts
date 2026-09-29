@@ -37,7 +37,7 @@ export function getTestDatabaseConfig(
 
   if (hasAmbiguousTargetOverrides(testDatabaseUrl)) {
     throw new DatabaseConfigValidationError(
-      'TEST_DATABASE_URL must not contain empty or repeated host/port parameters',
+      'TEST_DATABASE_URL must not contain empty, repeated, or invalid host/port parameters',
     );
   }
 
@@ -50,7 +50,7 @@ export function getTestDatabaseConfig(
     hasAmbiguousTargetOverrides(applicationDatabaseUrl)
   ) {
     throw new DatabaseConfigValidationError(
-      'DATABASE_URL must not contain empty or repeated host/port parameters',
+      'DATABASE_URL must not contain empty, repeated, or invalid host/port parameters',
     );
   }
 
@@ -72,7 +72,15 @@ function hasAmbiguousTargetOverrides(connectionUrl: string): boolean {
     const values = url.searchParams.getAll(parameter);
     return (
       values.length > 1 ||
-      values.some((value) => value.split(',').some((part) => !part.trim()))
+      values.some((value) =>
+        value.split(',').some((part) => {
+          if (!part.trim()) return true;
+          if (parameter !== 'port') return false;
+          return (
+            !/^\d+$/.test(part) || Number(part) < 1 || Number(part) > 65535
+          );
+        }),
+      )
     );
   });
 }
@@ -99,7 +107,9 @@ function connectionHosts(url: URL): string[] {
 }
 
 function connectionPorts(url: URL): string[] {
-  return (url.searchParams.get('port') ?? (url.port || '5432')).split(',');
+  return (url.searchParams.get('port') ?? (url.port || '5432'))
+    .split(',')
+    .map((port) => String(Number.parseInt(port, 10)));
 }
 
 function normalizeDatabaseHost(hostname: string): string {
