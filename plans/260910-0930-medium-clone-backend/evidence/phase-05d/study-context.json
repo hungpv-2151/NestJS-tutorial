@@ -1,0 +1,31 @@
+{
+  "task": "Deliver authenticated DELETE /api/articles/:slug/comments/:id as its own API PR stacked on PR #62.",
+  "mode": "code",
+  "acceptanceCriteria": [
+    "DELETE /api/articles/:slug/comments/:id requires a valid token; the comment owner gets an empty HTTP 204 and only the selected comment is removed.",
+    "Non-integer IDs return 422; unknown articles return 404 with errors.article; missing or wrong-article comments return 404 with errors.comment; non-owners return 403 with errors.comment and no mutation.",
+    "The delete resolves and locks the article before the scoped comment, checks author ownership, deletes in the same transaction, and maps persistence failures to the generic 500 response.",
+    "Generated Swagger and static OpenAPI document 204, 401, 403, 404, 422 and 500; Hurl and E2E exercise their supported contracts, including non-owner authorization, while E2E injects persistence failure. Existing POST and GET comment behavior remains intact."
+  ],
+  "touchpoints": [
+    "src/comments/comments.controller.ts",
+    "src/comments/comments.module.ts",
+    "src/comments/comment-delete.service.ts",
+    "src/comments/comments-delete.swagger.ts",
+    "test/delete-comment.e2e-spec.ts",
+    "test/delete-comment-errors.e2e-spec.ts",
+    "spec/api/openapi.yml",
+    "spec/api/hurl/errors_comments.hurl"
+  ],
+  "blastRadius": [
+    "Authenticated comment deletion",
+    "Comment ownership and article-scoped not-found behavior",
+    "Article/comment transaction lock ordering"
+  ],
+  "contracts": [
+    "One API endpoint per PR; base is Phase 5C PR #62.",
+    "A comment may only be deleted by its author.",
+    "A comment ID is always scoped to the supplied article slug.",
+    "Failed authorization and lookup cases do not mutate comments."
+  ]
+}
