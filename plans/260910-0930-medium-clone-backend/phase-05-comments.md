@@ -25,7 +25,7 @@
 | PR | Only scope / public API | Base | Required evidence |
 |---|---|---|---|
 | 5A | Comment schema/shared serializer; API: none | 4K | migration apply/revert screenshot |
-| 5B | `POST /api/articles/:slug/comments` only | 5A | validation/auth/persistence result |
+| 5B | [`POST /api/articles/:slug/comments` only](./phase-05b-create-comment-api.md) | 5A / PR #60 | validation/auth/persistence result; implementation and evidence sealed, PR submission pending |
 | 5C | `GET /api/articles/:slug/comments` only | 5B | anonymous/auth/order/no-N+1 result |
 | 5D | `DELETE /api/articles/:slug/comments/:id` only | 5C | owner/403/404/persistence screenshot |
 
@@ -35,6 +35,15 @@
 - Status: implementation, migration verification, tests, build, lint, and independent review passed; PR submission pending.
 - Scope: comment schema/shared serializer only; `Public API change: none`.
 - Evidence: [5A hard-gate artifacts](./evidence/phase-05a/), including the migration apply/revert screenshot; verdict `SEALED`.
+
+### Phase 5B — Create Comment API
+
+- [Detailed phase record](./phase-05b-create-comment-api.md)
+- Status: endpoint implementation and validation complete; independent review score 9 `SEALED`; hard evidence gate `SEALED`; PR submission pending.
+- Base: 5A PR #60. This PR adds only authenticated `POST /api/articles/:slug/comments`.
+- Evidence: [5B hard-gate artifacts](./evidence/phase-05b/), including the actual HTTP 201 response screenshot.
+- Checks: unit 202 passed/1 skipped; E2E 101 passed; build and lint exit 0 (lint 275 warnings, 0 errors); static OpenAPI YAML parse passed.
+- Hurl CLI was unavailable; equivalent request, auth, validation, and persistence flows passed in E2E. Targeted SunLint reported seven documented heuristic findings (C033 x3, C018 x3, S037 x1); no errors.
 
 ## Data Flow
 
@@ -57,7 +66,8 @@
 
 - [ ] PRs 5A–5D rebased, one-API scoped and within line limit.
 - [ ] Create/list/delete status, envelope and failed-mutation persistence proven.
-- [ ] Evidence URLs: 5A `pending PR submission`; 5B `pending`; 5C `pending`; 5D `pending`.
+- [ ] Submit PR 5B on PR #60 with its validation comment; record the PR and evidence comment URLs.
+- [ ] Evidence URLs: 5A [PR #60 validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/60#issuecomment-5881124944); 5B pending PR submission; 5C pending; 5D pending.
 
 ## Success Criteria
 
