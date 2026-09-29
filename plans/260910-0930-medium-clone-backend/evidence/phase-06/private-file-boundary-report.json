@@ -1,0 +1,41 @@
+{
+  "scope": "Phase 06 private-file metadata and storage boundary integration",
+  "testedCommit": "0ef0c104",
+  "pullRequest": "https://github.com/hungpv-2151/NestJS-tutorial/pull/69",
+  "base": "phase-06-migration-roundtrip-integration (#68)",
+  "checks": [
+    {
+      "command": "pnpm test:private-files",
+      "exitCode": 0,
+      "status": "pass",
+      "result": "1 integration test passed"
+    },
+    {
+      "command": "pnpm test",
+      "exitCode": 0,
+      "status": "pass",
+      "result": "49 files passed, 1 skipped; 218 tests passed, 1 skipped; private-file test excluded by design"
+    },
+    { "command": "pnpm build", "exitCode": 0, "status": "pass" },
+    {
+      "command": "pnpm lint",
+      "exitCode": 0,
+      "status": "pass",
+      "result": "0 errors, 301 warnings across 157 files"
+    },
+    {
+      "command": "pnpm exec prettier --check package.json vitest.config.private-files.ts test/private-file-boundary.integration-test.ts",
+      "exitCode": 0,
+      "status": "pass"
+    },
+    {
+      "command": "pnpm exec tsc --ignoreConfig --noEmit --strict --target ES2023 --module NodeNext --moduleResolution NodeNext --experimentalDecorators --emitDecoratorMetadata --esModuleInterop --skipLibCheck --types vitest/globals,node test/private-file-boundary.integration-test.ts vitest.config.private-files.ts",
+      "exitCode": 0,
+      "status": "pass"
+    },
+    { "command": "git diff --check", "exitCode": 0, "status": "pass" }
+  ],
+  "coverage": "Real PostgreSQL User and Attachment metadata with temporary filesystem storage; FileReadHandler owner read returns exact bytes and metadata; another user and an owner with a missing backing file both receive the non-disclosing 404.",
+  "isolation": "Unique UUID fixture users and attachment ID; no DDL, schema changes, migration execution, synchronization, or table truncation. Finally cleanup removes seeded metadata/users and only the unique temporary storage directory.",
+  "visualEvidence": "private-file-boundary-results.png"
+}
