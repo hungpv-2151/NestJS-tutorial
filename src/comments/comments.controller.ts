@@ -1,16 +1,20 @@
 import {
   Body,
   Controller,
+  Delete,
+  ForbiddenException,
   Get,
   Header,
   HttpCode,
   HttpStatus,
   InternalServerErrorException,
   NotFoundException,
+  ParseIntPipe,
   Param,
   Post,
   Req,
   UnauthorizedException,
+  UnprocessableEntityException,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -35,6 +39,14 @@ import {
   CommentListService,
 } from './comment-list.service.js';
 import {
+  CommentDeleteArticleNotFoundError,
+  CommentDeleteForbiddenError,
+  CommentDeleteNotFoundError,
+  CommentDeleteService,
+  CommentDeleteUserNotFoundError,
+} from './comment-delete.service.js';
+import { DeleteArticleCommentSwagger } from './comments-delete.swagger.js';
+import {
   CreateArticleCommentSwagger,
   GetArticleCommentsSwagger,
 } from './comments.swagger.js';
@@ -45,6 +57,7 @@ export class CommentsController {
   constructor(
     private readonly commentCreateService: CommentCreateService,
     private readonly commentListService: CommentListService,
+    private readonly commentDeleteService: CommentDeleteService,
   ) {}
 
   @Get(':slug/comments')
@@ -104,6 +117,49 @@ export class CommentsController {
       }
       if (error instanceof CommentCreateArticleNotFoundError) {
         throw new NotFoundException({ errors: { article: ['not found'] } });
+      }
+      throw new InternalServerErrorException(
+        { errors: { body: ['request failed'] } },
+        { cause: error },
+      );
+    }
+  }
+
+  @Delete(':slug/comments/:id')
+  @UseGuards(AuthTokenGuard)
+  @DeleteArticleCommentSwagger()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Header('Cache-Control', 'private, no-store')
+  @Header('Pragma', 'no-cache')
+  @Header('Expires', '0')
+  async delete(
+    @Param('slug') slug: string,
+    @Param(
+      'id',
+      new ParseIntPipe({
+        exceptionFactory: () =>
+          new UnprocessableEntityException({
+            errors: { id: ['must be an integer'] },
+          }),
+      }),
+    )
+    id: number,
+    @Req() request: AuthenticatedRequest,
+  ): Promise<void> {
+    try {
+      await this.commentDeleteService.delete(slug, id, request.auth.sub);
+    } catch (error) {
+      if (error instanceof CommentDeleteUserNotFoundError) {
+        throw new UnauthorizedException({ errors: { token: ['is invalid'] } });
+      }
+      if (error instanceof CommentDeleteArticleNotFoundError) {
+        throw new NotFoundException({ errors: { article: ['not found'] } });
+      }
+      if (error instanceof CommentDeleteNotFoundError) {
+        throw new NotFoundException({ errors: { comment: ['not found'] } });
+      }
+      if (error instanceof CommentDeleteForbiddenError) {
+        throw new ForbiddenException({ errors: { comment: ['forbidden'] } });
       }
       throw new InternalServerErrorException(
         { errors: { body: ['request failed'] } },

@@ -8,6 +8,7 @@ import { UserFollow } from '../profiles/user-follow.entity.js';
 import { User } from '../users/user.entity.js';
 import { Comment } from './comment.entity.js';
 import { CommentCreateService } from './comment-create.service.js';
+import { CommentDeleteService } from './comment-delete.service.js';
 import { CommentListService } from './comment-list.service.js';
 import { CommentsController } from './comments.controller.js';
 
@@ -17,6 +18,11 @@ import { CommentsController } from './comments.controller.js';
     AuthModule,
     TypeOrmModule.forFeature([Article, Comment, User, UserFollow]),
   ],
-  providers: [CommentCreateService, CommentListService, OptionalAuthTokenGuard],
+  providers: [
+    CommentCreateService,
+    CommentDeleteService,
+    CommentListService,
+    OptionalAuthTokenGuard,
+  ],
 })
 export class CommentsModule {}
