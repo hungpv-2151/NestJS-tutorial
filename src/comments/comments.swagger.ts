@@ -7,6 +7,7 @@ import {
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOperation,
+  ApiOkResponse,
   ApiParam,
   ApiProperty,
   ApiSecurity,
@@ -71,6 +72,17 @@ const SINGLE_COMMENT_RESPONSE_SCHEMA = {
   required: ['comment'],
   type: 'object',
 };
+const COMMENTS_RESPONSE_SCHEMA = {
+  additionalProperties: false,
+  properties: {
+    comments: {
+      items: { $ref: getSchemaPath(CommentResponse) },
+      type: 'array',
+    },
+  },
+  required: ['comments'],
+  type: 'object',
+};
 const CREATE_COMMENT_REQUEST_SCHEMA = {
   additionalProperties: false,
   properties: {
@@ -127,6 +139,50 @@ export function CreateArticleCommentSwagger(): MethodDecorator {
     }),
     ApiInternalServerErrorResponse({
       description: 'Comment could not be created.',
+      schema: PERSISTENCE_ERROR_SCHEMA,
+    }),
+  );
+}
+
+export function GetArticleCommentsSwagger(): MethodDecorator {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'List comments for an article',
+      description:
+        'Returns comments in createdAt and id ascending order. Authentication is optional; a supplied invalid Token is rejected, and author following state is personalized for authenticated viewers.',
+    }),
+    ApiParam({
+      description: 'Slug of the article whose comments are requested.',
+      name: 'slug',
+      required: true,
+      type: String,
+    }),
+    ApiHeader({
+      description: 'Optional JWT presented as Token <jwt>.',
+      example: 'Token <jwt>',
+      name: 'Authorization',
+      required: false,
+    }),
+    ApiSecurity(TOKEN_AUTH_SECURITY_SCHEME),
+    ApiSecurity({}),
+    ApiExtraModels(CommentAuthorResponse, CommentResponse),
+    ApiOkResponse({
+      description: 'Comments for the requested article.',
+      schema: COMMENTS_RESPONSE_SCHEMA,
+    }),
+    ApiUnauthorizedResponse({
+      description: 'Supplied token is invalid.',
+      schema: {
+        example: { errors: { token: ['is invalid'] } },
+        type: 'object',
+      },
+    }),
+    ApiNotFoundResponse({
+      description: 'Article slug was not found.',
+      schema: ARTICLE_NOT_FOUND_SCHEMA,
+    }),
+    ApiInternalServerErrorResponse({
+      description: 'Comments could not be loaded.',
       schema: PERSISTENCE_ERROR_SCHEMA,
     }),
   );

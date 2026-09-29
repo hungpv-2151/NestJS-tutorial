@@ -28,7 +28,7 @@ describe('POST /api/articles/:slug/comments (e2e)', () => {
     }
   });
 
-  it('creates a trimmed comment for the authenticated user and documents only POST', async () => {
+  it('creates a trimmed comment for the authenticated user and documents its POST contract', async () => {
     app = await createApp({ NODE_ENV: 'test' });
     fixture = await createArticleFixture(app.get(DataSource));
     authenticateAs(app, fixture.viewerUsername);
@@ -95,12 +95,6 @@ describe('POST /api/articles/:slug/comments (e2e)', () => {
         },
       },
     });
-    expect(
-      docs.body.paths['/api/articles/{slug}/comments'].get,
-    ).toBeUndefined();
-    expect(
-      docs.body.paths['/api/articles/{slug}/comments/{id}'],
-    ).toBeUndefined();
   });
 
   it('requires authentication and rejects blank, oversized, or client-authored input', async () => {
