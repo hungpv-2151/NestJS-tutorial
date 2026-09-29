@@ -48,7 +48,7 @@ The C2 journey sets a UUID-scoped welcome-mail queue before app creation, waits 
 
 ## Todo List
 
-- [ ] Add explicit test-only DB target isolation before introducing destructive global cleanup; C2 uses a private per-run welcome-mail queue.
+- [x] Add explicit test-only DB target isolation before introducing destructive global cleanup; reject the configured application database by normalized host, port, and database name. C2 uses a private per-run welcome-mail queue.
 - [ ] Replace shared-table truncate requirement with UUID-scoped fixtures until per-worker schema isolation exists.
 - [x] ArticlesController C2 HTTP flow passes without mocking internal layers.
 - [x] Full build, lint, unit and E2E pass; two full E2E runs produce the same result. Hurl remains supplemental and its CLI is unavailable in this environment.
@@ -80,5 +80,6 @@ The C2 journey sets a UUID-scoped welcome-mail queue before app creation, waits 
 ## Phase 06 Progress
 
 - The current Phase 06 branch adds the real HTTP/PostgreSQL ArticlesController C2 journey. It checks three matching rows across distinct pages in descending creation order, list filters, detail/feed/favorite/update/delete flow, and registration response redaction. Existing E2E tests reject `limit=101`; the article-list query integration test covers timestamp ties and page boundaries.
-- The test uses UUID-scoped users/articles/tags, registers usernames before HTTP setup, and relies on verified FK cascades for teardown. Its welcome-mail queue is private per run and cleaned after app shutdown. Database-name guard and the remaining integration matrix remain open.
+- The test uses UUID-scoped users/articles/tags, registers usernames before HTTP setup, and relies on verified FK cascades for teardown. Its welcome-mail queue is private per run and cleaned after app shutdown. Test setup requires `TEST_DATABASE_URL` and rejects matching `DATABASE_URL` targets after normalizing loopback host aliases. It loads `.env` only when the test URL is absent, so an explicit CI test URL works without an `.env` file. Migration up/down and private-file metadata/storage integration remain open.
+- Test DB isolation evidence: [validation report](./evidence/phase-06/test-database-isolation-report.json) · [result screenshot](./evidence/phase-06/test-database-isolation-results.png).
 - A real Redis deny-list integration test verifies write/read and expiry using a UUID key, and removes only that key in teardown. It prefers `TEST_REDIS_URL` and falls back to the app's configured `REDIS_URL` when the test-specific variable is absent.
