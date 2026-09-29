@@ -52,7 +52,7 @@ The C2 journey sets a UUID-scoped welcome-mail queue before app creation, waits 
 - [ ] Replace shared-table truncate requirement with UUID-scoped fixtures until per-worker schema isolation exists.
 - [x] ArticlesController C2 HTTP flow passes without mocking internal layers.
 - [x] Full build, lint, unit and E2E pass; two full E2E runs produce the same result. Hurl remains supplemental and its CLI is unavailable in this environment.
-- [ ] Complete remaining integration matrix for migrations, Redis boundaries, private file metadata/storage, and job idempotency.
+- [ ] Complete remaining integration matrix: migration up/down and private-file metadata/storage boundaries remain open. Redis deny-list has a real Redis integration test; queue idempotency has unit coverage.
 
 ## Success Criteria
 
@@ -81,3 +81,4 @@ The C2 journey sets a UUID-scoped welcome-mail queue before app creation, waits 
 
 - The current Phase 06 branch adds the real HTTP/PostgreSQL ArticlesController C2 journey. It checks three matching rows across distinct pages in descending creation order, list filters, detail/feed/favorite/update/delete flow, and registration response redaction. Existing E2E tests reject `limit=101`; the article-list query integration test covers timestamp ties and page boundaries.
 - The test uses UUID-scoped users/articles/tags, registers usernames before HTTP setup, and relies on verified FK cascades for teardown. Its welcome-mail queue is private per run and cleaned after app shutdown. Database-name guard and the remaining integration matrix remain open.
+- A real Redis deny-list integration test verifies write/read and expiry using a UUID key, and removes only that key in teardown. It prefers `TEST_REDIS_URL` and falls back to the app's configured `REDIS_URL` when the test-specific variable is absent.

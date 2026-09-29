@@ -1,0 +1,50 @@
+{
+  "numTotalTestSuites": 2,
+  "numPassedTestSuites": 2,
+  "numFailedTestSuites": 0,
+  "numPendingTestSuites": 0,
+  "numTotalTests": 1,
+  "numPassedTests": 1,
+  "numFailedTests": 0,
+  "numPendingTests": 0,
+  "numTodoTests": 0,
+  "snapshot": {
+    "added": 0,
+    "failure": false,
+    "filesAdded": 0,
+    "filesRemoved": 0,
+    "filesRemovedList": [],
+    "filesUnmatched": 0,
+    "filesUpdated": 0,
+    "matched": 0,
+    "total": 0,
+    "unchecked": 0,
+    "uncheckedKeysByFile": [],
+    "unmatched": 0,
+    "updated": 0,
+    "didUpdate": false
+  },
+  "startTime": 1790653154704,
+  "success": true,
+  "testResults": [
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": ["Redis token deny-list integration"],
+          "fullName": "Redis token deny-list integration stores an entry with a bounded expiry and reads it back",
+          "status": "passed",
+          "title": "stores an entry with a bounded expiry and reads it back",
+          "duration": 810.654262,
+          "failureMessages": [],
+          "meta": {},
+          "tags": []
+        }
+      ],
+      "startTime": 1790653154884,
+      "endTime": 1790653155694.6543,
+      "status": "passed",
+      "message": "",
+      "name": "/home/phamvanhung/projects/nestjs-tutorial/test/redis-token-deny-list.integration.spec.ts"
+    }
+  ]
+}
