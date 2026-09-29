@@ -69,6 +69,22 @@ describe('CommentService', () => {
     );
   });
 
+  it('uses the shared article not-found error when listing an unknown slug', async () => {
+    const manager = {
+      getRepository: () => ({ findOne: async () => null }),
+    } as unknown as EntityManager;
+    const service = new CommentService({
+      transaction: async (
+        _isolationLevel: string,
+        work: (manager: EntityManager) => Promise<unknown>,
+      ) => work(manager),
+    } as unknown as DataSource);
+
+    await expect(service.list('missing')).rejects.toBeInstanceOf(
+      CommentArticleNotFoundError,
+    );
+  });
+
   it('wraps persistence failures with the original cause', async () => {
     const harness = createHarness();
     const databaseError = new Error('database unavailable');

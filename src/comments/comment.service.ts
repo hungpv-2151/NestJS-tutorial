@@ -7,6 +7,7 @@ import {
 import { DataSource } from 'typeorm';
 
 import { Article } from '../articles/article.entity.js';
+import { UserFollow } from '../profiles/user-follow.entity.js';
 import { User } from '../users/user.entity.js';
 import { Comment } from './comment.entity.js';
 import {
@@ -66,6 +67,68 @@ export class CommentService {
       if (isExpectedCommentError(error)) throw error;
       throw new CommentPersistenceError(error);
     }
+  }
+
+  async list(
+    slug: string,
+    viewerUsername?: string,
+  ): Promise<SerializedComment[]> {
+    try {
+      const comments = await this.dataSource.transaction(
+        'REPEATABLE READ',
+        async (manager) => {
+          const article = await manager.getRepository(Article).findOne({
+            select: { id: true },
+            where: { slug },
+          });
+          if (!article) throw new CommentArticleNotFoundError();
+
+          return manager
+            .getRepository(Comment)
+            .createQueryBuilder('comment')
+            .innerJoin('comment.author', 'author')
+            .addSelect([
+              'author.id',
+              'author.bio',
+              'author.image',
+              'author.username',
+            ])
+            .where('comment.articleId = :articleId', { articleId: article.id })
+            .orderBy('comment.createdAt', 'ASC')
+            .addOrderBy('comment.id', 'ASC')
+            .getMany();
+        },
+      );
+
+      if (!viewerUsername || comments.length === 0) {
+        return comments.map((comment) => serializeComment(comment));
+      }
+
+      const followedAuthorIds = await this.loadFollowedAuthors(viewerUsername, [
+        ...new Set(comments.map((comment) => comment.author.id)),
+      ]);
+      return comments.map((comment) =>
+        serializeComment(comment, followedAuthorIds.has(comment.author.id)),
+      );
+    } catch (error) {
+      if (isExpectedCommentError(error)) throw error;
+      throw new CommentPersistenceError(error);
+    }
+  }
+
+  private async loadFollowedAuthors(
+    viewerUsername: string,
+    authorIds: string[],
+  ): Promise<Set<string>> {
+    const rows = await this.dataSource
+      .getRepository(UserFollow)
+      .createQueryBuilder('userFollow')
+      .innerJoin('userFollow.follower', 'follower')
+      .select('userFollow.followingId', 'authorId')
+      .where('follower.username = :viewerUsername', { viewerUsername })
+      .andWhere('userFollow.followingId IN (:...authorIds)', { authorIds })
+      .getRawMany<{ authorId: string }>();
+    return new Set(rows.map(({ authorId }) => authorId));
   }
 }
 
