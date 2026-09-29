@@ -1,7 +1,8 @@
 import { Queue } from 'bullmq';
 import { Redis } from 'ioredis';
+import { getRedisDatabase } from './redis-database.js';
 
-const WELCOME_MAIL_QUEUE_NAME = 'welcome-mail';
+const DEFAULT_WELCOME_MAIL_QUEUE_NAME = 'welcome-mail';
 export const WELCOME_MAIL_QUEUE = Symbol('WELCOME_MAIL_QUEUE');
 
 export interface WelcomeMailJob {
@@ -29,8 +30,12 @@ export class BullMqWelcomeMailQueue implements WelcomeMailQueue {
 
   constructor(environment: NodeJS.ProcessEnv = process.env) {
     const redisUrl = getRedisUrl(environment);
+    const queueName =
+      environment.WELCOME_MAIL_QUEUE_NAME?.trim() ||
+      DEFAULT_WELCOME_MAIL_QUEUE_NAME;
     this.connection = new Redis({
       enableOfflineQueue: false,
+      db: getRedisDatabase(redisUrl),
       host: redisUrl.hostname,
       lazyConnect: true,
       maxRetriesPerRequest: 1,
@@ -39,7 +44,7 @@ export class BullMqWelcomeMailQueue implements WelcomeMailQueue {
       tls: redisUrl.protocol === 'rediss:' ? {} : undefined,
       username: decodeURIComponent(redisUrl.username),
     });
-    this.queue = new Queue(WELCOME_MAIL_QUEUE_NAME, {
+    this.queue = new Queue(queueName, {
       connection: this.connection,
     });
   }
