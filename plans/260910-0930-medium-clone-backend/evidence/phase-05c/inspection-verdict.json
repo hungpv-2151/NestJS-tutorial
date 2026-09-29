@@ -1,0 +1,23 @@
+{
+  "score": 9,
+  "criticalCount": 0,
+  "decision": "SEALED",
+  "acceptanceCovered": [
+    "GET /api/articles/:slug/comments is public and supports an optional valid token; missing articles return 404, invalid optional tokens return 401, and success returns { comments }.",
+    "Comments are ordered by createdAt ASC then id ASC; author following is false anonymously and reflects the authenticated viewer using one batched follow lookup; serialization exposes only public fields.",
+    "Article existence and comment rows are read in one REPEATABLE READ transaction so concurrent article deletion cannot produce a mixed-snapshot response; persistence failures return the generic documented 500 response.",
+    "Generated Swagger and static OpenAPI describe optional authentication, success, 401, 404, and 500 contracts; the PR adds only the GET comments API."
+  ],
+  "regressionChecked": [
+    "Existing POST comments Swagger and response behavior remain intact.",
+    "Malformed optional tokens return 401; missing articles return 404.",
+    "The query orders by created_at and ID, while following state is loaded in one batched query.",
+    "Comments expose no internal author ID, email, or password hash.",
+    "Article and comments reads share a REPEATABLE READ snapshot."
+  ],
+  "contractStatus": "OK",
+  "refuted": [],
+  "unproven": [],
+  "reachableRegressions": [],
+  "findings": []
+}

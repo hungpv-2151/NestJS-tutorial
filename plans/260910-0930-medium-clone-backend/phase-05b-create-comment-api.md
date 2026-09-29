@@ -10,7 +10,7 @@
 
 ## Overview
 
-- Priority: P1 · Status: implementation and verification complete; PR submission pending.
+- Priority: P1 · Status: complete; ready PR #61.
 - Base: Phase 05A PR #60.
 - Scope: authenticated `POST /api/articles/:slug/comments` only. Do not add comment list or delete routes.
 - Success: return HTTP 201 with `{ comment }` from the shared serializer and persist the comment atomically.
@@ -58,4 +58,4 @@
 
 ## Next Steps
 
-- Submit this API as its own PR stacked on PR #60. Then branch 5C directly from this PR for `GET /api/articles/:slug/comments`.
+- PR #61 is ready on PR #60. Branch 5C directly from this PR for `GET /api/articles/:slug/comments`.
