@@ -21,7 +21,6 @@ import {
 import { CreateCommentRequestDto } from './comment-create.dto.js';
 import {
   CommentCreateArticleNotFoundError,
-  CommentCreatePersistenceError,
   CommentCreateService,
   CommentCreateUserNotFoundError,
 } from './comment-create.service.js';
@@ -58,14 +57,6 @@ export class CommentsController {
       }
       if (error instanceof CommentCreateArticleNotFoundError) {
         throw new NotFoundException({ errors: { article: ['not found'] } });
-      }
-      if (error instanceof CommentCreatePersistenceError) {
-        throw new InternalServerErrorException(
-          {
-            errors: { body: ['request failed'] },
-          },
-          { cause: error },
-        );
       }
       throw new InternalServerErrorException(
         { errors: { body: ['request failed'] } },

@@ -451,6 +451,16 @@ paths:
           $ref: '#/components/responses/NotFound'
         '422':
           $ref: '#/components/responses/GenericError'
+        '500':
+          description: Comment creation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+              example:
+                errors:
+                  body:
+                    - "request failed"
       security:
         - Token: [ ]
       x-codegen-request-body-name: comment
