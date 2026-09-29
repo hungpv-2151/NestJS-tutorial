@@ -43,7 +43,7 @@
 - [x] Pass unit, E2E, build, lint, OpenAPI, and evidence checks; document accepted lint heuristics.
 - [x] Capture a real HTTP 201 response and verify fixture cleanup.
 - [x] Complete independent review and hard evidence gate.
-- [ ] Submit a ready PR directly on PR #60 and add its validation comment.
+- [x] Submit ready PR #61 directly on PR #60 and add its [validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/61#issuecomment-5881610776).
 
 ## Success Criteria
 
