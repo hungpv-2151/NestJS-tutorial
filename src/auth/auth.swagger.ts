@@ -9,6 +9,7 @@ import {
   ApiOperation,
   ApiOkResponse,
   ApiSecurity,
+  ApiTags,
   ApiTooManyRequestsResponse,
   ApiUnauthorizedResponse,
   ApiUnprocessableEntityResponse,
