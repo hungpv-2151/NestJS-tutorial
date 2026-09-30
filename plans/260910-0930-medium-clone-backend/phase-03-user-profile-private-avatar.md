@@ -17,6 +17,7 @@
 ## Requirements
 
 - Tách riêng `PUT /api/user`, `GET /api/profiles/:username`, POST/DELETE follow, `PUT /api/user/avatar`, `GET /api/files/:id`.
+- `PUT /api/user` updates profile fields (`bio`, `image`) only. Login credentials (`email`, `username`, `password`) are immutable through this endpoint and rejected as unknown fields.
 - Avatar JPEG/PNG/WebP ≤2 MiB, kiểm magic bytes, random storage name. File read bắt buộc auth.
 
 ## Architecture and PR Dependency Graph

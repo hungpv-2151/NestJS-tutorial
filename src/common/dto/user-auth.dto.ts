@@ -74,44 +74,6 @@ export class LoginUserRequestDto {
 
 export class UpdateUserDto {
   @ApiProperty({
-    example: 'jane@example.com',
-    format: 'email',
-    maxLength: 254,
-    required: false,
-  })
-  @ValidateIf((_, value) => value !== undefined)
-  @IsString()
-  @IsNotEmpty()
-  @IsEmail()
-  @Length(1, 254)
-  email?: string;
-
-  @ApiProperty({
-    example: 'jane',
-    maxLength: 64,
-    minLength: 1,
-    required: false,
-  })
-  @ValidateIf((_, value) => value !== undefined)
-  @IsString()
-  @IsNotEmpty()
-  @Length(1, 64)
-  username?: string;
-
-  @ApiProperty({
-    example: 'safe-password',
-    format: 'password',
-    maxLength: 128,
-    minLength: 8,
-    required: false,
-  })
-  @ValidateIf((_, value) => value !== undefined)
-  @IsString()
-  @IsNotEmpty()
-  @Length(8, 128)
-  password?: string;
-
-  @ApiProperty({
     example: 'A short biography.',
     nullable: true,
     required: false,

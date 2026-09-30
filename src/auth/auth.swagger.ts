@@ -18,7 +18,6 @@ import {
 import {
   LoginUserRequestDto,
   RegisterUserRequestDto,
-  UpdateUserRequestDto,
 } from '../common/dto/user-auth.dto.js';
 
 const AUTHENTICATED_USER_SCHEMA = {
@@ -50,6 +49,22 @@ const AUTHENTICATED_USER_SCHEMA = {
 
 const VALIDATION_ERROR_SCHEMA = {
   example: { errors: { email: ['is invalid'] } },
+  type: 'object',
+};
+
+const UPDATE_USER_REQUEST_SCHEMA = {
+  additionalProperties: false,
+  properties: {
+    user: {
+      additionalProperties: false,
+      properties: {
+        bio: { nullable: true, type: 'string' },
+        image: { nullable: true, type: 'string' },
+      },
+      type: 'object',
+    },
+  },
+  required: ['user'],
   type: 'object',
 };
 
@@ -132,7 +147,11 @@ export function CurrentUserSwagger(): MethodDecorator {
 export function UpdateUserSwagger(): MethodDecorator {
   return applyDecorators(
     ApiTags('Authentication'),
-    ApiOperation({ summary: 'Update the authenticated user' }),
+    ApiOperation({
+      description:
+        'Updates profile fields only. Email, username, and password are login credentials and cannot be changed here.',
+      summary: 'Update the authenticated user',
+    }),
     ApiHeader({
       description: 'JWT presented as Token <jwt>.',
       example: 'Token <jwt>',
@@ -140,14 +159,10 @@ export function UpdateUserSwagger(): MethodDecorator {
       required: true,
     }),
     ApiSecurity(TOKEN_AUTH_SECURITY_SCHEME),
-    ApiBody({ type: UpdateUserRequestDto }),
+    ApiBody({ schema: UPDATE_USER_REQUEST_SCHEMA }),
     ApiOkResponse({
       description: 'Updated user with a newly issued token.',
       schema: AUTHENTICATED_USER_SCHEMA,
-    }),
-    ApiConflictResponse({
-      description: 'Email or username is already taken.',
-      schema: VALIDATION_ERROR_SCHEMA,
     }),
     ApiUnauthorizedResponse({
       description: 'Token is missing or invalid.',

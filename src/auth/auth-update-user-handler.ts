@@ -1,5 +1,4 @@
 import {
-  ConflictException,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -15,7 +14,7 @@ import {
   serializeUser,
   type SerializedUser,
 } from '../users/user.serializer.js';
-import { UserService, UserUpdateConflictError } from '../users/user.service.js';
+import { UserService } from '../users/user.service.js';
 import type { AuthenticatedRequest } from './auth-token.guard.js';
 import { issueToken } from './auth-token-issuer.js';
 import { AUTH_CONFIG } from './auth.constants.js';
@@ -38,7 +37,7 @@ export class AuthUpdateUserHandler {
       const token = await issueToken(
         this.jwtService,
         this.authConfig,
-        update.username ?? request.auth.sub,
+        request.auth.sub,
       );
       const user = await this.userService.updateCurrentUser(
         request.auth.sub,
@@ -52,11 +51,6 @@ export class AuthUpdateUserHandler {
       this.logger.error(
         JSON.stringify(createRequestFailureLog(error, request)),
       );
-      if (error instanceof UserUpdateConflictError) {
-        throw new ConflictException({
-          errors: { [error.field]: ['has already been taken'] },
-        });
-      }
       if (error instanceof UnauthorizedException) {
         throw error;
       }

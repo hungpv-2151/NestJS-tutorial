@@ -4,13 +4,13 @@ import { describe, expect, it, vi } from 'vitest';
 import { AuthUpdateUserHandler } from './auth-update-user-handler.js';
 
 describe('AuthUpdateUserHandler', () => {
-  it('issues a token for the replacement username before persisting it', async () => {
+  it('reissues a token for the same user before persisting profile updates', async () => {
     const signAsync = vi.fn().mockResolvedValue('replacement-token');
     const updateCurrentUser = vi.fn().mockResolvedValue({
       bio: null,
       email: 'jane@example.com',
       image: null,
-      username: 'janet',
+      username: 'jane',
     });
     const handler = new AuthUpdateUserHandler(
       { updateCurrentUser } as never,
@@ -20,7 +20,7 @@ describe('AuthUpdateUserHandler', () => {
 
     await expect(
       handler.execute({ auth: { sub: 'jane' } } as never, {
-        username: 'janet',
+        bio: 'Updated bio',
       }),
     ).resolves.toEqual({
       user: {
@@ -28,15 +28,15 @@ describe('AuthUpdateUserHandler', () => {
         email: 'jane@example.com',
         image: null,
         token: 'replacement-token',
-        username: 'janet',
+        username: 'jane',
       },
     });
 
     expect(signAsync).toHaveBeenCalledWith(
-      expect.objectContaining({ aud: 'web', iss: 'api', sub: 'janet' }),
+      expect.objectContaining({ aud: 'web', iss: 'api', sub: 'jane' }),
     );
     expect(updateCurrentUser).toHaveBeenCalledWith('jane', {
-      username: 'janet',
+      bio: 'Updated bio',
     });
     expect(signAsync.mock.invocationCallOrder[0]).toBeLessThan(
       updateCurrentUser.mock.invocationCallOrder[0],

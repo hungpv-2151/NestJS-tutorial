@@ -1,7 +1,6 @@
-import * as argon2 from 'argon2';
 import { describe, expect, it, vi } from 'vitest';
 
-import { UserService, UserUpdateConflictError } from './user.service.js';
+import { UserService } from './user.service.js';
 
 describe('UserService', () => {
   it('finds a user by username through the shared repository', async () => {
@@ -13,54 +12,26 @@ describe('UserService', () => {
     expect(findOneBy).toHaveBeenCalledWith({ username: 'jane' });
   });
 
-  it('updates allowed fields and hashes a replacement password', async () => {
+  it('updates profile fields without changing login credentials', async () => {
     const user = createUser();
-    const findOneBy = vi
-      .fn()
-      .mockResolvedValueOnce(user)
-      .mockResolvedValue(null);
+    const findOneBy = vi.fn().mockResolvedValue(user);
     const save = vi.fn().mockResolvedValue(user);
     const service = new UserService({ findOneBy, save });
 
     await expect(
       service.updateCurrentUser('jane', {
         bio: null,
-        password: 'replacement-password',
-        username: 'janet',
+        image: 'https://example.com/new.jpg',
       }),
     ).resolves.toBe(user);
 
     expect(user.bio).toBeNull();
-    expect(user.username).toBe('janet');
-    await expect(
-      argon2.verify(user.passwordHash, 'replacement-password'),
-    ).resolves.toBe(true);
+    expect(user.image).toBe('https://example.com/new.jpg');
+    expect(user.email).toBe('jane@example.com');
+    expect(user.username).toBe('jane');
+    expect(user.passwordHash).toBe('old-hash');
     expect(save).toHaveBeenCalledWith(user);
-  });
-
-  it('rejects an email already used by another user', async () => {
-    const findOneBy = vi
-      .fn()
-      .mockResolvedValueOnce(createUser())
-      .mockResolvedValueOnce(createUser());
-    const service = new UserService({ findOneBy, save: vi.fn() });
-
-    await expect(
-      service.updateCurrentUser('jane', { email: 'taken@example.com' }),
-    ).rejects.toEqual(new UserUpdateConflictError('email'));
-  });
-
-  it('maps a concurrent unique-constraint failure to a conflict', async () => {
-    const user = createUser();
-    const findOneBy = vi.fn().mockResolvedValue(user);
-    const save = vi
-      .fn()
-      .mockRejectedValue({ code: '23505', constraint: 'users_username_key' });
-    const service = new UserService({ findOneBy, save });
-
-    await expect(
-      service.updateCurrentUser('jane', { username: 'janet' }),
-    ).rejects.toEqual(new UserUpdateConflictError('username'));
+    expect(findOneBy).toHaveBeenCalledTimes(1);
   });
 });
 

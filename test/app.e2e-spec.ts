@@ -68,16 +68,28 @@ describe('AppController (e2e)', () => {
       security: [{ tokenAuth: [] }],
       summary: 'Get the authenticated user',
     });
-    expect(response.body.paths['/api/user'].put).toMatchObject({
+    const updateUserOperation = response.body.paths['/api/user'].put;
+    expect(updateUserOperation).toMatchObject({
       responses: {
         '200': expect.any(Object),
         '401': expect.any(Object),
-        '409': expect.any(Object),
         '422': expect.any(Object),
       },
       security: [{ tokenAuth: [] }],
       summary: 'Update the authenticated user',
     });
+    const updateUserRequestSchema =
+      updateUserOperation.requestBody.content['application/json'].schema;
+    expect(updateUserRequestSchema.additionalProperties).toBe(false);
+    expect(updateUserRequestSchema.properties.user.additionalProperties).toBe(
+      false,
+    );
+    expect(
+      Object.keys(updateUserRequestSchema.properties.user.properties).sort(),
+    ).toEqual(['bio', 'image']);
+    expect(updateUserOperation.description).toContain(
+      'Email, username, and password are login credentials and cannot be changed here.',
+    );
     expect(response.body.components.securitySchemes.tokenAuth).toMatchObject({
       in: 'header',
       name: 'Authorization',

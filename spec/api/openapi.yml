@@ -72,7 +72,7 @@ paths:
       tags:
         - User and Authentication
       summary: Update current user
-      description: Updated user information for current user
+      description: Updates profile fields only. Email, username, and password are login credentials and cannot be changed here.
       operationId: UpdateCurrentUser
       requestBody:
         $ref: '#/components/requestBodies/UpdateUserRequest'
@@ -504,12 +504,6 @@ components:
     UpdateUser:
       type: object
       properties:
-        email:
-          type: string
-        password:
-          type: string
-        username:
-          type: string
         bio:
           type:
             - string
@@ -518,6 +512,7 @@ components:
           type:
             - string
             - 'null'
+      additionalProperties: false
     Profile:
       required:
         - bio
@@ -845,10 +840,11 @@ components:
                 $ref: '#/components/schemas/NewUser'
     UpdateUserRequest:
       required: true
-      description: User details to update. At least **one** field is required.
+      description: Profile fields to update. Only bio and image are accepted; email, username, and password cannot be changed here.
       content:
         application/json:
           schema:
+            additionalProperties: false
             required:
               - user
             type: object

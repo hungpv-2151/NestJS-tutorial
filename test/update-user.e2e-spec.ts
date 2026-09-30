@@ -12,10 +12,7 @@ import { AuthCurrentUserHandler } from '../src/auth/auth-current-user-handler.js
 import { AuthUpdateUserHandler } from '../src/auth/auth-update-user-handler.js';
 import { AuthService } from '../src/auth/auth.service.js';
 import { configureGlobalRequestHandling } from '../src/create-app.js';
-import {
-  UserService,
-  UserUpdateConflictError,
-} from '../src/users/user.service.js';
+import { UserService } from '../src/users/user.service.js';
 
 describe('PUT /api/user (e2e)', () => {
   let app: INestApplication<App>;
@@ -51,23 +48,30 @@ describe('PUT /api/user (e2e)', () => {
     await server
       .put('/api/user')
       .set('Authorization', 'Token signed-token')
-      .send({ user: { username: '' } })
+      .send({ user: { bio: 3 } })
       .expect(422);
 
     expect(updateCurrentUser).not.toHaveBeenCalled();
   });
 
-  it('returns a conflict when email or username is taken', async () => {
-    app = await createApp(
-      vi.fn().mockRejectedValue(new UserUpdateConflictError('email')),
-    );
+  it('rejects attempts to change login credentials', async () => {
+    const updateCurrentUser = vi.fn().mockResolvedValue(user());
+    app = await createApp(updateCurrentUser);
+    const server = request(app.getHttpServer());
 
-    await request(app.getHttpServer())
-      .put('/api/user')
-      .set('Authorization', 'Token signed-token')
-      .send({ user: { email: 'taken@example.com' } })
-      .expect(409)
-      .expect({ errors: { email: ['has already been taken'] } });
+    for (const userUpdate of [
+      { email: 'new@example.com' },
+      { password: 'new-password-123' },
+      { username: 'new-name' },
+    ]) {
+      await server
+        .put('/api/user')
+        .set('Authorization', 'Token signed-token')
+        .send({ user: userUpdate })
+        .expect(422);
+    }
+
+    expect(updateCurrentUser).not.toHaveBeenCalled();
   });
 
   it('does not persist when issuing the replacement token fails', async () => {
@@ -80,38 +84,36 @@ describe('PUT /api/user (e2e)', () => {
     await request(app.getHttpServer())
       .put('/api/user')
       .set('Authorization', 'Token signed-token')
-      .send({ user: { username: 'janet' } })
+      .send({ user: { bio: 'Updated bio' } })
       .expect(500);
 
     expect(updateCurrentUser).not.toHaveBeenCalled();
   });
 
-  it('accepts the reissued token for the renamed user', async () => {
-    const renamedUser = { ...user(), username: 'janet' };
-    const updateCurrentUser = vi.fn().mockResolvedValue(renamedUser);
-    const findByUsername = vi.fn().mockResolvedValue(renamedUser);
+  it('accepts the reissued token without changing the username', async () => {
+    const currentUser = user();
+    const updateCurrentUser = vi.fn().mockResolvedValue(currentUser);
+    const findByUsername = vi.fn().mockResolvedValue(currentUser);
     app = await createApp(
       updateCurrentUser,
       vi.fn().mockResolvedValue('renamed-token'),
       findByUsername,
-      vi.fn().mockImplementation(async (token) => ({
-        sub: token === 'renamed-token' ? 'janet' : 'jane',
-      })),
+      vi.fn().mockResolvedValue({ sub: 'jane' }),
     );
 
     await request(app.getHttpServer())
       .put('/api/user')
       .set('Authorization', 'Token signed-token')
-      .send({ user: { username: 'janet' } })
+      .send({ user: { bio: 'Updated bio' } })
       .expect(200);
 
     await request(app.getHttpServer())
       .get('/api/user')
       .set('Authorization', 'Token renamed-token')
       .expect(200)
-      .expect({ user: { ...renamedUser, token: 'renamed-token' } });
+      .expect({ user: { ...currentUser, token: 'renamed-token' } });
 
-    expect(findByUsername).toHaveBeenCalledWith('janet');
+    expect(findByUsername).toHaveBeenCalledWith('jane');
   });
 });
 
@@ -129,7 +131,10 @@ async function createApp(
       AuthUpdateUserHandler,
       {
         provide: AuthService,
-        useValue: { authenticate, currentUser: (username: string) => findByUsername(username) },
+        useValue: {
+          authenticate,
+          currentUser: (username: string) => findByUsername(username),
+        },
       },
       { provide: UserService, useValue: { findByUsername, updateCurrentUser } },
       {
