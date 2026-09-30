@@ -139,7 +139,13 @@ describe('GET /api/articles/:slug (e2e)', () => {
       .expect(200);
     const operation = response.body.paths['/api/articles/{slug}'].get;
 
+    expect(operation.description).toContain(
+      'Anonymous requests do not require authentication and return 200.',
+    );
     expect(operation.security).toEqual([{ tokenAuth: [] }, {}]);
+    expect(operation.responses['401'].description).toContain(
+      'only when the supplied token is invalid; no token is required.',
+    );
     expect(
       operation.responses['401'].content['application/json'].schema.example,
     ).toEqual({ errors: { token: ['is invalid'] } });

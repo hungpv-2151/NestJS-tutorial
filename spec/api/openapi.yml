@@ -244,7 +244,7 @@ paths:
       tags:
         - Articles
       summary: Get an article
-      description: Get a public article. Auth is optional; a valid Token authorization header personalizes favorite and follow flags. A supplied invalid token is rejected.
+      description: Anonymous requests do not require authentication and return 200. An optional Token authorization header personalizes favorite and follow flags. If a token is supplied but invalid, the request returns 401.
       operationId: GetArticle
       parameters:
         - name: slug
@@ -257,7 +257,7 @@ paths:
         '200':
           $ref: '#/components/responses/SingleArticleResponse'
         '401':
-          description: Supplied token is invalid.
+          description: Returned only when the supplied token is invalid; no token is required.
           content:
             application/json:
               schema:

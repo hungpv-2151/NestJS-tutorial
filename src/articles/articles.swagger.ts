@@ -88,7 +88,7 @@ export function GetArticleSwagger(): MethodDecorator {
     ApiOperation({
       summary: 'Get an article',
       description:
-        'Public article detail. An optional Token authorization header personalizes favorite and follow flags; an invalid supplied token is rejected.',
+        'Anonymous requests do not require authentication and return 200. An optional Token authorization header personalizes favorite and follow flags. If a token is supplied but invalid, the request returns 401.',
     }),
     ApiSecurity(TOKEN_AUTH_SECURITY_SCHEME),
     ApiSecurity({}),
@@ -101,7 +101,8 @@ export function GetArticleSwagger(): MethodDecorator {
       schema: ARTICLE_NOT_FOUND_SCHEMA,
     }),
     ApiUnauthorizedResponse({
-      description: 'Supplied token is invalid.',
+      description:
+        'Returned only when the supplied token is invalid; no token is required.',
       schema: INVALID_AUTH_ERROR_SCHEMA,
     }),
     ApiUnprocessableEntityResponse({
