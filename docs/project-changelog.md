@@ -4,9 +4,13 @@
 
 - Favorite create/delete no longer define operation-specific persistence exceptions. Unexpected failures reach the global `ApiExceptionFilter`, which logs them and returns the generic 500 response; runtime and static OpenAPI contracts now match. E2E verification was unavailable because PostgreSQL at `127.0.0.1:5432` refused connections.
 
+## 2026-09-30
+
+- Phase 4K `GET /api/tags` is submitted as ready [PR #59](https://github.com/hungpv-2151/NestJS-tutorial/pull/59), stacked directly on #58. The full Phase 4 chain #47–#59 is open, non-draft, and CLEAN; every API has its own PR, while #47, #50, #53, and #54 are route-free foundation/support layers. On #59's current head, unit tests passed (191 tests, 1 skipped), E2E passed (98 tests), build passed, and lint passed (0 errors, 258 warnings). GitHub Static analysis passed; independent review is SEALED. Phase 4 remains in progress until the PRs merge. [Current-head evidence](https://github.com/hungpv-2151/NestJS-tutorial/pull/59#issuecomment-5904391942).
+
 ## 2026-09-29
 
-- Phase 4K implements public `GET /api/tags`, returning `{ tags: string[] }` ordered by name. Unit tests (43 files; 193 passed, 1 skipped), E2E tests (25 files; 98 passed), build, lint (0 errors), static OpenAPI validation, and independent review passed locally. PR submission above #58 is pending; this work is not merged. [Phase 4K checkpoint](../plans/260910-0930-medium-clone-backend/phase-04k-tags-api.md).
+- Phase 4K implementation records initial local validation; current stacked-PR status and corrected current-head results are recorded in the 2026-09-30 entry above. [Phase 4K checkpoint](../plans/260910-0930-medium-clone-backend/phase-04k-tags-api.md).
 
 ## 2026-09-28
 
