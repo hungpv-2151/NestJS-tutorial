@@ -8,8 +8,8 @@
 
 ## Overview
 
-- Priority: P1 · Status: In progress · Dependency: 4J PR #58 · Local implementation and checks pass; PR submission pending
-- Add only public `GET /api/tags` on a new branch above PR #58. No migration or write route.
+- Priority: P1 · Status: Submitted, ready, open and unmerged as PR #59 · Dependency: 4J PR #58
+- Add only public `GET /api/tags` above PR #58. No migration or write route.
 
 ## Key Insights
 
@@ -39,7 +39,7 @@
 3. Verify envelope, ordering, no-auth behavior, and generated OpenAPI contract against PostgreSQL test DB.
 4. Run build, unit and E2E suites, lint, formatting, static OpenAPI validation, line-count and diff checks. (Passed locally; see Validation Record.)
 5. Obtain independent review and add validation evidence. (Review verdict SEALED; evidence artifacts recorded.)
-6. Submit as a ready PR directly above #58 and add the required PR validation comment. (Pending.)
+6. Submit as a ready PR directly above #58 and add the required PR validation comment. (Complete; see [current-head evidence](https://github.com/hungpv-2151/NestJS-tutorial/pull/59#issuecomment-5904391942).)
 
 ## Todo List
 
@@ -48,21 +48,21 @@
 - [x] Implement GET-only tags endpoint and focused E2E contract.
 - [x] Pass full unit and E2E suites, build, lint, focused static analysis, OpenAPI parse, formatting, and diff checks.
 - [x] Obtain independent review and record evidence artifacts.
-- [ ] Submit the ready API PR on the current stack.
+- [x] Submit ready API PR #59 on the current stack; keep it open and unmerged for review.
 
 ## Validation Record
 
-- `pnpm test`: passed — 43 files; 193 passed, 1 skipped.
-- `pnpm test:e2e`: passed — 25 files; 98 passed.
-- `pnpm build`: passed.
-- `pnpm lint`: passed with 267 warnings and 0 errors.
+- `pnpm test`: passed on current head — 43 files passed, 1 skipped; 191 tests passed, 1 skipped.
+- `pnpm test:e2e`: passed on current head — 25 files; 98 tests passed.
+- `pnpm build`: passed on current head.
+- `pnpm lint`: passed on current head with 0 errors and 258 warnings.
 - `pnpm exec sunlint --all --input=src/tags`: passed with 0 warnings.
 - Static `spec/api/openapi.yml` parse and route check: passed.
 - Prettier check for changed TypeScript, Markdown, and JSON files: passed. Whole-file OpenAPI formatting check reports pre-existing formatting differences in the unchanged baseline.
 - `git diff --check`: passed.
 - Independent review: SEALED; no open correctness or security findings.
 - Test raw results, normalized temper results, study context, and inspection verdict are stored under [`evidence/phase-04k`](./evidence/phase-04k/).
-- PR URL, commit SHA, validation comment, and response screenshot: pending PR submission.
+- PR #59 is OPEN, ready, CLEAN, and based directly on #58. Current head: `78cc953ea83b5ff4dae64e297127e141892f9ac1`; GitHub Static analysis: SUCCESS. Validation comment: https://github.com/hungpv-2151/NestJS-tutorial/pull/59#issuecomment-5904391942. Response screenshot is stored in `evidence/phase-04k/get-tags-response.png`.
 
 ## Success Criteria
 
@@ -80,4 +80,4 @@
 
 ## Next Steps
 
-- After submitting 4K, continue to Phase 5A comment schema foundation, then one PR per comment API.
+- Continue from the existing Phase 5A comment schema PR #60, stacked above #59; Phase 4 remains in progress until #47–#59 are merged.

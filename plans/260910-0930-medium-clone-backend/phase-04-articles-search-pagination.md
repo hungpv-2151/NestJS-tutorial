@@ -6,7 +6,7 @@
 
 ## Overview
 
-- Priority: P1 · Status: In progress (4A–4F PRs #47–#53, 4G support/API PRs #54/#55, 4H API PR #56, 4I API PR #57, and 4J API PR #58 are ready; 4K implementation and local validation pass, PR submission pending) · Effort: 26h · Blocked by: Phase 03 PR 3G
+- Priority: P1 · Status: In progress (4A–4K PRs #47–#59 are ready and open; 4D and 4G include route-free support PRs) · Effort: 26h · Blocked by: Phase 03 PR 3G
 - Một endpoint mỗi PR. `GET /api/articles` được tách hai PR vì query/filter/pagination có rủi ro và kích thước cao.
 
 ## Key Insights
@@ -37,7 +37,7 @@
 | 4H | `GET /api/articles/feed` only | 4G | auth/follow/order result |
 | 4I | `POST /api/articles/:slug/favorite` only | 4H | idempotency/count result |
 | 4J | `DELETE /api/articles/:slug/favorite` only | 4I | idempotency/count result |
-| 4K | `GET /api/tags` only | 4J | envelope/order/result screenshot; local tests/build/lint/review pass |
+| 4K | `GET /api/tags` only ([PR #59](https://github.com/hungpv-2151/NestJS-tutorial/pull/59)) | 4J / #58 | envelope/order/screenshot; full unit, E2E, build, lint and review evidence |
 
 ## Data Flow
 
@@ -58,10 +58,10 @@
 
 ## Todo List
 
-- [ ] PRs 4A–4K rebased and scoped within hard line limits. 4A PR #47 is ready on #46; 4B POST create is PR #48 ready on #47; 4C PR #49, 4D PRs #50/#51, 4E PR #52, 4F foundation PR #53, and 4G support/API PRs #54/#55 are ready. 4H `GET /api/articles/feed` is ready as PR #56 directly on #55; 4I `POST /api/articles/:slug/favorite` is ready as PR #57 directly on #56; 4J `DELETE /api/articles/:slug/favorite` is ready as PR #58 directly on #57; 4K implementation and local checks pass, PR submission pending.
+- [x] PRs 4A–4K are scoped and ready in one stacked chain: #47→#48→#49→#50→#51→#52→#53→#54→#55→#56→#57→#58→#59. #50 and #54 are route-free support PRs. All are OPEN, non-draft, and CLEAN; Phase 4 remains in progress until merge.
 - [ ] Error-level findings zero; retained warnings carry reason/follow-up.
 - [ ] Stable paging/count/no-N+1 and ownership/idempotency proven.
-- [ ] Evidence URLs: 4A [PR #47 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/47#issuecomment-5861324933); 4B [PR #48 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/48#issuecomment-5861778843); 4C [PR #49 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/49#issuecomment-5862775055); 4D foundation [PR #50 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/50#issuecomment-5863552132) and PUT [PR #51 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/51#issuecomment-5863610040); 4E [PR #52 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/52#issuecomment-5863972597); 4F [PR #53 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/53#issuecomment-5864274902); 4G support [PR #54 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/54#issuecomment-5865006355); 4G API [PR #55 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/55#issuecomment-5865020735), [CI](https://github.com/hungpv-2151/NestJS-tutorial/pull/55#issuecomment-5865035968); 4H [PR #56 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/56#issuecomment-5865756862); 4I [PR #57 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/57#issuecomment-5867280280); 4J [PR #58 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/58#issuecomment-5867761340); 4K implementation verified locally, PR comment `pending`.
+- [x] Validation evidence is recorded on each PR. 4A [#47](https://github.com/hungpv-2151/NestJS-tutorial/pull/47#issuecomment-5861324933); 4B [#48](https://github.com/hungpv-2151/NestJS-tutorial/pull/48#issuecomment-5861778843); 4C [#49](https://github.com/hungpv-2151/NestJS-tutorial/pull/49#issuecomment-5862775055); 4D support [#50](https://github.com/hungpv-2151/NestJS-tutorial/pull/50#issuecomment-5863552132) and PUT [#51](https://github.com/hungpv-2151/NestJS-tutorial/pull/51#issuecomment-5863610040); 4E [#52](https://github.com/hungpv-2151/NestJS-tutorial/pull/52#issuecomment-5863972597); 4F [#53](https://github.com/hungpv-2151/NestJS-tutorial/pull/53#issuecomment-5864274902); 4G support [#54](https://github.com/hungpv-2151/NestJS-tutorial/pull/54#issuecomment-5865006355) and API [#55](https://github.com/hungpv-2151/NestJS-tutorial/pull/55#issuecomment-5865020735); 4H [#56](https://github.com/hungpv-2151/NestJS-tutorial/pull/56#issuecomment-5865756862); 4I [#57](https://github.com/hungpv-2151/NestJS-tutorial/pull/57#issuecomment-5867280280); 4J [#58](https://github.com/hungpv-2151/NestJS-tutorial/pull/58#issuecomment-5867761340); 4K [#59](https://github.com/hungpv-2151/NestJS-tutorial/pull/59#issuecomment-5904391942).
 
 ## Success Criteria
 
@@ -82,4 +82,4 @@
 
 ## Next Steps
 
-- Submit 4K above PR #58 with its validation comment, then continue to Phase 05; keep the overall Phase 04 status open until the 4K PR evidence is recorded.
+- Phase 4K is ready as PR #59 above #58. Continue with the existing Phase 5A stack at PR #60; keep Phase 4 in progress while PRs #47–#59 remain unmerged.
