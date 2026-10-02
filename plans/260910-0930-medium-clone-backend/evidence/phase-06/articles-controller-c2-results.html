@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Phase 06 C2 test result</title>
+    <style>
+      body {
+        font:
+          16px system-ui,
+          sans-serif;
+        background: #f4f6f8;
+        color: #17212b;
+        margin: 0;
+        padding: 48px;
+      }
+      main {
+        max-width: 760px;
+        margin: auto;
+        background: white;
+        border: 1px solid #d9e0e7;
+        border-radius: 12px;
+        padding: 32px;
+        box-shadow: 0 8px 24px #17212b12;
+      }
+      h1 {
+        margin: 0 0 8px;
+        font-size: 26px;
+      }
+      .pass {
+        color: #087443;
+        font-weight: 700;
+      }
+      .grid {
+        display: flex;
+        gap: 12px;
+        margin: 24px 0;
+      }
+      .metric {
+        background: #f0f8f4;
+        border-radius: 8px;
+        padding: 16px;
+        flex: 1;
+      }
+      .metric strong {
+        display: block;
+        font-size: 24px;
+      }
+      li {
+        margin: 10px 0;
+      }
+      .meta {
+        color: #5c6875;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>ArticlesController C2 journey</h1>
+      <p class="pass">
+        PASSED · Vitest E2E · real Nest app, PostgreSQL and Redis
+      </p>
+      <div class="grid">
+        <div class="metric"><strong>1</strong>test passed</div>
+        <div class="metric"><strong>0</strong>failed</div>
+        <div class="metric"><strong>8.0 s</strong>test duration</div>
+      </div>
+      <ul>
+        <li>
+          Register two users and use real signed tokens; registration never
+          returns password fields.
+        </li>
+        <li>
+          Create three articles; verify filters, descending order and offset
+          pages.
+        </li>
+        <li>
+          Favorite and unfavorite; reject non-owner update; accept owner update.
+        </li>
+        <li>Delete article and verify subsequent GET returns 404.</li>
+        <li>
+          Fixture users, article relations and unique tag are cleaned in
+          finally.
+        </li>
+      </ul>
+      <p class="meta">
+        Command: pnpm exec vitest run --config ./vitest.config.e2e.ts
+        test/articles-controller.c2.e2e-spec.ts
+      </p>
+    </main>
+  </body>
+</html>

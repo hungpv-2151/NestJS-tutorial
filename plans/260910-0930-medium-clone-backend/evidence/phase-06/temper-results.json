@@ -1,0 +1,58 @@
+{
+  "commands": [
+    {
+      "command": "pnpm exec vitest run --config ./vitest.config.e2e.ts test/articles-controller.c2.e2e-spec.ts",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Focused C2 E2E passed against the real app, PostgreSQL and Redis. Registration used a UUID-scoped welcome-mail queue; fixture cleanup removes tracked users, tag, and only that queue after app shutdown."
+    },
+    {
+      "command": "pnpm test:e2e (run 1)",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Full E2E suite passed: 31 files, 112 tests."
+    },
+    {
+      "command": "pnpm test:e2e (run 2 immediately after run 1)",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Repeated full E2E suite passed with the same result: 31 files, 112 tests."
+    },
+    {
+      "command": "pnpm exec vitest run src/jobs/redis-database.spec.ts",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Redis DB URL parser unit tests passed: 7 tests."
+    },
+    {
+      "command": "pnpm test",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Unit and integration suite passed: 48 files, 209 tests passed and 1 skipped."
+    },
+    {
+      "command": "pnpm build",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Nest build passed."
+    },
+    {
+      "command": "pnpm lint",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Lint exited 0 with 301 warnings and 0 errors."
+    },
+    {
+      "command": "pnpm exec prettier --check (changed TypeScript, plan, and JSON evidence)",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "All changed TypeScript, plan and JSON evidence passed Prettier."
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "No whitespace errors."
+    }
+  ]
+}
