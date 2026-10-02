@@ -1,0 +1,76 @@
+{
+  "commands": [
+    {
+      "command": "pnpm exec vitest run --config ./vitest.config.e2e.ts test/delete-comment.e2e-spec.ts test/delete-comment-errors.e2e-spec.ts",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Focused delete E2E passed: 2 files and 6 tests."
+    },
+    {
+      "command": "pnpm test:e2e",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Full E2E suite passed: 30 files and 111 tests."
+    },
+    {
+      "command": "pnpm test",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Full unit suite passed: 47 files; 202 tests passed and 1 skipped."
+    },
+    {
+      "command": "pnpm build",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Nest build passed."
+    },
+    {
+      "command": "pnpm lint",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Repository lint exited 0 with 299 warnings and 0 errors."
+    },
+    {
+      "command": "pnpm exec sunlint --all --input=src/comments --format=json --output=/tmp/phase-05d-sunlint.json --quiet",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "The comments folder has 31 warnings and 0 errors, 12 warnings more than Phase 5C. New delete warnings are 7 C018 wrapper heuristics for mapping transaction failures to generic HTTP responses, 1 C030 heuristic for rethrowing typed errors, 3 C033 warnings because multiple transaction-scoped repositories and row locks are needed for atomic scoped deletion, and 1 S037 false positive because the analyzer does not recognize explicit Cache-Control/Pragma/Expires decorators. Remaining 19 comments-folder warnings predate Phase 5D."
+    },
+    {
+      "command": "python3 OpenAPI YAML parse",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Static OpenAPI YAML parsed successfully."
+    },
+    {
+      "command": "pnpm exec prettier --check changed TypeScript and spec/api/openapi.yml",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "All changed TypeScript and static OpenAPI files passed Prettier. Hurl is not supported by Prettier."
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "No whitespace errors."
+    },
+    {
+      "command": "command -v hurl",
+      "exitCode": 1,
+      "status": "skipped",
+      "summary": "Hurl CLI is unavailable; equivalent delete, authorization, not-found, validation, persistence, and mutation checks passed in E2E."
+    },
+    {
+      "command": "pnpm exec vitest run --config ./vitest.config.e2e.ts test/capture-delete-comment.e2e-spec.ts",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Temporary E2E capture ran a real HTTP DELETE request, recorded status 204 and verified only the selected row disappeared while the other comment remained; fixture cleanup ran and the temporary test was removed."
+    },
+    {
+      "command": "node .claude/skills/automate-browser/scripts/screenshot.js --url file:///home/phamvanhung/projects/nestjs-tutorial/plans/260910-0930-medium-clone-backend/evidence/phase-05d/delete-comment-result.json --output plans/260910-0930-medium-clone-backend/evidence/phase-05d/delete-comment-result.png --full-page true --headless true",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Captured a screenshot of the real 204 response and resulting persistence state."
+    }
+  ]
+}
