@@ -11,6 +11,8 @@ import { ArticlesController } from './articles.controller.js';
 import { ArticleDeleteController } from './article-delete.controller.js';
 import { ArticleCreateService } from './article-create.service.js';
 import { ArticleDeleteService } from './article-delete.service.js';
+import { ArticleFavoriteController } from './article-favorite.controller.js';
+import { ArticleFavoriteCreateService } from './article-favorite-create.service.js';
 import { ArticleFeedController } from './article-feed.controller.js';
 import { ArticleListController } from './article-list.controller.js';
 import { ArticleListHydrator } from './article-list-hydrator.js';
@@ -23,6 +25,7 @@ import { Tag } from '../tags/tag.entity.js';
 @Module({
   controllers: [
     ArticleFeedController,
+    ArticleFavoriteController,
     ArticlesController,
     ArticleDeleteController,
     ArticleListController,
@@ -40,6 +43,7 @@ import { Tag } from '../tags/tag.entity.js';
   providers: [
     ArticleCreateService,
     ArticleDeleteService,
+    ArticleFavoriteCreateService,
     ArticleListHydrator,
     ArticleListQueryService,
     ArticleListService,

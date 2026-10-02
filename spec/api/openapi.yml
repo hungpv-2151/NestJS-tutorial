@@ -510,6 +510,16 @@ paths:
           $ref: '#/components/responses/NotFound'
         '422':
           $ref: '#/components/responses/GenericError'
+        '500':
+          description: Favorite could not be created.
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  errors:
+                    body:
+                      - request failed
       security:
         - Token: [ ]
     delete:
