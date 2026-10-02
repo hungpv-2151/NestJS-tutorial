@@ -53,6 +53,18 @@ HTTP 422
 [Asserts]
 jsonpath "$.errors.body[0]" == "can't be blank"
 
+# Post comment whitespace body
+POST {{host}}/api/articles/{{slug}}/comments
+Authorization: Token {{token}}
+{
+  "comment": {
+    "body": "   "
+  }
+}
+HTTP 422
+[Asserts]
+jsonpath "$.errors.body[0]" == "can't be blank"
+
 # Post comment on unknown article
 POST {{host}}/api/articles/unknown-slug-{{uid}}/comments
 Authorization: Token {{token}}
