@@ -1,0 +1,16 @@
+{
+  "comments": [
+    {
+      "id": 44,
+      "createdAt": "2026-09-29T01:40:10.271Z",
+      "updatedAt": "2026-09-29T01:40:10.271Z",
+      "body": "Evidence comment",
+      "author": {
+        "bio": "Public bio",
+        "following": false,
+        "image": null,
+        "username": "detail-author-22b562b3-f9e5-44ba-b8c5-8953ac734f5f"
+      }
+    }
+  ]
+}

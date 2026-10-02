@@ -83,6 +83,13 @@ HTTP 404
 [Asserts]
 jsonpath "$.errors.article[0]" == "not found"
 
+# Get comments with an invalid optional token
+GET {{host}}/api/articles/{{slug}}/comments
+Authorization: Token invalid-token
+HTTP 401
+[Asserts]
+jsonpath "$.errors.token[0]" == "is invalid"
+
 # Delete comment on unknown article
 DELETE {{host}}/api/articles/unknown-slug-{{uid}}/comments/99999
 Authorization: Token {{token}}
