@@ -1,7 +1,7 @@
 ---
 title: 'NestJS RealWorld backend API-granular PR roadmap'
 description: 'Triển khai backend RealWorld bằng stack PR nhỏ, mỗi PR chỉ phục vụ một API hoặc một lớp nền tảng không có API.'
-status: in-progress
+status: completed
 priority: P1
 effort: 96h
 branch: phase-02-database-auth-background-jobs
@@ -29,14 +29,16 @@ Giữ nguyên lịch sử PR1 đã hoàn thành, audit phần Phase 02 đang d�
 
 ## Phases / PR Waves
 
-| Phase | PR scope                                                                              | Effort | Blocked by | Status                                                                                                                  |
-| ----- | ------------------------------------------------------------------------------------- | -----: | ---------- | ----------------------------------------------------------------------------------------------------------------------- |
-| 1     | [PR1 bootstrap + `GET /api/hello`](./phase-01-project-bootstrap-docs.md)              |     6h | —          | Complete                                                                                                                |
-| 2     | [Audit/rebase, foundations và auth APIs](./phase-02-database-auth-background-jobs.md) |    24h | PR1        | In progress: G2 stack audit complete; 2I daily training-summary remains deferred; auth APIs through 2H are submitted  |
-| 3     | [User, profile và private-file APIs](./phase-03-user-profile-private-avatar.md)       |    18h | Phase 02H  | In progress: 3G `GET /api/files/:id` submitted as PR #46 on #45; validation and independent review pass |
-| 4     | [Article/feed/favorite/tag APIs](./phase-04-articles-search-pagination.md)            |    26h | Phase 3    | In progress: 4A–4K PRs #47–#59 are ready, open, and stacked; 4K evidence is recorded, all remain unmerged |
-| 5     | [Comment APIs](./phase-05-comments.md)                                                |    10h | Phase 4    | In progress: 5A–5C PRs #60–#62 ready; 5D DELETE is ready as PR #63 above #62; all passed validation gates |
-| 6     | [Stack-wide verification and remediation routing](./phase-06-unit-e2e-c2-testing.md)  |    12h | Phase 5    | In progress: test-only C2 ArticlesController journey is PR #64; DB/Redis isolation and remaining integration matrix continue |
+| Phase | PR scope                                                                              | Effort | Blocked by | Status                                                                                       |
+| ----- | ------------------------------------------------------------------------------------- | -----: | ---------- | -------------------------------------------------------------------------------------------- |
+| 1     | [PR1 bootstrap + `GET /api/hello`](./phase-01-project-bootstrap-docs.md)              |     6h | —          | Complete                                                                                     |
+| 2     | [Audit/rebase, foundations và auth APIs](./phase-02-database-auth-background-jobs.md) |    24h | PR1        | API implementation complete; auth APIs through 2H submitted. 2I is deferred and adds no API. |
+| 3     | [User, profile và private-file APIs](./phase-03-user-profile-private-avatar.md)       |    18h | Phase 02H  | API implementation complete; PRs #39–#46 submitted in the stack.                             |
+| 4     | [Article/feed/favorite/tag APIs](./phase-04-articles-search-pagination.md)            |    26h | Phase 3    | API implementation complete; foundation/API PRs #47–#59 submitted in the stack.              |
+| 5     | [Comment APIs](./phase-05-comments.md)                                                |    10h | Phase 4    | API implementation complete; PRs #60–#63 submitted in the stack.                             |
+| 6     | [Stack-wide verification and remediation routing](./phase-06-unit-e2e-c2-testing.md)  |    12h | Phase 5    | Integration coverage complete; PRs #64 and #66–#69 submitted in Stack #65.                   |
+
+All planned public APIs are implemented and have ready PRs in the stack. PRs remain open pending review/merge; this plan status records implementation and PR submission completion, not merge to `master`.
 
 ## Dependency and Data Flow
 

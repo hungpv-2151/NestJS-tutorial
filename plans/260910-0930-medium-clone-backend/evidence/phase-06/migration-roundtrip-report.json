@@ -35,5 +35,6 @@
     },
     { "command": "git diff --check", "exitCode": 0, "status": "pass" }
   ],
-  "isolation": "Every registered migration is applied, reverted, and reapplied in a unique schema inside a transaction. The connection search_path is set back to public before the temporary schema is selected; rollback removes all test DDL."
+  "isolation": "Every registered migration is applied, reverted, and reapplied in a unique schema inside a transaction. The connection search_path is set back to public before the temporary schema is selected; rollback removes all test DDL.",
+  "visualEvidence": "migration-roundtrip-results.png"
 }
