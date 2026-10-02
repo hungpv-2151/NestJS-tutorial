@@ -34,6 +34,7 @@ The C2 journey sets a UUID-scoped welcome-mail queue before app creation, waits 
 
 - Modify: `src/jobs/welcome-mail-queue.ts` to support a private test queue and honor the configured Redis database.
 - Create: `src/jobs/redis-database.ts`, `src/jobs/redis-database.spec.ts`, `test/articles-controller.c2.e2e-spec.ts`, `test/articles-controller-c2-helpers.ts`, and `test/welcome-mail-queue-cleaner.ts`.
+- Create: `test/migrations-roundtrip.migration-test.ts` and `vitest.config.migrations.ts` for isolated PostgreSQL migration up/down coverage; run it separately from parallel integration tests.
 - Modify/add unit and integration tests as the remaining matrix is implemented; no package or E2E runner changes are required for the current C2 journey.
 - Hurl remains supplemental; no Hurl runner changes were needed for this C2 scope.
 
@@ -52,7 +53,7 @@ The C2 journey sets a UUID-scoped welcome-mail queue before app creation, waits 
 - [ ] Replace shared-table truncate requirement with UUID-scoped fixtures until per-worker schema isolation exists.
 - [x] ArticlesController C2 HTTP flow passes without mocking internal layers.
 - [x] Full build, lint, unit and E2E pass; two full E2E runs produce the same result. Hurl remains supplemental and its CLI is unavailable in this environment.
-- [ ] Complete remaining integration matrix: migration up/down and private-file metadata/storage boundaries remain open. Redis deny-list has a real Redis integration test; queue idempotency has unit coverage.
+- [ ] Complete remaining integration matrix: private-file metadata/storage boundaries remain open. Migration up/down now has isolated-schema coverage; Redis deny-list has a real Redis integration test; queue idempotency has unit coverage.
 
 ## Success Criteria
 
@@ -80,6 +81,8 @@ The C2 journey sets a UUID-scoped welcome-mail queue before app creation, waits 
 ## Phase 06 Progress
 
 - The current Phase 06 branch adds the real HTTP/PostgreSQL ArticlesController C2 journey. It checks three matching rows across distinct pages in descending creation order, list filters, detail/feed/favorite/update/delete flow, and registration response redaction. Existing E2E tests reject `limit=101`; the article-list query integration test covers timestamp ties and page boundaries.
-- The test uses UUID-scoped users/articles/tags, registers usernames before HTTP setup, and relies on verified FK cascades for teardown. Its welcome-mail queue is private per run and cleaned after app shutdown. Test setup requires `TEST_DATABASE_URL` and rejects matching `DATABASE_URL` targets after normalizing loopback host aliases. It loads `.env` only when the test URL is absent, so an explicit CI test URL works without an `.env` file. Migration up/down and private-file metadata/storage integration remain open.
+- The test uses UUID-scoped users/articles/tags, registers usernames before HTTP setup, and relies on verified FK cascades for teardown. Its welcome-mail queue is private per run and cleaned after app shutdown. Test setup requires `TEST_DATABASE_URL` and rejects matching `DATABASE_URL` targets after normalizing PostgreSQL host/port overrides and loopback aliases. It loads the local environment file when either URL is absent, if that file exists, so an explicit CI test URL works without a local file. Private-file metadata/storage integration remains open.
 - Test DB isolation evidence: [validation report](./evidence/phase-06/test-database-isolation-report.json) · [result screenshot](./evidence/phase-06/test-database-isolation-results.png).
+- Test DB target isolation is ready as [PR #67](https://github.com/hungpv-2151/NestJS-tutorial/pull/67), stacked on #66 in Stack #65. Validation comment: [commands and screenshot](https://github.com/hungpv-2151/NestJS-tutorial/pull/67#issuecomment-5883472805).
+- Migration integration runs every registered migration up, down, and up again in a unique PostgreSQL schema inside one transaction, then rolls back all test DDL. It runs separately from the parallel integration suite and resets the pooled connection search path to `public` before entering the transaction. [Validation report](./evidence/phase-06/migration-roundtrip-report.json) · ready as [PR #68](https://github.com/hungpv-2151/NestJS-tutorial/pull/68), stacked on #67 in Stack #65; [validation comment](https://github.com/hungpv-2151/NestJS-tutorial/pull/68#issuecomment-5883953185).
 - A real Redis deny-list integration test verifies write/read and expiry using a UUID key, and removes only that key in teardown. It prefers `TEST_REDIS_URL` and falls back to the app's configured `REDIS_URL` when the test-specific variable is absent.
