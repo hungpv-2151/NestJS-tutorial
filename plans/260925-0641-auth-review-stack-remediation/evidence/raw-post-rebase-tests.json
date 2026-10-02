@@ -1,0 +1,52 @@
+{
+  "testedCommit": "cb0db4fdb709516bb6f388a39e40fe29128320e5",
+  "workingTreeChanges": [
+    {
+      "file": "src/app.module.spec.ts",
+      "sha256": "17351842408f8a6245c4d3c36bd82ed916d4b591b645cc414fcca93223a5f0bb",
+      "summary": "Expect AppModule's current five registered imports."
+    },
+    {
+      "file": "src/common/logging/request-failure-log.spec.ts",
+      "sha256": "7d48ee4667c4c375d4d3d27833298593cc90fff484603eaa6f26d7a6fbf58d5d",
+      "summary": "Expand request failure log redaction coverage."
+    },
+    {
+      "file": "src/common/logging/request-failure-log.ts",
+      "sha256": "f51284b801aef2b89a1255456d1ab640dac8c8390650dd680795c18f851ad53b",
+      "summary": "Redact personal identifier fields case-insensitively through recursive sanitizer."
+    }
+  ],
+  "runs": [
+    {
+      "command": "pnpm build",
+      "exitCode": 0,
+      "summary": "Nest production build passed."
+    },
+    {
+      "command": "pnpm lint",
+      "exitCode": 0,
+      "summary": "SunLint passed across 95 files with 139 warnings and 0 errors."
+    },
+    {
+      "command": "pnpm test",
+      "exitCode": 0,
+      "summary": "30 test files passed, 1 skipped; 123 passed, 1 skipped, 0 failed (124 total)."
+    },
+    {
+      "command": "pnpm test:e2e",
+      "exitCode": 0,
+      "summary": "10 E2E test files passed; 36 tests passed."
+    },
+    {
+      "command": "pnpm exec vitest run src/attachments/private-attachment-storage.spec.ts src/attachments/attachment-access-policy.spec.ts src/auth/user-avatar-handler.spec.ts src/auth/auth.service.spec.ts",
+      "exitCode": 0,
+      "summary": "4 focused attachment/auth test files passed; 34 tests passed."
+    },
+    {
+      "command": "pnpm exec vitest run src/common/logging/request-failure-log.spec.ts",
+      "exitCode": 0,
+      "summary": "Focused request-failure logger test passed; 1 file, 4 tests."
+    }
+  ]
+}

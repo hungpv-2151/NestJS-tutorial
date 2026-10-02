@@ -6,7 +6,7 @@
 
 ## Overview
 
-- Priority: P1 · Status: Pending · Effort: 26h · Blocked by: Phase 03 PR 3G
+- Priority: P1 · Status: In progress (4A–4F PRs #47–#53, 4G support/API PRs #54/#55, and 4H API PR #56 are ready; 4I is next) · Effort: 26h · Blocked by: Phase 03 PR 3G
 - Một endpoint mỗi PR. `GET /api/articles` được tách hai PR vì query/filter/pagination có rủi ro và kích thước cao.
 
 ## Key Insights
@@ -17,7 +17,7 @@
 ## Requirements
 
 - Create/get/update/delete/list/feed/favorite/unfavorite/tags đều là API riêng.
-- Search case-insensitive; filters AND; limit default 20, max 100; ownership và idempotency dựa DB constraints.
+- Filters AND; limit default 20, max 100; ownership và idempotency dựa DB constraints. Case-insensitive search remains out of scope until OpenAPI defines a query parameter and searchable columns.
 - Migration article/tag/favorite tách foundation, không thêm route.
 
 ## Architecture and PR Dependency Graph
@@ -27,12 +27,13 @@
 | PR | Only scope / public API | Base | Required evidence |
 |---|---|---|---|
 | 4A | Article/tag/favorite schema and shared serializers; API: none | 3G | migration apply/revert screenshot |
-| 4B | `POST /api/articles` only | 4A | create/slug/tag transaction result |
+| 4B | `POST /api/articles` only ([PR #48](https://github.com/hungpv-2151/NestJS-tutorial/pull/48)) | 4A / #47 | [create/slug/tag transaction validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/48#issuecomment-5861778843) |
 | 4C | `GET /api/articles/:slug` only | 4B | public/optional-auth detail result |
-| 4D | `PUT /api/articles/:slug` only | 4C | owner/non-owner/slug result |
+| 4D | `PUT /api/articles/:slug` only ([PR #51](https://github.com/hungpv-2151/NestJS-tutorial/pull/51)); no-route support in [PR #50](https://github.com/hungpv-2151/NestJS-tutorial/pull/50) | 4C / #49 | owner/non-owner/slug result |
 | 4E | `DELETE /api/articles/:slug` only | 4D | 204/403/404/persistence result |
 | 4F | `GET /api/articles` part 1: query/count/order core, no route | 4E | repository integration result |
-| 4G | `GET /api/articles` part 2: HTTP/filter/page contract | 4F | search/filter/page screenshot |
+| 4G support | Body-free list projection and serializer typing; no route ([PR #54](https://github.com/hungpv-2151/NestJS-tutorial/pull/54)) | 4F / #53 | PostgreSQL body-free result + serializer regression |
+| 4G API | `GET /api/articles` part 2: HTTP/filter/page contract ([PR #55](https://github.com/hungpv-2151/NestJS-tutorial/pull/55)) | 4G support / #54 | [local validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/55#issuecomment-5865020735), [CI](https://github.com/hungpv-2151/NestJS-tutorial/pull/55#issuecomment-5865035968) |
 | 4H | `GET /api/articles/feed` only | 4G | auth/follow/order result |
 | 4I | `POST /api/articles/:slug/favorite` only | 4H | idempotency/count result |
 | 4J | `DELETE /api/articles/:slug/favorite` only | 4I | idempotency/count result |
@@ -52,15 +53,15 @@
 
 1. Refresh/rebase and audit diff before fixing each row; confirm declared base, one API and line limit.
 2. Land 4A schema first; implement endpoint rows in order. Route `/feed` stays ahead of `/:slug` without editing unrelated contracts.
-3. Split any row above 400 changed lines into suffix PRs serving the same API only; preferred size ≤300.
+3. Split any row above 400 changed lines of production code into suffix PRs serving the same API only; preferred size ≤300. Spec, Markdown, JSON, test, migration, YAML, lockfile and supporting artifacts do not count.
 4. Run compile, error-free lint/static analysis, focused tests and contract checks. Attach screenshot/results in PR comment; record URL.
 
 ## Todo List
 
-- [ ] PRs 4A–4K rebased, scoped and within line limit.
+- [ ] PRs 4A–4K rebased and scoped within hard line limits. 4A PR #47 is ready on #46; 4B POST create is PR #48 ready on #47; 4C PR #49, 4D PRs #50/#51, 4E PR #52, 4F foundation PR #53, and 4G support/API PRs #54/#55 are ready. 4H `GET /api/articles/feed` is ready as PR #56 directly on #55; 4I is next.
 - [ ] Error-level findings zero; retained warnings carry reason/follow-up.
 - [ ] Stable paging/count/no-N+1 and ownership/idempotency proven.
-- [ ] Evidence URLs: 4A `pending`; 4B `pending`; 4C `pending`; 4D `pending`; 4E `pending`; 4F `pending`; 4G `pending`; 4H `pending`; 4I `pending`; 4J `pending`; 4K `pending`.
+- [ ] Evidence URLs: 4A [PR #47 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/47#issuecomment-5861324933); 4B [PR #48 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/48#issuecomment-5861778843); 4C [PR #49 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/49#issuecomment-5862775055); 4D foundation [PR #50 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/50#issuecomment-5863552132) and PUT [PR #51 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/51#issuecomment-5863610040); 4E [PR #52 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/52#issuecomment-5863972597); 4F [PR #53 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/53#issuecomment-5864274902); 4G support [PR #54 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/54#issuecomment-5865006355); 4G API [PR #55 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/55#issuecomment-5865020735), [CI](https://github.com/hungpv-2151/NestJS-tutorial/pull/55#issuecomment-5865035968); 4H [PR #56 validation](https://github.com/hungpv-2151/NestJS-tutorial/pull/56#issuecomment-5865756862); 4I `pending`; 4J `pending`; 4K `pending`.
 
 ## Success Criteria
 

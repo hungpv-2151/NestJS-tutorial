@@ -1,0 +1,194 @@
+import {
+  Body,
+  ConflictException,
+  Controller,
+  Get,
+  Header,
+  HttpCode,
+  HttpException,
+  HttpStatus,
+  Inject,
+  InternalServerErrorException,
+  Logger,
+  Post,
+  Put,
+  Req,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { ApiTags } from '@nestjs/swagger';
+import type { Request } from 'express';
+
+import {
+  LoginUserRequestDto,
+  RegisterUserRequestDto,
+  UpdateUserRequestDto,
+} from '../common/dto/user-auth.dto.js';
+import {
+  serializeUser,
+  type SerializedUser,
+} from '../users/user.serializer.js';
+import type { AuthConfig } from '../config/auth-config.js';
+import { createRequestFailureLog } from '../common/logging/request-failure-log.js';
+import { AUTH_CONFIG } from './auth.constants.js';
+import { AuthLoginRateLimitError } from './auth-login-rate-limiter.js';
+import {
+  AuthConflictError,
+  AuthInvalidCredentialsError,
+  AuthLogoutUnavailableError,
+  AuthService,
+} from './auth.service.js';
+import {
+  AuthTokenGuard,
+  type AuthenticatedRequest,
+} from './auth-token.guard.js';
+import {
+  CurrentUserSwagger,
+  LoginUserSwagger,
+  LogoutUserSwagger,
+  RegisterUserSwagger,
+  UpdateUserSwagger,
+} from './auth.swagger.js';
+import { issueToken } from './auth-token-issuer.js';
+import { AuthCurrentUserHandler } from './auth-current-user-handler.js';
+import { AuthUpdateUserHandler } from './auth-update-user-handler.js';
+
+export { AUTH_CONFIG } from './auth.constants.js';
+
+@ApiTags('Authentication')
+@Controller()
+export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
+
+  constructor(
+    private readonly authService: AuthService,
+    private readonly jwtService: JwtService,
+    @Inject(AUTH_CONFIG) private readonly authConfig: AuthConfig,
+    private readonly currentUserHandler: AuthCurrentUserHandler,
+    private readonly updateUserHandler: AuthUpdateUserHandler,
+  ) {}
+
+  @Post('users')
+  @RegisterUserSwagger()
+  @HttpCode(HttpStatus.CREATED)
+  @Header('Cache-Control', 'no-store')
+  async register(
+    @Body() request: RegisterUserRequestDto,
+    @Req() httpRequest: Request,
+  ): Promise<SerializedUser> {
+    const token = await this.createToken(request.user.username, httpRequest);
+    let user;
+    try {
+      user = await this.authService.register(request.user);
+    } catch (error) {
+      this.logger.error(
+        JSON.stringify(createRequestFailureLog(error, httpRequest)),
+      );
+      if (error instanceof AuthConflictError) {
+        throw new ConflictException({
+          errors: { [error.field]: ['has already been taken'] },
+        });
+      }
+      throw new InternalServerErrorException({
+        errors: { body: ['request failed'] },
+      });
+    }
+
+    return serializeUser({ ...user, bio: null, image: null }, token);
+  }
+
+  @Post('users/login')
+  @LoginUserSwagger()
+  @HttpCode(HttpStatus.OK)
+  @Header('Cache-Control', 'no-store')
+  async login(
+    @Body() request: LoginUserRequestDto,
+    @Req() httpRequest: Request,
+  ): Promise<SerializedUser> {
+    try {
+      const { token, user } = await this.authService.login({
+        email: request.user.email,
+        ipAddress: httpRequest.ip,
+        password: request.user.password,
+      });
+      return serializeUser(user, token);
+    } catch (error) {
+      this.logger.error(
+        JSON.stringify(createRequestFailureLog(error, httpRequest)),
+      );
+      if (error instanceof AuthInvalidCredentialsError) {
+        throw new UnauthorizedException({
+          errors: { credentials: ['invalid'] },
+        });
+      }
+      if (error instanceof AuthLoginRateLimitError) {
+        throw new HttpException(
+          { errors: { body: ['too many requests'] } },
+          HttpStatus.TOO_MANY_REQUESTS,
+        );
+      }
+      throw new InternalServerErrorException({
+        errors: { body: ['request failed'] },
+      });
+    }
+  }
+
+  @Get('user')
+  @CurrentUserSwagger()
+  @UseGuards(AuthTokenGuard)
+  @Header('Cache-Control', 'no-store')
+  async currentUser(
+    @Req() request: AuthenticatedRequest,
+  ): Promise<SerializedUser> {
+    return this.currentUserHandler.execute(request);
+  }
+
+  @Put('user')
+  @UpdateUserSwagger()
+  @UseGuards(AuthTokenGuard)
+  @Header('Cache-Control', 'no-store')
+  async updateCurrentUser(
+    @Body() request: UpdateUserRequestDto,
+    @Req() httpRequest: AuthenticatedRequest,
+  ): Promise<SerializedUser> {
+    return this.updateUserHandler.execute(httpRequest, request.user);
+  }
+
+  @Post('user/logout')
+  @LogoutUserSwagger()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(AuthTokenGuard)
+  @Header('Cache-Control', 'no-store')
+  async logout(@Req() request: AuthenticatedRequest): Promise<void> {
+    try {
+      await this.authService.logout(request.auth);
+    } catch (error) {
+      this.logger.error(
+        JSON.stringify(createRequestFailureLog(error, request)),
+      );
+      if (error instanceof AuthLogoutUnavailableError) {
+        throw new InternalServerErrorException({
+          errors: { body: ['request failed'] },
+        });
+      }
+      throw error;
+    }
+  }
+
+  private async createToken(
+    username: string,
+    request: Request,
+  ): Promise<string> {
+    try {
+      return await issueToken(this.jwtService, this.authConfig, username);
+    } catch (error) {
+      this.logger.error(
+        JSON.stringify(createRequestFailureLog(error, request)),
+      );
+      throw new InternalServerErrorException({
+        errors: { body: ['request failed'] },
+      });
+    }
+  }
+}

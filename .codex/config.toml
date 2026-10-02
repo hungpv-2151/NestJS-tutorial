@@ -1,4 +1,5 @@
 
+
 # --- tkm-managed-agents-start ---
 [agents.brainstormer]
 description = "Consultation agent for the stage before anything is built. Reads the real material, interrogates the commission until the wanted outcome is concrete, puts two or three genuinely different paths on the bench with measured trade-offs, and leaves a recorded direction behind. Runs on an engineering lens by default or an executive lens on request, and takes non-technical commissions too (pricing, budget, ops load, positioning, product priority, documents). Examines and advises; writes no project code"
@@ -75,6 +76,10 @@ config_file = "agents/researcher.toml"
 [agents.reviewer]
 description = "Code review of work that is about to be seen by someone else — the pending diff, a branch heading for\na pull request, a commit already pushed, or a module you want read end to end. Reads it the way a staff\nengineer reads a change the day before it takes live traffic, hunting the defects that clear CI and\nbreak anyway: races and async ordering, unhandled error propagation, a sensitive path missing its\nauthorization check, N+1 and unindexed filters, a silent break in an exported contract or a data"
 config_file = "agents/reviewer.toml"
+
+[agents.sun_estimate_worker]
+description = "Scores a bounded batch of normalized issue evidence for tkm:sun-estimate. This isolated worker has no tools, treats issue content as untrusted data, and returns only the fixed assessment JSON contract for main-agent validation."
+config_file = "agents/sun_estimate_worker.toml"
 
 [agents.tester]
 description = "Executes the project's real test suites and reports the truth about them: which\ntests a diff actually touches, what coverage is missing, which failures are\nflaky, and whether the build and CI gates still pass. Diff-aware by default —\nmaps changed files to their tests and escalates to the full suite when config,\ntest helpers, or high-fan-out modules move. Reach for it to run tests, check\ncoverage thresholds, reproduce a red CI job locally, or verify a build before a\nPR; it records real exit codes"

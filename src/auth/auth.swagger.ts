@@ -1,0 +1,239 @@
+import { applyDecorators } from '@nestjs/common';
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiConflictResponse,
+  ApiCreatedResponse,
+  ApiHeader,
+  ApiInternalServerErrorResponse,
+  ApiNoContentResponse,
+  ApiOperation,
+  ApiOkResponse,
+  ApiSecurity,
+  ApiTags,
+  ApiTooManyRequestsResponse,
+  ApiUnauthorizedResponse,
+  ApiUnprocessableEntityResponse,
+} from '@nestjs/swagger';
+
+import {
+  LoginUserRequestDto,
+  RegisterUserRequestDto,
+} from '../common/dto/user-auth.dto.js';
+
+const AUTHENTICATED_USER_SCHEMA = {
+  example: {
+    user: {
+      bio: null,
+      email: 'jane@example.com',
+      image: null,
+      token: 'jwt-token',
+      username: 'jane',
+    },
+  },
+  properties: {
+    user: {
+      properties: {
+        bio: { nullable: true, type: 'string' },
+        email: { format: 'email', type: 'string' },
+        image: { nullable: true, type: 'string' },
+        token: { type: 'string' },
+        username: { type: 'string' },
+      },
+      required: ['email', 'username', 'bio', 'image', 'token'],
+      type: 'object',
+    },
+  },
+  required: ['user'],
+  type: 'object',
+};
+
+const VALIDATION_ERROR_SCHEMA = {
+  example: { errors: { email: ['is invalid'] } },
+  type: 'object',
+};
+
+const UPDATE_USER_REQUEST_SCHEMA = {
+  additionalProperties: false,
+  properties: {
+    user: {
+      additionalProperties: false,
+      properties: {
+        bio: { nullable: true, type: 'string' },
+        image: { nullable: true, type: 'string' },
+      },
+      type: 'object',
+    },
+  },
+  required: ['user'],
+  type: 'object',
+};
+
+export const TOKEN_AUTH_SECURITY_SCHEME = 'tokenAuth';
+
+export function RegisterUserSwagger(): MethodDecorator {
+  return applyDecorators(
+    ApiOperation({ summary: 'Register a new user' }),
+    ApiBody({ type: RegisterUserRequestDto }),
+    ApiCreatedResponse({
+      description: 'User created.',
+      schema: AUTHENTICATED_USER_SCHEMA,
+    }),
+    ApiConflictResponse({
+      description: 'Email or username is already taken.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
+    ApiUnprocessableEntityResponse({
+      description: 'Request validation failed.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
+    ApiInternalServerErrorResponse({
+      description: 'Registration could not be completed.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
+  );
+}
+
+export function LoginUserSwagger(): MethodDecorator {
+  return applyDecorators(
+    ApiOperation({ summary: 'Sign in with email and password' }),
+    ApiBody({ type: LoginUserRequestDto }),
+    ApiOkResponse({
+      description: 'Authenticated user.',
+      schema: AUTHENTICATED_USER_SCHEMA,
+    }),
+    ApiUnauthorizedResponse({
+      description: 'Credentials are invalid.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
+    ApiTooManyRequestsResponse({
+      description: 'Too many login attempts.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
+    ApiUnprocessableEntityResponse({
+      description: 'Request validation failed.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
+    ApiInternalServerErrorResponse({
+      description: 'Login could not be completed.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
+  );
+}
+
+export function CurrentUserSwagger(): MethodDecorator {
+  return applyDecorators(
+    ApiOperation({ summary: 'Get the authenticated user' }),
+    ApiHeader({
+      description: 'JWT presented as Token <jwt>.',
+      example: 'Token <jwt>',
+      name: 'Authorization',
+      required: true,
+    }),
+    ApiSecurity(TOKEN_AUTH_SECURITY_SCHEME),
+    ApiOkResponse({
+      description: 'Authenticated user.',
+      schema: AUTHENTICATED_USER_SCHEMA,
+    }),
+    ApiUnauthorizedResponse({
+      description: 'Token is missing or invalid.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
+  );
+}
+
+export function UpdateUserSwagger(): MethodDecorator {
+  return applyDecorators(
+    ApiTags('Authentication'),
+    ApiOperation({
+      description:
+        'Updates profile fields only. Email, username, and password are login credentials and cannot be changed here.',
+      summary: 'Update the authenticated user',
+    }),
+    ApiHeader({
+      description: 'JWT presented as Token <jwt>.',
+      example: 'Token <jwt>',
+      name: 'Authorization',
+      required: true,
+    }),
+    ApiSecurity(TOKEN_AUTH_SECURITY_SCHEME),
+    ApiBody({ schema: UPDATE_USER_REQUEST_SCHEMA }),
+    ApiOkResponse({
+      description: 'Updated user with a newly issued token.',
+      schema: AUTHENTICATED_USER_SCHEMA,
+    }),
+    ApiUnauthorizedResponse({
+      description: 'Token is missing or invalid.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
+    ApiUnprocessableEntityResponse({
+      description: 'Request validation failed.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
+    ApiInternalServerErrorResponse({
+      description: 'User could not be updated.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
+  );
+}
+
+export function UserAvatarSwagger(): MethodDecorator {
+  return applyDecorators(
+    ApiOperation({ summary: 'Upload an avatar for the authenticated user' }),
+    ApiHeader({
+      description: 'JWT presented as Token <jwt>.',
+      example: 'Token <jwt>',
+      name: 'Authorization',
+      required: true,
+    }),
+    ApiSecurity(TOKEN_AUTH_SECURITY_SCHEME),
+    ApiConsumes('multipart/form-data'),
+    ApiBody({
+      schema: {
+        properties: { avatar: { format: 'binary', type: 'string' } },
+        required: ['avatar'],
+        type: 'object',
+      },
+    }),
+    ApiOkResponse({
+      description: 'Updated user with a private avatar file URL.',
+      schema: AUTHENTICATED_USER_SCHEMA,
+    }),
+    ApiUnauthorizedResponse({
+      description: 'Token is missing or invalid.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
+    ApiUnprocessableEntityResponse({
+      description: 'Avatar is unsupported or larger than 2 MiB.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
+    ApiInternalServerErrorResponse({
+      description: 'Avatar could not be stored.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
+  );
+}
+
+export function LogoutUserSwagger(): MethodDecorator {
+  return applyDecorators(
+    ApiOperation({ summary: 'Sign out and revoke the presented token' }),
+    ApiHeader({
+      description: 'JWT presented as Token <jwt>.',
+      example: 'Token <jwt>',
+      name: 'Authorization',
+      required: true,
+    }),
+    ApiSecurity(TOKEN_AUTH_SECURITY_SCHEME),
+    ApiNoContentResponse({
+      description: 'Token revoked for its remaining lifetime.',
+    }),
+    ApiUnauthorizedResponse({
+      description: 'Token is missing or invalid.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
+    ApiInternalServerErrorResponse({
+      description: 'Logout could not be completed.',
+      schema: VALIDATION_ERROR_SCHEMA,
+    }),
+  );
+}

@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+'use strict';
+
 /**
  * iron-laws-guard — PreToolUse / Edit+Write hook. Forge → Temper gate.
  *
@@ -9,52 +11,55 @@
  * config/fixture/migration files, .sun/ artifacts, and skills/.
  *
  * Always fail-open: a parse error must not block the Forge stage.
+ *
+ * DUAL-MODE KIT HOOK — see docs/hook-authoring.md. `run(input, ctx)` is the pure
+ * decision (no stdin/stdout/exit); the CLI calls it in-process under `--eval`. The
+ * `require.main === module` branch preserves the legacy `node "<path>"` invocation
+ * (which streams stdin), delegating to the shared self-exec helper.
  */
 
-let input = '';
-process.stdin.on('data', d => input += d);
-process.stdin.on('end', () => {
+const { runSelfExec } = require('./lib/hook-dual-mode.cjs');
+
+const IRON_LAW_REMINDER =
+  "🔴 Iron Law #1 Reminder: Production code is about to change. Default policy is RED-first: prove the relevant test fails before editing. Exception: an explicitly declared MoMorph visual-contract may implement presentational UI first, but must record design evidence and complete compile/lint, coverage, and tester-owned visual validation afterward. Never use visual-contract for behavior or backend logic.";
+
+const SOURCE_EXTENSIONS = /\.(ts|tsx|js|jsx|py|go|rs|java)$/;
+const IS_TEST_FILE = /\.(test|spec|e2e)\.(ts|tsx|js|jsx|py)$/;
+const IS_CONFIG = /(config|setup|fixture|mock|stub|seed|migration)/;
+const IS_SUN_FILE = /\.sun\//;
+const IS_SKILL_FILE = /skills\//;
+
+/**
+ * Pure decision. Returns `{status:'context'}` with the Iron Law reminder when a
+ * production source file is about to be edited/written, else `{status:'ok'}`.
+ * Fail-open: any internal error → allow silently.
+ */
+function run(input, _ctx) {
   try {
-    const data = JSON.parse(input);
-    const event = data.hook_event_name || '';
-    const tool = data.tool_name || '';
-    const toolInput = data.tool_input || {};
+    const event = input.hook_event_name || '';
+    const tool = input.tool_name || '';
+    if (event !== 'PreToolUse' || !['Edit', 'Write'].includes(tool)) return { status: 'ok' };
 
-    // Only pre-write production-code events trigger the TDD reminder.
-    if (event !== 'PreToolUse' || !['Edit', 'Write'].includes(tool)) {
-      process.stdout.write('{}');
-      return;
+    const filePath = (input.tool_input && input.tool_input.file_path) || '';
+    if (!SOURCE_EXTENSIONS.test(filePath)) return { status: 'ok' };
+
+    if (IS_TEST_FILE.test(filePath) || IS_CONFIG.test(filePath) || IS_SUN_FILE.test(filePath) || IS_SKILL_FILE.test(filePath)) {
+      return { status: 'ok' };
     }
 
-    const filePath = toolInput.file_path || '';
-
-    // Non-source files carry no TDD obligation
-    const sourceExtensions = /\.(ts|tsx|js|jsx|py|go|rs|java)$/;
-    if (!sourceExtensions.test(filePath)) {
-      process.stdout.write('{}');
-      return;
-    }
-
-    // Skip test files, config files, and .sun/ artifacts
-    const isTestFile = /\.(test|spec|e2e)\.(ts|tsx|js|jsx|py)$/.test(filePath);
-    const isConfig = /(config|setup|fixture|mock|stub|seed|migration)/.test(filePath);
-    const isSunFile = /\.sun\//.test(filePath);
-    const isSkillFile = /skills\//.test(filePath);
-
-    if (isTestFile || isConfig || isSunFile || isSkillFile) {
-      process.stdout.write('{}');
-      return;
-    }
-
-    // Production code touched — remind without contradicting visual-contract.
-    process.stdout.write(JSON.stringify({
-      hookSpecificOutput: {
-        hookEventName: 'PreToolUse',
-        additionalContext: "🔴 Iron Law #1 Reminder: Production code is about to change. Default policy is RED-first: prove the relevant test fails before editing. Exception: an explicitly declared MoMorph visual-contract may implement presentational UI first, but must record design evidence and complete compile/lint, coverage, and tester-owned visual validation afterward. Never use visual-contract for behavior or backend logic."
-      }
-    }));
-  } catch (e) {
-    // Fail open
-    process.stdout.write('{}');
+    return { status: 'context', output: IRON_LAW_REMINDER };
+  } catch (_) {
+    return { status: 'ok' };
   }
-});
+}
+
+module.exports.run = run;
+module.exports.meta = {
+  events: ['PreToolUse'],
+  matchers: { PreToolUse: 'Edit|Write' },
+  timeout: 10,
+};
+
+if (require.main === module) {
+  runSelfExec(run);
+}

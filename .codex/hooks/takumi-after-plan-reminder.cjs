@@ -1,73 +1,65 @@
 #!/usr/bin/env node
+'use strict';
+
 /**
- * SubagentStop hook (Plan agent) — bridges Blueprint to Forge.
+ * takumi-after-plan-reminder — SubagentStop hook (Plan agent). Bridges Blueprint to Forge.
  *
- * Fires when the Plan subagent finishes.
- * Reminds the session to invoke /tkm:takumi --auto before touching any code.
- * Emits the absolute plan path so sessions after /clear (or in a worktree) can locate it.
+ * Fires when the Plan subagent finishes. Reminds the session to invoke
+ * /tkm:takumi --auto before touching any code, and emits the absolute plan path
+ * (from session state) so sessions after /clear (or in a worktree) can locate it.
  *
- * Exit codes:
- *   0 — always (non-blocking)
+ * Fail-open: the reminder must never halt the session.
+ *
+ * DUAL-MODE KIT HOOK — see docs/hook-authoring.md. `run(input, ctx)` is the pure
+ * decision (no stdin/stdout/exit); the `require.main === module` branch preserves
+ * the legacy `node "<path>"` invocation.
  */
 
-// Outer crash wrapper — reminder must never halt the session
-try {
-  const fs = require('fs');
-  const path = require('path');
-  const { isHookEnabled, readSessionState } = require('./lib/tkm-config-utils.cjs');
+const path = require('path');
+const { isHookEnabled, readSessionState } = require('./lib/tkm-config-utils.cjs');
+const { runSelfExec } = require('./lib/hook-dual-mode.cjs');
 
-  // Skip without side-effects if disabled in tkm.config.json
-  if (!isHookEnabled('takumi-after-plan-reminder')) {
-    process.exit(0);
-  }
-
-  async function main() {
+/**
+ * Pure decision. Always returns the post-plan reminder as `context` (with the
+ * absolute plan path when session state carries it), or `{status:'ok'}` when
+ * disabled. Fail-open on any internal error.
+ */
+function run(_input, _ctx) {
   try {
-    const stdin = fs.readFileSync(0, 'utf-8').trim();
-    if (!stdin) process.exit(0);
+    if (!isHookEnabled('takumi-after-plan-reminder')) return { status: 'ok' };
 
-    // Resolve the active plan path from session state; ensure it's absolute
+    // Resolve the active plan path from session state; ensure it's absolute.
     const sessionId = process.env.TKM_SESSION_ID;
     let planPath = null;
-
     if (sessionId) {
       const state = readSessionState(sessionId);
       if (state?.activePlan) {
         planPath = state.activePlan;
-        // Relative paths come from older state — resolve against sessionOrigin
         if (!path.isAbsolute(planPath) && state.sessionOrigin) {
           planPath = path.resolve(state.sessionOrigin, planPath);
         }
       }
     }
 
-    // Always emit the reminder; include full absolute path when available
-    console.log('MUST invoke /tkm:takumi --auto skill before implementing the plan');
+    const lines = ['MUST invoke /tkm:takumi --auto skill before implementing the plan'];
     if (planPath) {
-      const planMdPath = path.join(planPath, 'plan.md');
-      console.log(`Best Practice: Run /clear then /tkm:takumi ${planMdPath}`);
+      lines.push(`Best Practice: Run /clear then /tkm:takumi ${path.join(planPath, 'plan.md')}`);
     } else {
-      // Plan path not in state — emit generic reminder with placeholder
-      console.log('Best Practice: Run /clear then /tkm:takumi {full-absolute-path-to-plan.md}');
+      lines.push('Best Practice: Run /clear then /tkm:takumi {full-absolute-path-to-plan.md}');
     }
-
-    process.exit(0);
-  } catch (error) {
-    // Reminder is best-effort; swallow errors and exit clean
-    process.exit(0);
+    return { status: 'context', output: lines.join('\n') };
+  } catch (_) {
+    return { status: 'ok' };
   }
-  }
+}
 
-  main();
-} catch (e) {
-  // Minimal crash log (zero deps — Node builtins only)
-  try {
-    const fs = require('fs');
-    const p = require('path');
-    const logDir = p.join(__dirname, '.logs');
-    if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true });
-    fs.appendFileSync(p.join(logDir, 'hook-log.jsonl'),
-      JSON.stringify({ ts: new Date().toISOString(), hook: p.basename(__filename, '.cjs'), status: 'crash', error: e.message }) + '\n');
-  } catch (_) {}
-  process.exit(0); // fail-open
+module.exports.run = run;
+module.exports.meta = {
+  events: ['SubagentStop'],
+  matchers: { SubagentStop: 'Plan' },
+  timeout: 10,
+};
+
+if (require.main === module) {
+  runSelfExec(run);
 }

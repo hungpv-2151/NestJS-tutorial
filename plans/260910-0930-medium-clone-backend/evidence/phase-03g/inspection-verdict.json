@@ -1,0 +1,30 @@
+{
+  "score": 10,
+  "criticalCount": 0,
+  "decision": "SEALED",
+  "acceptanceCovered": [
+    "GET /api/files/:id requires a valid Token JWT and resolves its username subject to the user's UUID before checking attachment ownership. AuthTokenGuard and the username lookup precede owner UUID comparison; E2E covers authentication.",
+    "Only the owning user can read an attachment; missing and foreign attachments return the same non-disclosing 404. Unit tests cover missing/foreign ownership; E2E verifies the safe 404 body.",
+    "Private file reads stay below the configured private storage root and reject unsupported image metadata, invalid size metadata, missing files, and size mismatches without exposing storage paths. Storage traversal and missing-file cases are tested.",
+    "Successful reads return the supported image media type and content length with private no-store, no-cache, and nosniff headers. Focused E2E assertions cover binary body and response headers.",
+    "The API has focused unit, storage, and E2E coverage, a passing build, zero-error lint, and an independent final review. Ten unit/storage tests and three E2E tests passed; build and lint passed, and reviewer found no actionable defects."
+  ],
+  "regressionChecked": [
+    "AuthTokenGuard rejects missing credentials before file handler execution",
+    "JWT username subject maps to the user UUID required by attachment ownership policy",
+    "Missing, foreign, malformed, and deleted-user paths do not reveal storage metadata",
+    "Private storage key validation prevents traversal outside configured root",
+    "Only JPEG, PNG, and WebP metadata is returned; byte size is bounded and verified",
+    "Cache-Control, Pragma, Expires, Content-Length, and X-Content-Type-Options headers"
+  ],
+  "contractStatus": "OK",
+  "refuted": [],
+  "unproven": [],
+  "reachableRegressions": [],
+  "findings": [],
+  "riskGate": {
+    "touchesSensitiveArea": true,
+    "signoffRequired": true,
+    "humanSignedOff": true
+  }
+}

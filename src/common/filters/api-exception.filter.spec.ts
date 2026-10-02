@@ -1,4 +1,9 @@
-import { BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Logger,
+} from '@nestjs/common';
 import { describe, expect, it, vi } from 'vitest';
 import {
   ApiExceptionFilter,
@@ -42,11 +47,27 @@ describe('ApiExceptionFilter', () => {
   it('writes the formatted error without requiring global registration', () => {
     const json = vi.fn();
     const status = vi.fn().mockReturnValue({ json });
+    const error = vi.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined);
     const filter = new ApiExceptionFilter();
 
-    filter.catch(new Error('hidden'), { switchToHttp: () => ({ getResponse: () => ({ status }) }) } as never);
+    filter.catch(
+      new Error('hidden'),
+      {
+        switchToHttp: () => ({
+          getRequest: () => ({
+            body: { password: 'safe-password' },
+            method: 'POST',
+            path: '/api/users',
+          }),
+          getResponse: () => ({ status }),
+        }),
+      } as never,
+    );
 
     expect(status).toHaveBeenCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
     expect(json).toHaveBeenCalledWith({ errors: { body: ['internal server error'] } });
+    expect(error).toHaveBeenCalledWith(expect.stringContaining('[REDACTED]'));
+    expect(error).not.toHaveBeenCalledWith(expect.stringContaining('safe-password'));
+    error.mockRestore();
   });
 });

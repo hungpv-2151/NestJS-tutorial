@@ -72,7 +72,7 @@ paths:
       tags:
         - User and Authentication
       summary: Update current user
-      description: Updated user information for current user
+      description: Updates profile fields only. Email, username, and password are login credentials and cannot be changed here.
       operationId: UpdateCurrentUser
       requestBody:
         $ref: '#/components/requestBodies/UpdateUserRequest'
@@ -163,12 +163,27 @@ paths:
       tags:
         - Articles
       summary: Get recent articles from users you follow
-      description: Get most recent articles from users you follow. Use query parameters
-        to limit. Auth is required
+      description: Get recent articles from followed authors. Auth is required. Offset
+        defaults to 0; limit defaults to 20 and is capped at 100.
       operationId: GetArticlesFeed
       parameters:
-        - $ref: '#/components/parameters/offsetParam'
-        - $ref: '#/components/parameters/limitParam'
+        - name: offset
+          in: query
+          required: false
+          description: Items to skip. Defaults to 0.
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: limit
+          in: query
+          required: false
+          description: Items to return. Defaults to 20; maximum 100.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
       responses:
         '200':
           $ref: '#/components/responses/MultipleArticlesResponse'
@@ -176,15 +191,16 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '422':
           $ref: '#/components/responses/GenericError'
+        '500':
+          $ref: '#/components/responses/GenericError'
       security:
         - Token: [ ]
   /articles:
     get:
       tags:
         - Articles
-      summary: Get recent articles globally
-      description: Get most recent articles globally. Use query parameters to filter
-        results. Auth is optional
+      summary: List articles
+      description: Get recent articles globally with optional exact-match filters. Auth is optional.
       operationId: GetArticles
       parameters:
         - name: tag
@@ -202,8 +218,23 @@ paths:
           description: Filter by favorites of a user (username)
           schema:
             type: string
-        - $ref: '#/components/parameters/offsetParam'
-        - $ref: '#/components/parameters/limitParam'
+        - name: offset
+          in: query
+          required: false
+          description: The number of items to skip before starting to collect the result set.
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: limit
+          in: query
+          required: false
+          description: The numbers of items to return.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
       responses:
         '200':
           $ref: '#/components/responses/MultipleArticlesResponse'
@@ -211,6 +242,11 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '422':
           $ref: '#/components/responses/GenericError'
+        '500':
+          $ref: '#/components/responses/GenericError'
+      security:
+        - Token: [ ]
+        - { }
     post:
       tags:
         - Articles
@@ -225,7 +261,15 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '409':
-          $ref: '#/components/responses/ConflictError'
+          description: Conflict - generated article slug already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+              example:
+                errors:
+                  slug:
+                    - "has already been taken"
         '422':
           $ref: '#/components/responses/GenericError'
       security:
@@ -236,7 +280,7 @@ paths:
       tags:
         - Articles
       summary: Get an article
-      description: Get an article. Auth not required
+      description: Anonymous requests do not require authentication and return 200. An optional Token authorization header personalizes favorite and follow flags. If a token is supplied but invalid, the request returns 401.
       operationId: GetArticle
       parameters:
         - name: slug
@@ -248,15 +292,28 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/SingleArticleResponse'
+        '401':
+          description: Returned only when the supplied token is invalid; no token is required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+              example:
+                errors:
+                  token:
+                    - "is invalid"
         '404':
           $ref: '#/components/responses/NotFound'
         '422':
           $ref: '#/components/responses/GenericError'
+      security:
+        - Token: []
+        - { }
     put:
       tags:
         - Articles
       summary: Update an article
-      description: Update an article. Auth is required
+      description: Update supplied fields for the authenticated owner. The slug remains stable; an empty article object leaves the article unchanged. A supplied tagList replaces the ordered list, and an empty list clears it.
       operationId: UpdateArticle
       parameters:
         - name: slug
@@ -273,9 +330,25 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
-          $ref: '#/components/responses/Forbidden'
+          description: The authenticated user does not own this article.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+              example:
+                errors:
+                  article:
+                    - "forbidden"
         '404':
-          $ref: '#/components/responses/NotFound'
+          description: Article slug was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+              example:
+                errors:
+                  article:
+                    - "not found"
         '422':
           $ref: '#/components/responses/GenericError'
       security:
@@ -300,11 +373,35 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
-          $ref: '#/components/responses/Forbidden'
+          description: The authenticated user does not own this article.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+              example:
+                errors:
+                  article:
+                    - "forbidden"
         '404':
-          $ref: '#/components/responses/NotFound'
-        '422':
-          $ref: '#/components/responses/GenericError'
+          description: Article slug was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+              example:
+                errors:
+                  article:
+                    - "not found"
+        '500':
+          description: Article deletion failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+              example:
+                errors:
+                  body:
+                    - "request failed"
       security:
         - Token: [ ]
   /articles/{slug}/comments:
@@ -504,12 +601,6 @@ components:
     UpdateUser:
       type: object
       properties:
-        email:
-          type: string
-        password:
-          type: string
-        username:
-          type: string
         bio:
           type:
             - string
@@ -518,6 +609,7 @@ components:
           type:
             - string
             - 'null'
+      additionalProperties: false
     Profile:
       required:
         - bio
@@ -595,6 +687,7 @@ components:
             type: string
     UpdateArticle:
       type: object
+      additionalProperties: false
       properties:
         title:
           type: string
@@ -606,6 +699,7 @@ components:
           type: array
           items:
             type: string
+            pattern: '\S'
     Comment:
       required:
         - author
@@ -691,6 +785,7 @@ components:
             required:
               - article
             type: object
+            additionalProperties: false
             properties:
               article:
                 $ref: '#/components/schemas/Article'
@@ -845,10 +940,11 @@ components:
                 $ref: '#/components/schemas/NewUser'
     UpdateUserRequest:
       required: true
-      description: User details to update. At least **one** field is required.
+      description: Profile fields to update. Only bio and image are accepted; email, username, and password cannot be changed here.
       content:
         application/json:
           schema:
+            additionalProperties: false
             required:
               - user
             type: object
@@ -876,6 +972,7 @@ components:
             required:
               - article
             type: object
+            additionalProperties: false
             properties:
               article:
                 $ref: '#/components/schemas/UpdateArticle'

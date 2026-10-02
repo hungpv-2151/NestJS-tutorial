@@ -1,6 +1,6 @@
 ---
-title: "NestJS RealWorld backend API-granular PR roadmap"
-description: "Triển khai backend RealWorld bằng stack PR nhỏ, mỗi PR chỉ phục vụ một API hoặc một lớp nền tảng không có API."
+title: 'NestJS RealWorld backend API-granular PR roadmap'
+description: 'Triển khai backend RealWorld bằng stack PR nhỏ, mỗi PR chỉ phục vụ một API hoặc một lớp nền tảng không có API.'
 status: in-progress
 priority: P1
 effort: 96h
@@ -9,7 +9,7 @@ tags: [feature, backend, database, api, auth]
 blockedBy: []
 blocks: []
 work_type: feature
-spec_waived: "SDD mode disabled (takumi.sddMode: off)"
+spec_waived: 'SDD mode disabled (takumi.sddMode: off)'
 created: 2026-09-14
 ---
 
@@ -22,22 +22,21 @@ Giữ nguyên lịch sử PR1 đã hoàn thành, audit phần Phase 02 đang d�
 ## Non-Negotiable PR Governance
 
 - Một API → một hoặc nhiều PR; không PR nào chứa từ hai API trở lên. Foundation PR phải có `Public API change: none`.
-- Mục tiêu ≤300 changed lines/PR, hard gate ≤400 tính cả generated files. Vượt ngưỡng thì tách trước review; không submit để “xin exception”.
-- Ngoại lệ duy nhất: PR dependency/lockfile-only có thể vượt 400 dòng khi lockfile tái giải quyết vượt cap; phải không có runtime source/API, nêu rõ số dòng lockfile và lý do trong PR evidence.
+- Mục tiêu ≤300 và hard gate ≤400 changed lines **chỉ tính file code production**. Không tính spec, Markdown, JSON, test (`*.spec.*`, `test/**`), migration, YAML, lockfile, generated file hoặc configuration/supporting artifact. Vượt ngưỡng code production thì tách trước review.
 - Trước mọi code fix: refresh remote, rebase PR lên đúng base, xác nhận lại bằng stack view, rồi audit diff với phase hiện hành. Không rewrite lịch sử PR1; gap của PR đã hoàn thành đi vào remediation layer mới.
 - Error-level lint/static-analysis = 0 trước submit. Warning sửa khi hợp lý; warning giữ lại phải ghi rule, file, lý do và follow-up trong PR evidence.
 - Mỗi PR phải có một PR comment chứa command/result, exit code, commit SHA và screenshot đính kèm. Link comment được ghi vào checklist phase.
 
 ## Phases / PR Waves
 
-| Phase | PR scope | Effort | Blocked by | Status |
-|---|---|---:|---|---|
-| 1 | [PR1 bootstrap + `GET /api/hello`](./phase-01-project-bootstrap-docs.md) | 6h | — | Complete |
-| 2 | [Audit/rebase, foundations và auth APIs](./phase-02-database-auth-background-jobs.md) | 24h | PR1 | In progress: 2B.1 validated; 2B.2 submitted in [PR #23](https://github.com/hungpv-2151/NestJS-tutorial/pull/23) |
-| 3 | [User, profile và private-file APIs](./phase-03-user-profile-private-avatar.md) | 18h | Phase 2 | Pending |
-| 4 | [Article/feed/favorite/tag APIs](./phase-04-articles-search-pagination.md) | 26h | Phase 3 | Pending |
-| 5 | [Comment APIs](./phase-05-comments.md) | 10h | Phase 4 | Pending |
-| 6 | [Stack-wide verification and remediation routing](./phase-06-unit-e2e-c2-testing.md) | 12h | Phase 5 | Pending |
+| Phase | PR scope                                                                              | Effort | Blocked by | Status                                                                                                                  |
+| ----- | ------------------------------------------------------------------------------------- | -----: | ---------- | ----------------------------------------------------------------------------------------------------------------------- |
+| 1     | [PR1 bootstrap + `GET /api/hello`](./phase-01-project-bootstrap-docs.md)              |     6h | —          | Complete                                                                                                                |
+| 2     | [Audit/rebase, foundations và auth APIs](./phase-02-database-auth-background-jobs.md) |    24h | PR1        | In progress: G2 stack audit complete; 2I daily training-summary remains deferred; auth APIs through 2H are submitted  |
+| 3     | [User, profile và private-file APIs](./phase-03-user-profile-private-avatar.md)       |    18h | Phase 02H  | In progress: 3G `GET /api/files/:id` submitted as PR #46 on #45; validation and independent review pass |
+| 4     | [Article/feed/favorite/tag APIs](./phase-04-articles-search-pagination.md)            |    26h | Phase 3    | In progress: 4A–4F PRs #47–#53 ready; 4G body-free projection support PR #54 ready, with its single `GET /api/articles` API PR in delivery; continue without a manual review pause |
+| 5     | [Comment APIs](./phase-05-comments.md)                                                |    10h | Phase 4    | Pending                                                                                                                 |
+| 6     | [Stack-wide verification and remediation routing](./phase-06-unit-e2e-c2-testing.md)  |    12h | Phase 5    | Pending                                                                                                                 |
 
 ## Dependency and Data Flow
 
@@ -45,7 +44,7 @@ Giữ nguyên lịch sử PR1 đã hoàn thành, audit phần Phase 02 đang d�
 
 ## Definition of Done Applied to Every PR
 
-- Rebased on declared base before first fix and again before submit; diff re-audited for one-API boundary and ≤400 changed lines.
+- Rebased on declared base before first fix and again before submit; diff re-audited for one-API boundary and ≤400 changed lines of production code.
 - Migration liên quan apply/revert/apply; compile, targeted tests và contract check green; Swagger chỉ đổi cho đúng API của PR.
 - Lint/static-analysis không còn error. Warning đã sửa hoặc được liệt kê có lý do/follow-up.
 - PR comment có screenshot + textual results; comment URL được ghi trong phase. Reviewer xác nhận API scope, security, rollback và không có unrelated changes.

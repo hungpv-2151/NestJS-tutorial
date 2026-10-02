@@ -45,6 +45,85 @@ describe('AppController (e2e)', () => {
         expect.objectContaining({ name: 'accept-language', in: 'header' }),
       ]),
     );
+    expect(response.body.paths['/api/users'].post).toMatchObject({
+      responses: {
+        '201': expect.any(Object),
+        '409': expect.any(Object),
+        '422': expect.any(Object),
+        '500': expect.any(Object),
+      },
+      summary: 'Register a new user',
+      tags: expect.arrayContaining(['Authentication']),
+    });
+    expect(response.body.paths['/api/users/login'].post).toMatchObject({
+      responses: {
+        '200': expect.any(Object),
+        '401': expect.any(Object),
+        '429': expect.any(Object),
+      },
+      summary: 'Sign in with email and password',
+    });
+    expect(response.body.paths['/api/user'].get).toMatchObject({
+      responses: { '200': expect.any(Object), '401': expect.any(Object) },
+      security: [{ tokenAuth: [] }],
+      summary: 'Get the authenticated user',
+    });
+    const updateUserOperation = response.body.paths['/api/user'].put;
+    expect(updateUserOperation).toMatchObject({
+      responses: {
+        '200': expect.any(Object),
+        '401': expect.any(Object),
+        '422': expect.any(Object),
+      },
+      security: [{ tokenAuth: [] }],
+      summary: 'Update the authenticated user',
+    });
+    const updateUserRequestSchema =
+      updateUserOperation.requestBody.content['application/json'].schema;
+    expect(updateUserRequestSchema.additionalProperties).toBe(false);
+    expect(updateUserRequestSchema.properties.user.additionalProperties).toBe(
+      false,
+    );
+    expect(
+      Object.keys(updateUserRequestSchema.properties.user.properties).sort(),
+    ).toEqual(['bio', 'image']);
+    expect(updateUserOperation.description).toContain(
+      'Email, username, and password are login credentials and cannot be changed here.',
+    );
+    expect(response.body.components.securitySchemes.tokenAuth).toMatchObject({
+      in: 'header',
+      name: 'Authorization',
+      type: 'apiKey',
+    });
+    const tags = Object.values(response.body.paths)
+      .flatMap((path: Record<string, { tags?: string[] }>) =>
+        Object.values(path).flatMap((operation) => operation.tags ?? []),
+      )
+      .sort();
+    expect(tags).not.toContain('Auth');
+    expect(tags).not.toContain('Profiles');
+    expect(tags).toEqual(
+      expect.arrayContaining(['Authentication', 'Profile', 'System']),
+    );
+    expect(response.body.paths['/api/user/logout'].post).toMatchObject({
+      responses: {
+        '204': expect.any(Object),
+        '401': expect.any(Object),
+        '500': expect.any(Object),
+      },
+      security: [{ tokenAuth: [] }],
+      summary: 'Sign out and revoke the presented token',
+    });
+    expect(response.body.paths['/api/profiles/{username}'].get).toMatchObject({
+      responses: { '200': expect.any(Object), '404': expect.any(Object) },
+      summary: 'Get a profile by username',
+      tags: expect.arrayContaining(['Profile']),
+    });
+    expect(response.body.paths['/api/profiles/{username}/follow'].delete).toMatchObject({
+      responses: { '200': expect.any(Object), '401': expect.any(Object), '404': expect.any(Object) },
+      security: [{ tokenAuth: [] }],
+      summary: 'Unfollow a profile by username',
+    });
   });
 
   afterEach(async () => {

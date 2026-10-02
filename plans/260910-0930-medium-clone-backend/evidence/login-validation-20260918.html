@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>POST /api/users/login validation</title>
+<style>body{font:18px system-ui;margin:48px;color:#172033}h1{margin-bottom:8px}li{margin:12px 0}.ok{color:#087443;font-weight:700}code{background:#edf2f7;padding:2px 5px}</style>
+<h1>Phase 2F — POST /api/users/login validation</h1>
+<p>2026-09-18 · stacked base: <code>phase-02-register-complete</code></p>
+<ul>
+<li><span class="ok">PASS</span> valid login returns the serialized RealWorld user and JWT</li>
+<li><span class="ok">PASS</span> invalid credentials return generic <code>401</code>; sixth request returns <code>429</code></li>
+<li><span class="ok">PASS</span> unknown emails still verify a fixed Argon2id hash</li>
+<li><span class="ok">PASS</span> Redis atomic TTL limiter applies across two independent connections</li>
+<li><span class="ok">PASS</span> <code>pnpm install --frozen-lockfile</code>, build, unit, E2E, lint and diff check</li>
+<li><span class="ok">PASS</span> lint: 0 errors; warnings recorded in the PR evidence</li>
+</ul>

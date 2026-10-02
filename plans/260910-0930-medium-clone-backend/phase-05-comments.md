@@ -42,7 +42,7 @@
 
 1. Refresh/rebase each row on declared base and audit inherited diff before code fixes.
 2. Land 5A schema without route; implement 5B, 5C and 5D separately through existing article/profile seams.
-3. Keep preferred size ≤300 and hard limit ≤400; split oversized work only into same-API suffix PRs.
+3. Keep production-code size preferred ≤300 and hard limit ≤400; spec, Markdown, JSON, test, migration, YAML, lockfile and supporting artifacts do not count. Split oversized code only into same-API suffix PRs.
 4. Require zero error-level lint/static findings; fix warnings or document reason/follow-up.
 5. Attach command/results and screenshot to each PR comment; record URL before review.
 

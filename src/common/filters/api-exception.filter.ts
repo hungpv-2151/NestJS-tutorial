@@ -4,7 +4,12 @@ import {
   ExceptionFilter,
   HttpException,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
+import {
+  createRequestFailureLog,
+  type RequestForLog,
+} from '../logging/request-failure-log.js';
 
 export interface RealWorldErrors {
   errors: Record<string, string[]>;
@@ -20,10 +25,14 @@ const CANNOT_BE_BLANK = "can't be blank";
 
 @Catch()
 export class ApiExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(ApiExceptionFilter.name);
+
   catch(exception: unknown, host: ArgumentsHost): void {
     const formatted = formatApiException(exception);
-    host
-      .switchToHttp()
+    const http = host.switchToHttp();
+    const request = http.getRequest<RequestForLog>();
+    this.logger.error(JSON.stringify(createRequestFailureLog(exception, request)));
+    http
       .getResponse<{
         status(code: number): { json(body: RealWorldErrors): void };
       }>()

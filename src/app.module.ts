@@ -4,7 +4,11 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
-import { DatabaseModule } from './database/database.module.js';
+import { AuthModule } from './auth/auth.module.js';
+import { ProfilesModule } from './profiles/profiles.module.js';
+import { AttachmentsModule } from './attachments/attachments.module.js';
+import { FilesModule } from './files/files.module.js';
+import { ArticlesModule } from './articles/articles.module.js';
 
 const translationsPath = join(dirname(fileURLToPath(import.meta.url)), 'i18n');
 
@@ -18,7 +22,11 @@ const translationsPath = join(dirname(fileURLToPath(import.meta.url)), 'i18n');
       },
       resolvers: [AcceptLanguageResolver],
     }),
-    DatabaseModule.register(),
+    AuthModule,
+    ProfilesModule,
+    AttachmentsModule,
+    FilesModule,
+    ArticlesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

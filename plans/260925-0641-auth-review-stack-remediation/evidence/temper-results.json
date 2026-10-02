@@ -1,0 +1,46 @@
+{
+  "commands": [
+    {
+      "command": "pnpm build",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Nest production build passed.",
+      "ts": "2026-09-25T10:31:57.511Z"
+    },
+    {
+      "command": "pnpm lint",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "SunLint passed across 95 files with 139 warnings and 0 errors.",
+      "ts": "2026-09-25T10:31:57.511Z"
+    },
+    {
+      "command": "pnpm test",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "30 test files passed, 1 skipped; 123 passed, 1 skipped, 0 failed (124 total).",
+      "ts": "2026-09-25T10:31:57.511Z"
+    },
+    {
+      "command": "pnpm test:e2e",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "10 E2E test files passed; 36 tests passed.",
+      "ts": "2026-09-25T10:31:57.511Z"
+    },
+    {
+      "command": "pnpm exec vitest run src/attachments/private-attachment-storage.spec.ts src/attachments/attachment-access-policy.spec.ts src/auth/user-avatar-handler.spec.ts src/auth/auth.service.spec.ts",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "4 focused attachment/auth test files passed; 34 tests passed.",
+      "ts": "2026-09-25T10:31:57.511Z"
+    },
+    {
+      "command": "pnpm exec vitest run src/common/logging/request-failure-log.spec.ts",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Focused request-failure logger test passed; 1 file, 4 tests.",
+      "ts": "2026-09-25T10:31:57.511Z"
+    }
+  ]
+}

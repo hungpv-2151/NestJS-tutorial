@@ -8,7 +8,7 @@ export default defineConfig({
   test: {
     globals: true,
     root: './',
-    include: ['src/**/*.spec.ts'],
+    include: ['src/**/*.spec.ts', 'test/**/*.integration.spec.ts'],
     setupFiles: ['./test/setup/test-database.ts'],
   },
 });
