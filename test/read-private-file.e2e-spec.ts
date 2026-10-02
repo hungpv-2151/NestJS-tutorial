@@ -1,4 +1,9 @@
-import { INestApplication, Module, NotFoundException } from '@nestjs/common';
+import {
+  INestApplication,
+  Module,
+  NotFoundException,
+  StreamableFile,
+} from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { App } from 'supertest/types';
@@ -27,11 +32,14 @@ describe('GET /api/files/:id (e2e)', () => {
   });
 
   it('returns the owners bytes with safe private response headers', async () => {
-    const read = vi.fn().mockResolvedValue({
-      body: Buffer.from('private image'),
-      byteSize: 13,
-      mediaType: 'image/png',
-    });
+    const body = Buffer.from('private image');
+    const read = vi.fn().mockResolvedValue(
+      new StreamableFile(body, {
+        disposition: 'inline; filename="avatar.png"',
+        length: body.length,
+        type: 'image/png',
+      }),
+    );
     app = await createApp(read);
 
     await request(app.getHttpServer())
@@ -45,7 +53,9 @@ describe('GET /api/files/:id (e2e)', () => {
       .expect('Pragma', 'no-cache')
       .expect('Expires', '0')
       .expect((response) => {
-        expect(Buffer.from(response.body)).toEqual(Buffer.from('private image'));
+        expect(Buffer.from(response.body)).toEqual(
+          Buffer.from('private image'),
+        );
       });
 
     expect(read).toHaveBeenCalledWith('jane', 'attachment-id');

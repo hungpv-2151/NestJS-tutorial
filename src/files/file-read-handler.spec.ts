@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, StreamableFile } from '@nestjs/common';
 import { describe, expect, it, vi } from 'vitest';
 
 import { Attachment } from '../attachments/attachment.entity.js';
@@ -8,17 +8,23 @@ import { FileReadHandler } from './file-read-handler.js';
 const ATTACHMENT_ID = '22222222-2222-4222-8222-222222222222';
 
 describe('FileReadHandler', () => {
-  it('returns private bytes and stored media metadata for the owner', async () => {
+  it.each([
+    ['image/jpeg', 'jpg'],
+    ['image/png', 'png'],
+    ['image/webp', 'webp'],
+  ])('returns a %s stream for the owner', async (mediaType, extension) => {
     const bytes = Buffer.from('private image');
-    const handler = createHandler(
-      attachment('owner-id'),
-      { read: vi.fn().mockResolvedValue(bytes) },
-    );
+    const handler = createHandler(attachment('owner-id', mediaType), {
+      read: vi.fn().mockResolvedValue(bytes),
+    });
 
-    await expect(handler.execute('owner-id', ATTACHMENT_ID)).resolves.toEqual({
-      body: bytes,
-      byteSize: bytes.length,
-      mediaType: 'image/png',
+    const file = await handler.execute('owner-id', ATTACHMENT_ID);
+
+    expect(file).toBeInstanceOf(StreamableFile);
+    expect(file.getHeaders()).toEqual({
+      disposition: `inline; filename="avatar.${extension}"`,
+      length: bytes.length,
+      type: mediaType,
     });
   });
 
@@ -28,9 +34,9 @@ describe('FileReadHandler', () => {
       read: vi.fn(),
     });
 
-    await expect(missing.execute('owner-id', ATTACHMENT_ID)).rejects.toBeInstanceOf(
-      NotFoundException,
-    );
+    await expect(
+      missing.execute('owner-id', ATTACHMENT_ID),
+    ).rejects.toBeInstanceOf(NotFoundException);
     await expect(
       foreign.execute('owner-id', ATTACHMENT_ID),
     ).rejects.toBeInstanceOf(NotFoundException);
@@ -40,18 +46,24 @@ describe('FileReadHandler', () => {
     const storage = { read: vi.fn() };
     const handler = createHandler(null, storage, null);
 
-    await expect(handler.execute('deleted-user', ATTACHMENT_ID)).rejects.toBeInstanceOf(
-      NotFoundException,
-    );
+    await expect(
+      handler.execute('deleted-user', ATTACHMENT_ID),
+    ).rejects.toBeInstanceOf(NotFoundException);
     expect(storage.read).not.toHaveBeenCalled();
   });
 
   it('does not disclose storage paths when the private file is missing', async () => {
     const handler = createHandler(attachment('owner-id'), {
-      read: vi.fn().mockRejectedValue(Object.assign(new Error('ENOENT'), { code: 'ENOENT' })),
+      read: vi
+        .fn()
+        .mockRejectedValue(
+          Object.assign(new Error('ENOENT'), { code: 'ENOENT' }),
+        ),
     });
 
-    await expect(handler.execute('owner-id', ATTACHMENT_ID)).rejects.toMatchObject({
+    await expect(
+      handler.execute('owner-id', ATTACHMENT_ID),
+    ).rejects.toMatchObject({
       status: 404,
       response: { errors: { file: ['not found'] } },
     });
@@ -65,9 +77,7 @@ function createHandler(
 ) {
   return new FileReadHandler(
     {
-      findByUsername: vi
-        .fn()
-        .mockResolvedValue(userId ? { id: userId } : null),
+      findByUsername: vi.fn().mockResolvedValue(userId ? { id: userId } : null),
     } as never,
     { findOneBy: vi.fn().mockResolvedValue(record) } as never,
     storage as never,
@@ -75,11 +85,11 @@ function createHandler(
   );
 }
 
-function attachment(ownerId: string): Attachment {
+function attachment(ownerId: string, mediaType = 'image/png'): Attachment {
   return {
     byteSize: 13,
     id: ATTACHMENT_ID,
-    mediaType: 'image/png',
+    mediaType,
     ownerId,
     storageKey: 'opaque-random-key.png',
   } as Attachment;

@@ -2,6 +2,7 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  StreamableFile,
 } from '@nestjs/common';
 import type { Repository } from 'typeorm';
 
@@ -12,9 +13,15 @@ import { UserService } from '../users/user.service.js';
 
 const MAX_PRIVATE_FILE_BYTES = 2 * 1024 * 1024;
 const IMAGE_MEDIA_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const MEDIA_TYPE_EXTENSION: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+};
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-export interface PrivateFileContent {
+interface PrivateFileContent {
   body: Buffer;
   byteSize: number;
   mediaType: string;
@@ -29,7 +36,10 @@ export class FileReadHandler {
     private readonly accessPolicy: AttachmentAccessPolicy,
   ) {}
 
-  async execute(username: string, attachmentId: string): Promise<PrivateFileContent> {
+  async execute(
+    username: string,
+    attachmentId: string,
+  ): Promise<StreamableFile> {
     if (!UUID_PATTERN.test(attachmentId)) throw fileNotFound();
 
     const user = await this.users.findByUsername(username);
@@ -55,8 +65,23 @@ export class FileReadHandler {
     }
     if (body.byteLength !== attachment.byteSize) throw fileReadFailed();
 
-    return { body, byteSize: body.byteLength, mediaType: attachment.mediaType };
+    return toStreamableFile({
+      body,
+      byteSize: body.byteLength,
+      mediaType: attachment.mediaType,
+    });
   }
+}
+
+function toStreamableFile(content: PrivateFileContent): StreamableFile {
+  const extension = MEDIA_TYPE_EXTENSION[content.mediaType];
+  if (!extension) throw fileNotFound();
+
+  return new StreamableFile(content.body, {
+    disposition: `inline; filename="avatar.${extension}"`,
+    length: content.byteSize,
+    type: content.mediaType,
+  });
 }
 
 function fileNotFound(): NotFoundException {
