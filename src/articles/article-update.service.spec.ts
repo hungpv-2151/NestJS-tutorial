@@ -2,7 +2,16 @@ import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { describe, expect, it } from 'vitest';
 
-import { ArticleUpdateRequestDto, ArticleUpdateDto } from './article-update.dto.js';
+import {
+  ArticleUpdateRequestDto,
+  ArticleUpdateDto,
+} from './article-update.dto.js';
+import {
+  ArticleUpdateArticleNotFoundError,
+  ArticleUpdateForbiddenError,
+  ArticleUpdatePersistenceError,
+  ArticleUpdateUserNotFoundError,
+} from './article-update.service.js';
 
 describe('ArticleUpdateRequestDto', () => {
   it.each([
@@ -40,4 +49,23 @@ describe('ArticleUpdateDto', () => {
 
     expect(empty).toEqual({});
   });
+});
+
+describe('ArticleUpdateService errors', () => {
+  it.each([
+    [new ArticleUpdateUserNotFoundError(), 401, { token: ['is invalid'] }],
+    [new ArticleUpdateArticleNotFoundError(), 404, { article: ['not found'] }],
+    [new ArticleUpdateForbiddenError(), 403, { article: ['forbidden'] }],
+    [
+      new ArticleUpdatePersistenceError(new Error('database failed')),
+      500,
+      { body: ['request failed'] },
+    ],
+  ])(
+    'exposes the HTTP response for service errors',
+    (error, status, errors) => {
+      expect(error.getStatus()).toBe(status);
+      expect(error.getResponse()).toEqual({ errors });
+    },
+  );
 });

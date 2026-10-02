@@ -1,4 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { DataSource, type EntityManager } from 'typeorm';
 
 import { User } from '../users/user.entity.js';
@@ -11,12 +17,27 @@ import {
 } from './article-tag-persistence.js';
 import { ArticleReadService } from './article-read.service.js';
 
-export class ArticleUpdateUserNotFoundError extends Error {}
-export class ArticleUpdateArticleNotFoundError extends Error {}
-export class ArticleUpdateForbiddenError extends Error {}
-export class ArticleUpdatePersistenceError extends Error {
+export class ArticleUpdateUserNotFoundError extends UnauthorizedException {
+  constructor() {
+    super({ errors: { token: ['is invalid'] } });
+  }
+}
+
+export class ArticleUpdateArticleNotFoundError extends NotFoundException {
+  constructor() {
+    super({ errors: { article: ['not found'] } });
+  }
+}
+
+export class ArticleUpdateForbiddenError extends ForbiddenException {
+  constructor() {
+    super({ errors: { article: ['forbidden'] } });
+  }
+}
+
+export class ArticleUpdatePersistenceError extends InternalServerErrorException {
   constructor(cause: unknown) {
-    super('article could not be updated', { cause });
+    super({ errors: { body: ['request failed'] } }, { cause });
   }
 }
 

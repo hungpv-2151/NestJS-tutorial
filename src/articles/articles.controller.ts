@@ -2,13 +2,11 @@ import {
   Body,
   ConflictException,
   Controller,
-  ForbiddenException,
   Get,
   Header,
   HttpCode,
   HttpStatus,
   InternalServerErrorException,
-  NotFoundException,
   Param,
   Post,
   Put,
@@ -35,13 +33,7 @@ import {
 } from './article-create.service.js';
 import { ArticleReadService } from './article-read.service.js';
 import { ArticleUpdateRequestDto } from './article-update.dto.js';
-import {
-  ArticleUpdateArticleNotFoundError,
-  ArticleUpdateForbiddenError,
-  ArticleUpdatePersistenceError,
-  ArticleUpdateService,
-  ArticleUpdateUserNotFoundError,
-} from './article-update.service.js';
+import { ArticleUpdateService } from './article-update.service.js';
 import {
   CreateArticleSwagger,
   GetArticleSwagger,
@@ -116,28 +108,10 @@ export class ArticlesController {
     @Body() request: ArticleUpdateRequestDto,
     @Req() auth: AuthenticatedRequest,
   ) {
-    try {
-      return await this.articleUpdateService.update(
-        slug,
-        auth.auth.sub,
-        request.article,
-      );
-    } catch (error) {
-      if (error instanceof ArticleUpdateUserNotFoundError) {
-        throw new UnauthorizedException({ errors: { token: ['is invalid'] } });
-      }
-      if (error instanceof ArticleUpdateArticleNotFoundError) {
-        throw new NotFoundException({ errors: { article: ['not found'] } });
-      }
-      if (error instanceof ArticleUpdateForbiddenError) {
-        throw new ForbiddenException({ errors: { article: ['forbidden'] } });
-      }
-      if (error instanceof ArticleUpdatePersistenceError) {
-        throw new InternalServerErrorException({
-          errors: { body: ['request failed'] },
-        });
-      }
-      throw error;
-    }
+    return await this.articleUpdateService.update(
+      slug,
+      auth.auth.sub,
+      request.article,
+    );
   }
 }
