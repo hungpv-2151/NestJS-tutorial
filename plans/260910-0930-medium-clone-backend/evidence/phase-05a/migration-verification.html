@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Phase 5A migration verification</title>
+    <style>
+      body { margin: 0; background: #f3f5f8; color: #17212b; font: 16px/1.5 system-ui, sans-serif; }
+      main { max-width: 920px; margin: 36px auto; padding: 32px; background: #fff; border-radius: 14px; box-shadow: 0 8px 30px #17212b14; }
+      h1 { margin: 0 0 8px; font-size: 28px; }
+      h2 { margin: 26px 0 8px; font-size: 18px; }
+      .ok { color: #176b42; font-weight: 700; }
+      code, pre { font-family: ui-monospace, monospace; }
+      pre { white-space: pre-wrap; overflow-wrap: anywhere; padding: 14px; border-radius: 8px; background: #f3f5f8; }
+      table { width: 100%; border-collapse: collapse; }
+      th, td { padding: 8px 10px; border-bottom: 1px solid #e5e9ee; text-align: left; }
+      th { color: #526171; }
+      .note { color: #526171; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Phase 5A: comment migration verification</h1>
+      <p class="note">Commands ran with the child process DATABASE_URL set from TEST_DATABASE_URL. The repository .env and regular shell DATABASE_URL were not changed.</p>
+      <h2>Apply</h2>
+      <pre><code>pnpm db:migration:apply
+Migration CreateComments1710000005000 has been executed successfully. (exit 0)</code></pre>
+      <h2>PostgreSQL schema inspection</h2>
+      <table>
+        <thead><tr><th>Column</th><th>Database type</th><th>Nullable</th></tr></thead>
+        <tbody>
+          <tr><td>id</td><td>integer identity primary key</td><td>no</td></tr>
+          <tr><td>article_id</td><td>uuid</td><td>no</td></tr>
+          <tr><td>author_id</td><td>uuid</td><td>no</td></tr>
+          <tr><td>body</td><td>text</td><td>no</td></tr>
+          <tr><td>created_at</td><td>timestamp with time zone</td><td>no</td></tr>
+          <tr><td>updated_at</td><td>timestamp with time zone</td><td>no</td></tr>
+        </tbody>
+      </table>
+      <p>Foreign keys: <code>fk_comments_article</code> and <code>fk_comments_author</code>, both <code>ON DELETE CASCADE</code>.</p>
+      <p>Index: <code>idx_comments_article_created_id (article_id, created_at, id)</code>.</p>
+      <h2>Revert</h2>
+      <pre><code>pnpm db:migration:revert
+Migration CreateComments1710000005000 has been reverted successfully. (exit 0)
+Post-revert check: to_regclass('public.comments') = null</code></pre>
+      <p class="ok">Apply, schema inspection, revert, and post-revert check passed.</p>
+    </main>
+  </body>
+</html>
