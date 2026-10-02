@@ -7,7 +7,6 @@ import {
   HttpCode,
   HttpStatus,
   InternalServerErrorException,
-  NotFoundException,
   Param,
   Post,
   Req,
@@ -32,11 +31,7 @@ import {
   ArticleSlugConflictError,
 } from './article-create.service.js';
 import { CreateArticleSwagger } from './articles.swagger.js';
-import {
-  ArticleNotFoundError,
-  ArticleReadService,
-  ArticleViewerNotFoundError,
-} from './article-read.service.js';
+import { ArticleReadService } from './article-read.service.js';
 import { GetArticleSwagger } from './articles.swagger.js';
 
 @ApiTags('Articles')
@@ -57,17 +52,7 @@ export class ArticlesController {
     @Param('slug') slug: string,
     @Req() request: OptionalAuthenticatedRequest,
   ) {
-    try {
-      return await this.articleReadService.getBySlug(slug, request.auth?.sub);
-    } catch (error) {
-      if (error instanceof ArticleNotFoundError) {
-        throw new NotFoundException({ errors: { article: ['not found'] } });
-      }
-      if (error instanceof ArticleViewerNotFoundError) {
-        throw new UnauthorizedException({ errors: { token: ['is invalid'] } });
-      }
-      throw error;
-    }
+    return await this.articleReadService.getBySlug(slug, request.auth?.sub);
   }
 
   @Post()

@@ -41,6 +41,10 @@ describe('ArticleReadService', () => {
   it('throws a typed error before reading related state for an unknown slug', async () => {
     const fixture = createFixture({ article: null });
 
+    await expect(fixture.service.getBySlug('missing')).rejects.toMatchObject({
+      status: 404,
+      response: { errors: { article: ['not found'] } },
+    });
     await expect(fixture.service.getBySlug('missing')).rejects.toBeInstanceOf(
       ArticleNotFoundError,
     );
@@ -51,6 +55,12 @@ describe('ArticleReadService', () => {
   it('maps a deleted viewer to a typed stale-token error', async () => {
     const fixture = createFixture({ viewer: null });
 
+    await expect(
+      fixture.service.getBySlug('article-slug', 'deleted-user'),
+    ).rejects.toMatchObject({
+      status: 401,
+      response: { errors: { token: ['is invalid'] } },
+    });
     await expect(
       fixture.service.getBySlug('article-slug', 'deleted-user'),
     ).rejects.toBeInstanceOf(ArticleViewerNotFoundError);

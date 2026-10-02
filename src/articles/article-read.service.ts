@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { DataSource } from 'typeorm';
 
 import { User } from '../users/user.entity.js';
@@ -8,8 +12,17 @@ import { ArticleTag } from './article-tag.entity.js';
 import { Article } from './article.entity.js';
 import { serializeArticleDetail } from './article.serializer.js';
 
-export class ArticleNotFoundError extends Error {}
-export class ArticleViewerNotFoundError extends Error {}
+export class ArticleNotFoundError extends NotFoundException {
+  constructor() {
+    super({ errors: { article: ['not found'] } });
+  }
+}
+
+export class ArticleViewerNotFoundError extends UnauthorizedException {
+  constructor() {
+    super({ errors: { token: ['is invalid'] } });
+  }
+}
 
 @Injectable()
 export class ArticleReadService {
