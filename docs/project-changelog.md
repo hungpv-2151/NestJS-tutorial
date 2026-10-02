@@ -1,5 +1,13 @@
 # Project Changelog
 
+## 2026-09-30
+
+- Phase 4K `GET /api/tags` is submitted as ready [PR #59](https://github.com/hungpv-2151/NestJS-tutorial/pull/59), stacked directly on #58. The full Phase 4 chain #47–#59 is open, non-draft, and CLEAN; every API has its own PR, while #47, #50, #53, and #54 are route-free foundation/support layers. On #59's current head, unit tests passed (191 tests, 1 skipped), E2E passed (98 tests), build passed, and lint passed (0 errors, 258 warnings). GitHub Static analysis passed; independent review is SEALED. Phase 4 remains in progress until the PRs merge. [Current-head evidence](https://github.com/hungpv-2151/NestJS-tutorial/pull/59#issuecomment-5904391942).
+
+## 2026-09-29
+
+- Phase 4K implementation records initial local validation; current stacked-PR status and corrected current-head results are recorded in the 2026-09-30 entry above. [Phase 4K checkpoint](../plans/260910-0930-medium-clone-backend/phase-04k-tags-api.md).
+
 ## 2026-09-28
 
 - Phase 4H `GET /api/articles/feed` is submitted as ready [PR #56](https://github.com/hungpv-2151/NestJS-tutorial/pull/56), stacked directly on #55 (`phase-04g-article-list-api`); head `055cf74470991f9354f06b3b438db969e7ee4662`. GitHub Static analysis is SUCCESS and merge state is CLEAN; PR remains open and unmerged. Focused feed E2E passed (8/8), PostgreSQL feed query integration (1/1), full unit tests (193 passed, 1 skipped), full E2E (87 passed), build, lint (0 errors, 243 warnings), static OpenAPI parse and diff check; independent review found no issues. Production diff is 309 lines, with every production file under 200 lines. [Validation evidence](https://github.com/hungpv-2151/NestJS-tutorial/pull/56#issuecomment-5865756862). Next is Phase 4I `POST /api/articles/:slug/favorite` on the 4H branch.

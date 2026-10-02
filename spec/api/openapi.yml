@@ -561,7 +561,7 @@ paths:
       tags:
         - Tags
       summary: Get tags
-      description: Get tags. Auth not required
+      description: Returns tag names in alphabetical order. Authentication is not required.
       operationId: GetTags
       responses:
         '200':
