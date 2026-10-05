@@ -64,8 +64,7 @@ export class CommentService {
         return serializeComment({ ...comment, author: user });
       });
     } catch (error) {
-      if (isExpectedCommentError(error)) throw error;
-      throw new CommentPersistenceError(error);
+      rethrowCommentError(error);
     }
   }
 
@@ -111,8 +110,7 @@ export class CommentService {
         serializeComment(comment, followedAuthorIds.has(comment.author.id)),
       );
     } catch (error) {
-      if (isExpectedCommentError(error)) throw error;
-      throw new CommentPersistenceError(error);
+      rethrowCommentError(error);
     }
   }
 
@@ -132,9 +130,13 @@ export class CommentService {
   }
 }
 
-function isExpectedCommentError(error: unknown): boolean {
-  return (
+function rethrowCommentError(error: unknown): never {
+  if (
     error instanceof CommentUserNotFoundError ||
     error instanceof CommentArticleNotFoundError
-  );
+  ) {
+    throw error;
+  }
+
+  throw new CommentPersistenceError(error);
 }
