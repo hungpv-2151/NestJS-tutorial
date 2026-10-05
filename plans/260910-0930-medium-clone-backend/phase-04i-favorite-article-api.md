@@ -8,7 +8,7 @@
 
 ## Overview
 
-- Priority: P1 · Status: Submitted · Effort: 4h · Dependency: delivered 4H [PR #56](https://github.com/hungpv-2151/NestJS-tutorial/pull/56). One ready PR stacked **directly on `phase-04h-article-feed-api`** with only `POST /api/articles/:slug/favorite`. Do not implement `DELETE /api/articles/:slug/favorite` (4J).
+- Priority: P1 · Status: Submitted · Effort: 4h · Dependency: delivered 4H [PR #56](https://github.com/hungpv-2151/NestJS-tutorial/pull/56). After PRs #31–#56 merged, this PR is based directly on `master` and contains only `POST /api/articles/:slug/favorite`. Do not implement `DELETE /api/articles/:slug/favorite` (4J).
 - Before branching, PR #56 was OPEN, ready, CLEAN, Static analysis SUCCESS, head `18b1ddd3d6a0f4e873743a016ffda8b4514b468c`, base `phase-04g-article-list-api` on 2026-09-28. Branch `phase-04i-favorite-article-api` started at that exact commit.
 
 ## Key Insights and Requirements
@@ -21,9 +21,9 @@
 
 ## Architecture and Data Flow
 
-`Token guard → verified username + slug → favorite controller → create service → transaction (lock viewer row → lock article row → INSERT ... ON CONFLICT DO NOTHING → ArticleReadService.getBySlug(slug, username, manager)) → 200 detail`.
+`Token guard → verified username + slug → favorite controller → ArticleFavoriteService → transaction (lock viewer row → lock article row → INSERT ... ON CONFLICT DO NOTHING → ArticleReadService.getBySlug(slug, username, manager)) → 200 detail`.
 
-1. Put the mutation in a focused `ArticleFavoriteCreateService`; controller only accepts route/auth input and maps typed failures to HTTP. Resolve the viewer from the verified subject **before** the article lookup, including the unknown-slug path. Never accept a viewer ID from request data.
+1. Put the mutation in `ArticleFavoriteService`; the controller accepts route/auth input and delegates. The service maps typed failures to HTTP exceptions with the documented error envelopes. Resolve the viewer from the verified subject **before** the article lookup, including the unknown-slug path. Never accept a viewer ID from request data.
 2. Within one PostgreSQL transaction, lock the verified viewer row first, then find the article by slug with a row lock. This prevents a concurrent username change from invalidating the serializer's second viewer lookup and prevents delete/update from changing the target before insert and detail read. Insert `(articleId, userId)` with TypeORM conflict-ignore semantics backed by the composite PK; do not perform check-then-insert. Do not swallow non-duplicate SQL failures. The locks and unique constraint make same-user concurrent POSTs safe; keep lock ordering viewer → article consistent with existing mutations.
 3. Call `ArticleReadService.getBySlug(slug, username, manager)` **inside the same transaction** after the insert. Reuse its serializer and relation lookups, so the returned detail sees this viewer's favorite and no separate article response builder is needed. Roll back the insert if serialization/read fails. Keep `updatedAt` unchanged: a favorite changes a join row, not article content.
 4. Register a dedicated favorite controller/service in `ArticlesModule`; retain feed route precedence. Add a dedicated Swagger decorator using the existing article detail response schema or a small shared export if practical. Document required Token, no `requestBody`, 200/401/404/422 and redacted 500 on this operation only. Keep static OpenAPI and `/docs-json` aligned without editing 4J's DELETE operation.
@@ -32,8 +32,8 @@
 
 | Owner / action | Exact path under `/home/phamvanhung/projects/nestjs-tutorial` | Purpose |
 | --- | --- | --- |
-| Implementer / create | `src/articles/article-favorite-create.service.ts` | Transaction, idempotent insert, typed errors, detail read. |
-| Implementer / create | `src/articles/article-favorite.controller.ts` | POST route, required guard, cache headers, HTTP error mapping. |
+| Implementer / create | `src/articles/article-favorite.service.ts` | Transaction, idempotent insert, typed HTTP errors, detail read. |
+| Implementer / create | `src/articles/article-favorite.controller.ts` | POST route, required guard, cache headers, and service delegation. |
 | Implementer / create | `src/articles/article-favorite.swagger.ts` | Generated POST operation contract only. |
 | Implementer / modify | `src/articles/articles.module.ts` | Register favorite controller/service. |
 | Implementer / modify only if needed | `src/articles/articles.swagger.ts` | Export existing detail schema to avoid a duplicate; no other route changes. |
