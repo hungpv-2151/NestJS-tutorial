@@ -1,20 +1,16 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  ArticleFavoriteCreateArticleNotFoundError,
+  ArticleFavoriteArticleNotFoundError,
   ArticleFavoriteCreatePersistenceError,
-  ArticleFavoriteCreateUserNotFoundError,
+  ArticleFavoriteUserNotFoundError,
 } from './article-favorite.service.js';
 
 describe('ArticleFavoriteService errors', () => {
   it.each([
+    [new ArticleFavoriteUserNotFoundError(), 401, { token: ['is invalid'] }],
     [
-      new ArticleFavoriteCreateUserNotFoundError(),
-      401,
-      { token: ['is invalid'] },
-    ],
-    [
-      new ArticleFavoriteCreateArticleNotFoundError(),
+      new ArticleFavoriteArticleNotFoundError(),
       404,
       { article: ['not found'] },
     ],

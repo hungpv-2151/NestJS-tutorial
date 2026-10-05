@@ -11,13 +11,13 @@ import { ArticleFavorite } from './article-favorite.entity.js';
 import { ArticleReadService } from './article-read.service.js';
 import { Article } from './article.entity.js';
 
-export class ArticleFavoriteCreateUserNotFoundError extends UnauthorizedException {
+export class ArticleFavoriteUserNotFoundError extends UnauthorizedException {
   constructor() {
     super({ errors: { token: ['is invalid'] } });
   }
 }
 
-export class ArticleFavoriteCreateArticleNotFoundError extends NotFoundException {
+export class ArticleFavoriteArticleNotFoundError extends NotFoundException {
   constructor() {
     super({ errors: { article: ['not found'] } });
   }
@@ -43,13 +43,13 @@ export class ArticleFavoriteService {
           where: { username },
           lock: { mode: 'pessimistic_write' },
         });
-        if (!viewer) throw new ArticleFavoriteCreateUserNotFoundError();
+        if (!viewer) throw new ArticleFavoriteUserNotFoundError();
 
         const article = await manager.getRepository(Article).findOne({
           where: { slug },
           lock: { mode: 'pessimistic_write' },
         });
-        if (!article) throw new ArticleFavoriteCreateArticleNotFoundError();
+        if (!article) throw new ArticleFavoriteArticleNotFoundError();
 
         await manager
           .getRepository(ArticleFavorite)
@@ -70,7 +70,7 @@ export class ArticleFavoriteService {
 
 function isExpectedFavoriteCreateError(error: unknown): boolean {
   return (
-    error instanceof ArticleFavoriteCreateUserNotFoundError ||
-    error instanceof ArticleFavoriteCreateArticleNotFoundError
+    error instanceof ArticleFavoriteUserNotFoundError ||
+    error instanceof ArticleFavoriteArticleNotFoundError
   );
 }
