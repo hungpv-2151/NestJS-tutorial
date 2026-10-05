@@ -38,7 +38,7 @@ describe('POST /api/articles/:slug/favorite errors and contract (e2e)', () => {
       .post(`/api/articles/${fixture.slug}/favorite`)
       .set('Authorization', 'Token test-token')
       .expect(500)
-      .expect({ errors: { body: ['request failed'] } });
+      .expect({ errors: { body: ['internal server error'] } });
     expect(JSON.stringify(failed.body)).not.toContain(
       'private database failure',
     );

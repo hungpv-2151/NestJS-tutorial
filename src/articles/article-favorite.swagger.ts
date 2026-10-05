@@ -74,7 +74,7 @@ const VALIDATION_ERROR_SCHEMA = {
   type: 'object',
 };
 const PERSISTENCE_ERROR_SCHEMA = {
-  example: { errors: { body: ['request failed'] } },
+  example: { errors: { body: ['internal server error'] } },
   type: 'object',
 };
 const SINGLE_ARTICLE_RESPONSE_SCHEMA = {

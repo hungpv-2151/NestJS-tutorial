@@ -133,7 +133,7 @@ function flattenValidationErrors(
 
 function internalServerError(): FormattedApiException {
   return {
-    body: { errors: { body: ['request failed'] } },
+    body: { errors: { body: ['internal server error'] } },
     statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
   };
 }

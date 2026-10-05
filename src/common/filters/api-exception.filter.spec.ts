@@ -43,7 +43,7 @@ describe('formatApiException', () => {
 
   it('does not disclose unexpected error details', () => {
     expect(formatApiException(new Error('database password leaked'))).toEqual({
-      body: { errors: { body: ['request failed'] } },
+      body: { errors: { body: ['internal server error'] } },
       statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
     });
   });
@@ -70,7 +70,9 @@ describe('ApiExceptionFilter', () => {
     } as never);
 
     expect(status).toHaveBeenCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
-    expect(json).toHaveBeenCalledWith({ errors: { body: ['request failed'] } });
+    expect(json).toHaveBeenCalledWith({
+      errors: { body: ['internal server error'] },
+    });
     expect(error).toHaveBeenCalledWith(expect.stringContaining('[REDACTED]'));
     expect(error).not.toHaveBeenCalledWith(
       expect.stringContaining('safe-password'),
