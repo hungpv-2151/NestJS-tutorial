@@ -46,12 +46,14 @@ export class ArticleFavoriteService {
     try {
       return await this.dataSource.transaction(async (manager) => {
         const viewer = await manager.getRepository(User).findOne({
+          select: { id: true },
           where: { username },
           lock: { mode: 'pessimistic_write' },
         });
         if (!viewer) throw new ArticleFavoriteUserNotFoundError();
 
         const article = await manager.getRepository(Article).findOne({
+          select: { id: true },
           where: { slug },
           lock: { mode: 'pessimistic_write' },
         });
@@ -77,12 +79,14 @@ export class ArticleFavoriteService {
     try {
       return await this.dataSource.transaction(async (manager) => {
         const viewer = await manager.getRepository(User).findOne({
+          select: { id: true },
           where: { username },
           lock: { mode: 'pessimistic_write' },
         });
         if (!viewer) throw new ArticleFavoriteUserNotFoundError();
 
         const article = await manager.getRepository(Article).findOne({
+          select: { id: true },
           where: { slug },
           lock: { mode: 'pessimistic_write' },
         });
