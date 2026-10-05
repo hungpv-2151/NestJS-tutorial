@@ -1,6 +1,7 @@
 import {
-  Injectable,
   ForbiddenException,
+  HttpException,
+  Injectable,
   InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
@@ -31,18 +32,6 @@ export class CommentArticleNotFoundError extends NotFoundException {
 export class CommentPersistenceError extends InternalServerErrorException {
   constructor(cause: unknown) {
     super({ errors: { body: ['request failed'] } }, { cause });
-  }
-}
-
-export class CommentNotFoundError extends NotFoundException {
-  constructor() {
-    super({ errors: { comment: ['not found'] } });
-  }
-}
-
-export class CommentForbiddenError extends ForbiddenException {
-  constructor() {
-    super({ errors: { comment: ['forbidden'] } });
   }
 }
 
@@ -127,7 +116,11 @@ export class CommentService {
     }
   }
 
-  async delete(slug: string, commentId: number, username: string): Promise<void> {
+  async delete(
+    slug: string,
+    commentId: number,
+    username: string,
+  ): Promise<void> {
     try {
       await this.dataSource.transaction(async (manager) => {
         const article = await manager.getRepository(Article).findOne({
@@ -139,8 +132,12 @@ export class CommentService {
         const user = await manager.getRepository(User).findOneBy({ username });
         if (!user) throw new CommentUserNotFoundError();
 
-        if (!Number.isSafeInteger(commentId) || commentId < 1 || commentId > 2_147_483_647) {
-          throw new CommentNotFoundError();
+        if (
+          !Number.isSafeInteger(commentId) ||
+          commentId < 1 ||
+          commentId > 2_147_483_647
+        ) {
+          throw new NotFoundException({ errors: { comment: ['not found'] } });
         }
 
         const repository = manager.getRepository(Comment);
@@ -148,8 +145,12 @@ export class CommentService {
           where: { articleId: article.id, id: commentId },
           lock: { mode: 'pessimistic_write' },
         });
-        if (!comment) throw new CommentNotFoundError();
-        if (comment.authorId !== user.id) throw new CommentForbiddenError();
+        if (!comment) {
+          throw new NotFoundException({ errors: { comment: ['not found'] } });
+        }
+        if (comment.authorId !== user.id) {
+          throw new ForbiddenException({ errors: { comment: ['forbidden'] } });
+        }
 
         const result = await repository.delete({
           articleId: article.id,
@@ -185,10 +186,7 @@ export class CommentService {
 
 function rethrowCommentError(error: unknown): never {
   if (
-    error instanceof CommentUserNotFoundError ||
-    error instanceof CommentArticleNotFoundError ||
-    error instanceof CommentNotFoundError ||
-    error instanceof CommentForbiddenError ||
+    error instanceof HttpException ||
     error instanceof CommentPersistenceError
   ) {
     throw error;
