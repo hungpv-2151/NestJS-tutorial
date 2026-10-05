@@ -2,8 +2,6 @@ import { describe, expect, it } from 'vitest';
 
 import {
   ArticleFavoriteArticleNotFoundError,
-  ArticleFavoriteCreatePersistenceError,
-  ArticleFavoriteDeletePersistenceError,
   ArticleFavoriteUserNotFoundError,
 } from './article-favorite.service.js';
 
@@ -22,12 +20,6 @@ describe('ArticleFavoriteService errors', () => {
       { article: ['not found'] },
     ],
     [
-      'create',
-      new ArticleFavoriteCreatePersistenceError(new Error('private failure')),
-      500,
-      { body: ['request failed'] },
-    ],
-    [
       'delete',
       new ArticleFavoriteUserNotFoundError(),
       401,
@@ -38,12 +30,6 @@ describe('ArticleFavoriteService errors', () => {
       new ArticleFavoriteArticleNotFoundError(),
       404,
       { article: ['not found'] },
-    ],
-    [
-      'delete',
-      new ArticleFavoriteDeletePersistenceError(new Error('private failure')),
-      500,
-      { body: ['request failed'] },
     ],
   ])(
     'exposes the HTTP response for %s errors',

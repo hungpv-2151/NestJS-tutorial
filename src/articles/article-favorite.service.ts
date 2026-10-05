@@ -1,6 +1,5 @@
 import {
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -23,18 +22,6 @@ export class ArticleFavoriteArticleNotFoundError extends NotFoundException {
   }
 }
 
-export class ArticleFavoriteCreatePersistenceError extends InternalServerErrorException {
-  constructor(cause: unknown) {
-    super({ errors: { body: ['request failed'] } }, { cause });
-  }
-}
-
-export class ArticleFavoriteDeletePersistenceError extends InternalServerErrorException {
-  constructor(cause: unknown) {
-    super({ errors: { body: ['request failed'] } }, { cause });
-  }
-}
-
 @Injectable()
 export class ArticleFavoriteService {
   constructor(
@@ -43,72 +30,55 @@ export class ArticleFavoriteService {
   ) {}
 
   async create(slug: string, username: string) {
-    try {
-      return await this.dataSource.transaction(async (manager) => {
-        const viewer = await manager.getRepository(User).findOne({
-          select: { id: true },
-          where: { username },
-          lock: { mode: 'pessimistic_write' },
-        });
-        if (!viewer) throw new ArticleFavoriteUserNotFoundError();
-
-        const article = await manager.getRepository(Article).findOne({
-          select: { id: true },
-          where: { slug },
-          lock: { mode: 'pessimistic_write' },
-        });
-        if (!article) throw new ArticleFavoriteArticleNotFoundError();
-
-        await manager
-          .getRepository(ArticleFavorite)
-          .createQueryBuilder()
-          .insert()
-          .values({ articleId: article.id, userId: viewer.id })
-          .orIgnore()
-          .execute();
-
-        return await this.articleReadService.getBySlug(slug, username, manager);
+    return this.dataSource.transaction(async (manager) => {
+      const viewer = await manager.getRepository(User).findOne({
+        select: { id: true },
+        where: { username },
+        lock: { mode: 'pessimistic_write' },
       });
-    } catch (error) {
-      if (isExpectedFavoriteNotFoundError(error)) throw error;
-      throw new ArticleFavoriteCreatePersistenceError(error);
-    }
+      if (!viewer) throw new ArticleFavoriteUserNotFoundError();
+
+      const article = await manager.getRepository(Article).findOne({
+        select: { id: true },
+        where: { slug },
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (!article) throw new ArticleFavoriteArticleNotFoundError();
+
+      await manager
+        .getRepository(ArticleFavorite)
+        .createQueryBuilder()
+        .insert()
+        .values({ articleId: article.id, userId: viewer.id })
+        .orIgnore()
+        .execute();
+
+      return this.articleReadService.getBySlug(slug, username, manager);
+    });
   }
 
   async delete(slug: string, username: string) {
-    try {
-      return await this.dataSource.transaction(async (manager) => {
-        const viewer = await manager.getRepository(User).findOne({
-          select: { id: true },
-          where: { username },
-          lock: { mode: 'pessimistic_write' },
-        });
-        if (!viewer) throw new ArticleFavoriteUserNotFoundError();
-
-        const article = await manager.getRepository(Article).findOne({
-          select: { id: true },
-          where: { slug },
-          lock: { mode: 'pessimistic_write' },
-        });
-        if (!article) throw new ArticleFavoriteArticleNotFoundError();
-
-        await manager.getRepository(ArticleFavorite).delete({
-          articleId: article.id,
-          userId: viewer.id,
-        });
-
-        return await this.articleReadService.getBySlug(slug, username, manager);
+    return this.dataSource.transaction(async (manager) => {
+      const viewer = await manager.getRepository(User).findOne({
+        select: { id: true },
+        where: { username },
+        lock: { mode: 'pessimistic_write' },
       });
-    } catch (error) {
-      if (isExpectedFavoriteNotFoundError(error)) throw error;
-      throw new ArticleFavoriteDeletePersistenceError(error);
-    }
-  }
-}
+      if (!viewer) throw new ArticleFavoriteUserNotFoundError();
 
-function isExpectedFavoriteNotFoundError(error: unknown): boolean {
-  return (
-    error instanceof ArticleFavoriteUserNotFoundError ||
-    error instanceof ArticleFavoriteArticleNotFoundError
-  );
+      const article = await manager.getRepository(Article).findOne({
+        select: { id: true },
+        where: { slug },
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (!article) throw new ArticleFavoriteArticleNotFoundError();
+
+      await manager.getRepository(ArticleFavorite).delete({
+        articleId: article.id,
+        userId: viewer.id,
+      });
+
+      return this.articleReadService.getBySlug(slug, username, manager);
+    });
+  }
 }
