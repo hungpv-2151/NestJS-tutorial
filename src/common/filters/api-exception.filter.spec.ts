@@ -14,10 +14,7 @@ describe('formatApiException', () => {
   it('returns existing RealWorld errors and their status', () => {
     expect(
       formatApiException(
-        new HttpException(
-          { errors: { credentials: ['invalid'] } },
-          HttpStatus.UNAUTHORIZED,
-        ),
+        new HttpException({ errors: { credentials: ['invalid'] } }, HttpStatus.UNAUTHORIZED),
       ),
     ).toEqual({
       body: { errors: { credentials: ['invalid'] } },
@@ -29,10 +26,7 @@ describe('formatApiException', () => {
     expect(
       formatApiException(
         new BadRequestException([
-          {
-            constraints: { isNotEmpty: 'username should not be empty' },
-            property: 'username',
-          },
+          { constraints: { isNotEmpty: 'username should not be empty' }, property: 'username' },
         ]),
       ),
     ).toEqual({
@@ -53,30 +47,27 @@ describe('ApiExceptionFilter', () => {
   it('writes the formatted error without requiring global registration', () => {
     const json = vi.fn();
     const status = vi.fn().mockReturnValue({ json });
-    const error = vi
-      .spyOn(Logger.prototype, 'error')
-      .mockImplementation(() => undefined);
+    const error = vi.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined);
     const filter = new ApiExceptionFilter();
 
-    filter.catch(new Error('hidden'), {
-      switchToHttp: () => ({
-        getRequest: () => ({
-          body: { password: 'safe-password' },
-          method: 'POST',
-          path: '/api/users',
+    filter.catch(
+      new Error('hidden'),
+      {
+        switchToHttp: () => ({
+          getRequest: () => ({
+            body: { password: 'safe-password' },
+            method: 'POST',
+            path: '/api/users',
+          }),
+          getResponse: () => ({ status }),
         }),
-        getResponse: () => ({ status }),
-      }),
-    } as never);
+      } as never,
+    );
 
     expect(status).toHaveBeenCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
-    expect(json).toHaveBeenCalledWith({
-      errors: { body: ['internal server error'] },
-    });
+    expect(json).toHaveBeenCalledWith({ errors: { body: ['internal server error'] } });
     expect(error).toHaveBeenCalledWith(expect.stringContaining('[REDACTED]'));
-    expect(error).not.toHaveBeenCalledWith(
-      expect.stringContaining('safe-password'),
-    );
+    expect(error).not.toHaveBeenCalledWith(expect.stringContaining('safe-password'));
     error.mockRestore();
   });
 });

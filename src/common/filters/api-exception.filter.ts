@@ -31,9 +31,7 @@ export class ApiExceptionFilter implements ExceptionFilter {
     const formatted = formatApiException(exception);
     const http = host.switchToHttp();
     const request = http.getRequest<RequestForLog>();
-    this.logger.error(
-      JSON.stringify(createRequestFailureLog(exception, request)),
-    );
+    this.logger.error(JSON.stringify(createRequestFailureLog(exception, request)));
     http
       .getResponse<{
         status(code: number): { json(body: RealWorldErrors): void };
@@ -107,9 +105,7 @@ function flattenValidationErrors(
     }
 
     const field = prefix ? `${prefix}.${error.property}` : error.property;
-    const constraints = isRecord(error.constraints)
-      ? error.constraints
-      : undefined;
+    const constraints = isRecord(error.constraints) ? error.constraints : undefined;
     if (constraints) {
       result[field] = Object.keys(constraints)
         .sort(
@@ -124,7 +120,10 @@ function flattenValidationErrors(
     if (Array.isArray(error.children)) {
       Object.assign(
         result,
-        flattenValidationErrors(error.children, constraints ? field : prefix),
+        flattenValidationErrors(
+          error.children,
+          constraints ? field : prefix,
+        ),
       );
     }
     return result;

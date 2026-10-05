@@ -18,7 +18,7 @@
 | Missing favorite                    | Idempotent 200 detail response; count and other viewers' favorites stay unchanged.                                                          |
 | Missing/invalid/stale token subject | 401 with redacted token error.                                                                                                              |
 | Unknown slug                        | 404 with article error.                                                                                                                     |
-| Persistence or detail-read failure  | Generic 500; transaction rolls back the join deletion and does not disclose database details.                                               |
+| Persistence or detail-read failure  | The error reaches `ApiExceptionFilter`; it logs a redacted failure and returns generic 500 `{ errors: { body: ['internal server error'] } }`. The transaction rolls back. |
 
 ## Architecture
 
@@ -26,7 +26,7 @@
 
 1. Follow 4I's viewer-then-article lock order. The article lock serializes favorite mutations and article deletion; deleting by `(articleId,userId)` keeps other viewers' rows intact.
 2. Treat zero affected favorite rows as success. Build the response through `ArticleReadService` inside the transaction so counts and viewer state match the committed mutation; any read failure rolls back.
-3. Keep the controller at the HTTP boundary and delegate the mutation to the shared `ArticleFavoriteService`. The service throws typed HTTP exceptions for missing/stale resources and redacted persistence failures. Add focused DELETE Swagger metadata and update only the static DELETE contract, including a redacted 500. Preserve required Token security and no request body; generated POST documentation remains unchanged.
+3. Keep the controller at the HTTP boundary and delegate the mutation to the shared `ArticleFavoriteService`. The service throws typed HTTP exceptions for missing/stale resources and lets unexpected failures reach `ApiExceptionFilter`. Add focused DELETE Swagger metadata and update the static contract with the filter's generic 500 response. Preserve required Token security and no request body.
 
 ## Files and Validation
 

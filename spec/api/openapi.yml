@@ -519,7 +519,7 @@ paths:
                 example:
                   errors:
                     body:
-                      - request failed
+                      - internal server error
       security:
         - Token: [ ]
     delete:
@@ -553,7 +553,7 @@ paths:
                 example:
                   errors:
                     body:
-                      - request failed
+                      - internal server error
       security:
         - Token: [ ]
   /tags:
