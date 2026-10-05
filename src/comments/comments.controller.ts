@@ -4,12 +4,9 @@ import {
   Header,
   HttpCode,
   HttpStatus,
-  InternalServerErrorException,
-  NotFoundException,
   Param,
   Post,
   Req,
-  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -19,17 +16,13 @@ import {
   type AuthenticatedRequest,
 } from '../auth/auth-token.guard.js';
 import { CreateCommentRequestDto } from './comment-create.dto.js';
-import {
-  CommentCreateArticleNotFoundError,
-  CommentCreateService,
-  CommentCreateUserNotFoundError,
-} from './comment-create.service.js';
+import { CommentService } from './comment.service.js';
 import { CreateArticleCommentSwagger } from './comments.swagger.js';
 
 @ApiTags('Comments')
 @Controller('articles')
 export class CommentsController {
-  constructor(private readonly commentCreateService: CommentCreateService) {}
+  constructor(private readonly commentService: CommentService) {}
 
   @Post(':slug/comments')
   @UseGuards(AuthTokenGuard)
@@ -43,25 +36,12 @@ export class CommentsController {
     @Body() request: CreateCommentRequestDto,
     @Req() auth: AuthenticatedRequest,
   ) {
-    try {
-      return {
-        comment: await this.commentCreateService.create(
-          slug,
-          auth.auth.sub,
-          request.comment.body,
-        ),
-      };
-    } catch (error) {
-      if (error instanceof CommentCreateUserNotFoundError) {
-        throw new UnauthorizedException({ errors: { token: ['is invalid'] } });
-      }
-      if (error instanceof CommentCreateArticleNotFoundError) {
-        throw new NotFoundException({ errors: { article: ['not found'] } });
-      }
-      throw new InternalServerErrorException(
-        { errors: { body: ['request failed'] } },
-        { cause: error },
-      );
-    }
+    return {
+      comment: await this.commentService.create(
+        slug,
+        auth.auth.sub,
+        request.comment.body,
+      ),
+    };
   }
 }

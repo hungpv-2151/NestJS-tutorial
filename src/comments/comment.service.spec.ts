@@ -5,13 +5,13 @@ import { Article } from '../articles/article.entity.js';
 import { User } from '../users/user.entity.js';
 import { Comment } from './comment.entity.js';
 import {
-  CommentCreateArticleNotFoundError,
-  CommentCreatePersistenceError,
-  CommentCreateService,
-  CommentCreateUserNotFoundError,
-} from './comment-create.service.js';
+  CommentArticleNotFoundError,
+  CommentPersistenceError,
+  CommentService,
+  CommentUserNotFoundError,
+} from './comment.service.js';
 
-describe('CommentCreateService', () => {
+describe('CommentService', () => {
   it('persists trimmed content for the authenticated user and serializes public fields', async () => {
     const harness = createHarness();
 
@@ -48,15 +48,25 @@ describe('CommentCreateService', () => {
   it('reports missing authenticated users and articles as typed errors', async () => {
     const missingUserHarness = createHarness();
     missingUserHarness.findUser.mockResolvedValue(null);
-    await expect(
-      missingUserHarness.service.create('article-slug', 'writer', 'body'),
-    ).rejects.toBeInstanceOf(CommentCreateUserNotFoundError);
+    const userError = await missingUserHarness.service
+      .create('article-slug', 'writer', 'body')
+      .catch((error: unknown) => error);
+    expect(userError).toBeInstanceOf(CommentUserNotFoundError);
+    expect((userError as CommentUserNotFoundError).getStatus()).toBe(401);
+    expect((userError as CommentUserNotFoundError).getResponse()).toEqual({
+      errors: { token: ['is invalid'] },
+    });
 
     const missingArticleHarness = createHarness();
     missingArticleHarness.findArticle.mockResolvedValue(null);
-    await expect(
-      missingArticleHarness.service.create('missing', 'writer', 'body'),
-    ).rejects.toBeInstanceOf(CommentCreateArticleNotFoundError);
+    const articleError = await missingArticleHarness.service
+      .create('missing', 'writer', 'body')
+      .catch((error: unknown) => error);
+    expect(articleError).toBeInstanceOf(CommentArticleNotFoundError);
+    expect((articleError as CommentArticleNotFoundError).getStatus()).toBe(404);
+    expect((articleError as CommentArticleNotFoundError).getResponse()).toEqual(
+      { errors: { article: ['not found'] } },
+    );
   });
 
   it('wraps persistence failures with the original cause', async () => {
@@ -67,7 +77,11 @@ describe('CommentCreateService', () => {
     const error = await harness.service
       .create('article-slug', 'writer', 'body')
       .catch((failure: unknown) => failure);
-    expect(error).toBeInstanceOf(CommentCreatePersistenceError);
+    expect(error).toBeInstanceOf(CommentPersistenceError);
+    expect((error as CommentPersistenceError).getStatus()).toBe(500);
+    expect((error as CommentPersistenceError).getResponse()).toEqual({
+      errors: { body: ['request failed'] },
+    });
     expect(error).toHaveProperty('cause', databaseError);
   });
 });
@@ -106,7 +120,7 @@ function createHarness() {
   const transaction = vi.fn(
     async (work: (manager: EntityManager) => Promise<unknown>) => work(manager),
   );
-  const service = new CommentCreateService({
+  const service = new CommentService({
     transaction,
   } as unknown as DataSource);
 

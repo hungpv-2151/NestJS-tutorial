@@ -1,24 +1,39 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { DataSource } from 'typeorm';
 
-import { User } from '../users/user.entity.js';
 import { Article } from '../articles/article.entity.js';
+import { User } from '../users/user.entity.js';
 import { Comment } from './comment.entity.js';
 import {
   serializeComment,
   type SerializedComment,
 } from './comment.serializer.js';
 
-export class CommentCreateUserNotFoundError extends Error {}
-export class CommentCreateArticleNotFoundError extends Error {}
-export class CommentCreatePersistenceError extends Error {
+export class CommentUserNotFoundError extends UnauthorizedException {
+  constructor() {
+    super({ errors: { token: ['is invalid'] } });
+  }
+}
+
+export class CommentArticleNotFoundError extends NotFoundException {
+  constructor() {
+    super({ errors: { article: ['not found'] } });
+  }
+}
+
+export class CommentPersistenceError extends InternalServerErrorException {
   constructor(cause: unknown) {
-    super('comment could not be created', { cause });
+    super({ errors: { body: ['request failed'] } }, { cause });
   }
 }
 
 @Injectable()
-export class CommentCreateService {
+export class CommentService {
   constructor(private readonly dataSource: DataSource) {}
 
   async create(
@@ -29,13 +44,13 @@ export class CommentCreateService {
     try {
       return await this.dataSource.transaction(async (manager) => {
         const user = await manager.getRepository(User).findOneBy({ username });
-        if (!user) throw new CommentCreateUserNotFoundError();
+        if (!user) throw new CommentUserNotFoundError();
 
         const article = await manager.getRepository(Article).findOne({
           where: { slug },
           lock: { mode: 'pessimistic_write' },
         });
-        if (!article) throw new CommentCreateArticleNotFoundError();
+        if (!article) throw new CommentArticleNotFoundError();
 
         const commentRepository = manager.getRepository(Comment);
         const comment = await commentRepository.save(
@@ -48,13 +63,15 @@ export class CommentCreateService {
         return serializeComment({ ...comment, author: user });
       });
     } catch (error) {
-      if (error instanceof CommentCreateUserNotFoundError) {
-        throw new CommentCreateUserNotFoundError();
-      }
-      if (error instanceof CommentCreateArticleNotFoundError) {
-        throw new CommentCreateArticleNotFoundError();
-      }
-      throw new CommentCreatePersistenceError(error);
+      if (isExpectedCommentError(error)) throw error;
+      throw new CommentPersistenceError(error);
     }
   }
+}
+
+function isExpectedCommentError(error: unknown): boolean {
+  return (
+    error instanceof CommentUserNotFoundError ||
+    error instanceof CommentArticleNotFoundError
+  );
 }
