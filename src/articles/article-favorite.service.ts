@@ -29,6 +29,12 @@ export class ArticleFavoriteCreatePersistenceError extends InternalServerErrorEx
   }
 }
 
+export class ArticleFavoriteDeletePersistenceError extends InternalServerErrorException {
+  constructor(cause: unknown) {
+    super({ errors: { body: ['request failed'] } }, { cause });
+  }
+}
+
 @Injectable()
 export class ArticleFavoriteService {
   constructor(
@@ -62,13 +68,41 @@ export class ArticleFavoriteService {
         return await this.articleReadService.getBySlug(slug, username, manager);
       });
     } catch (error) {
-      if (isExpectedFavoriteCreateError(error)) throw error;
+      if (isExpectedFavoriteNotFoundError(error)) throw error;
       throw new ArticleFavoriteCreatePersistenceError(error);
+    }
+  }
+
+  async delete(slug: string, username: string) {
+    try {
+      return await this.dataSource.transaction(async (manager) => {
+        const viewer = await manager.getRepository(User).findOne({
+          where: { username },
+          lock: { mode: 'pessimistic_write' },
+        });
+        if (!viewer) throw new ArticleFavoriteUserNotFoundError();
+
+        const article = await manager.getRepository(Article).findOne({
+          where: { slug },
+          lock: { mode: 'pessimistic_write' },
+        });
+        if (!article) throw new ArticleFavoriteArticleNotFoundError();
+
+        await manager.getRepository(ArticleFavorite).delete({
+          articleId: article.id,
+          userId: viewer.id,
+        });
+
+        return await this.articleReadService.getBySlug(slug, username, manager);
+      });
+    } catch (error) {
+      if (isExpectedFavoriteNotFoundError(error)) throw error;
+      throw new ArticleFavoriteDeletePersistenceError(error);
     }
   }
 }
 
-function isExpectedFavoriteCreateError(error: unknown): boolean {
+function isExpectedFavoriteNotFoundError(error: unknown): boolean {
   return (
     error instanceof ArticleFavoriteUserNotFoundError ||
     error instanceof ArticleFavoriteArticleNotFoundError

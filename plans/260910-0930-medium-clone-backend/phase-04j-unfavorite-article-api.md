@@ -22,16 +22,16 @@
 
 ## Architecture
 
-`AuthTokenGuard → favorite controller(slug, auth.sub) → focused delete service → transaction (lock viewer → lock article → delete viewer/article join → ArticleReadService.getBySlug in same transaction) → 200 detail`.
+`AuthTokenGuard → favorite controller(slug, auth.sub) → ArticleFavoriteService.delete → transaction (lock viewer → lock article → delete viewer/article join → ArticleReadService.getBySlug in same transaction) → 200 detail`.
 
 1. Follow 4I's viewer-then-article lock order. The article lock serializes favorite mutations and article deletion; deleting by `(articleId,userId)` keeps other viewers' rows intact.
 2. Treat zero affected favorite rows as success. Build the response through `ArticleReadService` inside the transaction so counts and viewer state match the committed mutation; any read failure rolls back.
-3. Keep the controller at the HTTP boundary. Add focused DELETE Swagger metadata and update only the static DELETE contract, including a redacted 500. Preserve required Token security and no request body; generated POST documentation remains unchanged.
+3. Keep the controller at the HTTP boundary and delegate the mutation to the shared `ArticleFavoriteService`. The service throws typed HTTP exceptions for missing/stale resources and redacted persistence failures. Add focused DELETE Swagger metadata and update only the static DELETE contract, including a redacted 500. Preserve required Token security and no request body; generated POST documentation remains unchanged.
 
 ## Files and Validation
 
-- Modify `src/articles/article-favorite.controller.ts`, `src/articles/article-favorite.swagger.ts`, `src/articles/articles.module.ts`, and `spec/api/openapi.yml`.
-- Create `src/articles/article-favorite-delete.service.ts`, `test/article-favorite-delete.e2e-spec.ts`, and a focused error/docs E2E file only if keeping each file under 200 lines requires it.
+- Modify `src/articles/article-favorite.controller.ts`, `src/articles/article-favorite.service.ts`, `src/articles/article-favorite.service.spec.ts`, `src/articles/article-favorite.swagger.ts`, `src/articles/articles.module.ts`, and `spec/api/openapi.yml`.
+- Keep the DELETE integration and error tests in `test/article-favorite-delete.e2e-spec.ts` and related focused files; do not add another service file.
 - Reuse the article fixture and existing PostgreSQL `TEST_DATABASE_URL`; no database reset or migration is expected.
 - Test first: missing-route RED, owner/unfavorite state and counts, idempotency, other-viewer isolation, auth/unknown slug, generic 500 rollback, docs contract, and concurrent POST/DELETE consistency.
 - Run focused E2E, full unit and E2E suites sequentially, build, Prettier, lint (zero errors), static OpenAPI parse, `git diff --check`, independent review, line/file limits, and GitHub Static analysis.

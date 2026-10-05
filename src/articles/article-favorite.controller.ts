@@ -16,16 +16,16 @@ import {
   type AuthenticatedRequest,
 } from '../auth/auth-token.guard.js';
 import { ArticleFavoriteService } from './article-favorite.service.js';
-import { CreateArticleFavoriteSwagger } from './article-favorite.swagger.js';
-import { ArticleFavoriteDeleteService } from './article-favorite-delete.service.js';
-import { DeleteArticleFavoriteSwagger } from './article-favorite.swagger.js';
+import {
+  CreateArticleFavoriteSwagger,
+  DeleteArticleFavoriteSwagger,
+} from './article-favorite.swagger.js';
 
 @ApiTags('Favorites')
-  @Controller('articles')
+@Controller('articles')
 export class ArticleFavoriteController {
   constructor(
     private readonly articleFavoriteService: ArticleFavoriteService,
-    private readonly articleFavoriteDeleteService: ArticleFavoriteDeleteService,
   ) {}
 
   @Post(':slug/favorite')
@@ -53,9 +53,6 @@ export class ArticleFavoriteController {
     @Param('slug') slug: string,
     @Req() request: AuthenticatedRequest,
   ) {
-    return await this.articleFavoriteDeleteService.delete(
-      slug,
-      request.auth.sub,
-    );
+    return await this.articleFavoriteService.delete(slug, request.auth.sub);
   }
 }
