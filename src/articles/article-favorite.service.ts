@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { DataSource } from 'typeorm';
 
 import { User } from '../users/user.entity.js';
@@ -6,16 +11,26 @@ import { ArticleFavorite } from './article-favorite.entity.js';
 import { ArticleReadService } from './article-read.service.js';
 import { Article } from './article.entity.js';
 
-export class ArticleFavoriteCreateUserNotFoundError extends Error {}
-export class ArticleFavoriteCreateArticleNotFoundError extends Error {}
-export class ArticleFavoriteCreatePersistenceError extends Error {
+export class ArticleFavoriteCreateUserNotFoundError extends UnauthorizedException {
+  constructor() {
+    super({ errors: { token: ['is invalid'] } });
+  }
+}
+
+export class ArticleFavoriteCreateArticleNotFoundError extends NotFoundException {
+  constructor() {
+    super({ errors: { article: ['not found'] } });
+  }
+}
+
+export class ArticleFavoriteCreatePersistenceError extends InternalServerErrorException {
   constructor(cause: unknown) {
-    super('article favorite could not be created', { cause });
+    super({ errors: { body: ['request failed'] } }, { cause });
   }
 }
 
 @Injectable()
-export class ArticleFavoriteCreateService {
+export class ArticleFavoriteService {
   constructor(
     private readonly dataSource: DataSource,
     private readonly articleReadService: ArticleReadService,
