@@ -18,6 +18,8 @@
     "lint:changed": "sunlint --all --changed-files",
     "lint:security": "sunlint --security --input=src",
     "test": "vitest run",
+    "test:migrations": "vitest run --config ./vitest.config.migrations.ts",
+    "test:private-files": "vitest run --config ./vitest.config.private-files.ts",
     "test:watch": "vitest",
     "test:cov": "vitest run --coverage",
     "test:debug": "vitest --inspect-brk --no-file-parallelism",

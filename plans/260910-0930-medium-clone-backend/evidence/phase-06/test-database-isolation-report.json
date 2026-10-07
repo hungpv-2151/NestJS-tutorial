@@ -1,0 +1,26 @@
+{
+  "scope": "Phase 06 test database target isolation",
+  "checks": [
+    {
+      "command": "pnpm exec vitest run src/config/database-config.spec.ts",
+      "exitCode": 0,
+      "status": "pass",
+      "result": "16 tests passed"
+    },
+    {
+      "command": "pnpm test",
+      "exitCode": 0,
+      "status": "pass",
+      "result": "49 files passed, 1 skipped; 218 tests passed, 1 skipped"
+    },
+    { "command": "pnpm build", "exitCode": 0, "status": "pass" },
+    {
+      "command": "pnpm lint",
+      "exitCode": 0,
+      "status": "pass",
+      "result": "0 errors, 301 warnings"
+    },
+    { "command": "git diff --check", "exitCode": 0, "status": "pass" }
+  ],
+  "guard": "Rejects identical effective PostgreSQL host, port, and database targets; normalizes numeric ports and loopback aliases; rejects empty, repeated, or invalid host/port query parameters. Loads the local environment file when needed if it exists."
+}

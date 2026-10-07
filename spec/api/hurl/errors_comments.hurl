@@ -53,6 +53,18 @@ HTTP 422
 [Asserts]
 jsonpath "$.errors.body[0]" == "can't be blank"
 
+# Post comment whitespace body
+POST {{host}}/api/articles/{{slug}}/comments
+Authorization: Token {{token}}
+{
+  "comment": {
+    "body": "   "
+  }
+}
+HTTP 422
+[Asserts]
+jsonpath "$.errors.body[0]" == "can't be blank"
+
 # Post comment on unknown article
 POST {{host}}/api/articles/unknown-slug-{{uid}}/comments
 Authorization: Token {{token}}
@@ -71,6 +83,13 @@ HTTP 404
 [Asserts]
 jsonpath "$.errors.article[0]" == "not found"
 
+# Get comments with an invalid optional token
+GET {{host}}/api/articles/{{slug}}/comments
+Authorization: Token invalid-token
+HTTP 401
+[Asserts]
+jsonpath "$.errors.token[0]" == "is invalid"
+
 # Delete comment on unknown article
 DELETE {{host}}/api/articles/unknown-slug-{{uid}}/comments/99999
 Authorization: Token {{token}}
@@ -84,6 +103,13 @@ Authorization: Token {{token}}
 HTTP 404
 [Asserts]
 jsonpath "$.errors.comment[0]" == "not found"
+
+# Delete comment with a non-integer ID
+DELETE {{host}}/api/articles/{{slug}}/comments/not-an-integer
+Authorization: Token {{token}}
+HTTP 422
+[Asserts]
+jsonpath "$.errors.id[0]" == "must be an integer"
 
 # Cleanup
 DELETE {{host}}/api/articles/{{slug}}

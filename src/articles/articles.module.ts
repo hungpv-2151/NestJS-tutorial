@@ -21,6 +21,7 @@ import { ArticleListService } from './article-list.service.js';
 import { ArticleReadService } from './article-read.service.js';
 import { ArticleUpdateService } from './article-update.service.js';
 import { Tag } from '../tags/tag.entity.js';
+import { CommentsModule } from '../comments/comments.module.js';
 
 @Module({
   controllers: [
@@ -32,6 +33,7 @@ import { Tag } from '../tags/tag.entity.js';
   ],
   imports: [
     AuthModule,
+    CommentsModule,
     TypeOrmModule.forFeature([
       Article,
       ArticleTag,

@@ -1,0 +1,8 @@
+{
+  "method": "DELETE",
+  "path": "/api/articles/article-detail-de5237ce-a83c-409b-8f8e-23e006c449c7/comments/79",
+  "status": 204,
+  "responseBody": "",
+  "deletedCommentStillExists": false,
+  "retainedCommentStillExists": true
+}

@@ -1,0 +1,64 @@
+{
+  "commands": [
+    {
+      "command": "pnpm test:e2e",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Full E2E suite passed: 28 files and 105 tests."
+    },
+    {
+      "command": "pnpm test",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Full unit suite passed: 47 files; 202 tests passed and 1 skipped."
+    },
+    {
+      "command": "pnpm build",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Nest build passed."
+    },
+    {
+      "command": "pnpm lint",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Repository lint exited 0 with 287 warnings and 0 errors."
+    },
+    {
+      "command": "pnpm exec sunlint --all --input=src/comments",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "19 warnings and 0 errors in the comments folder. The existing create-comment service has 6 C018/C033 warnings. New list code has 6 C018 wrapper false positives because persistence failures are intentionally wrapped for generic HTTP errors, 1 C030 false positive for rethrowing the typed article-not-found error, 4 C033 heuristics for transaction-scoped TypeORM access needed to read article and comments from one snapshot plus one batched follow query, and S037 does not recognize the explicit anti-cache decorators on the new GET handler."
+    },
+    {
+      "command": "python3 OpenAPI YAML parse",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Static OpenAPI parsed successfully after formatting."
+    },
+    {
+      "command": "pnpm exec prettier --check changed TypeScript and spec/api/openapi.yml",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "All changed TypeScript and static OpenAPI files passed Prettier. Hurl is not a Prettier-supported format."
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "No whitespace errors."
+    },
+    {
+      "command": "pnpm exec vitest run --config ./vitest.config.e2e.ts test/capture-list-comments.e2e-spec.ts",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "A temporary E2E capture test received the actual HTTP 200 response, wrote list-comments-response.json, and cleaned its article/comment fixture. The temporary test file was removed."
+    },
+    {
+      "command": "node .claude/skills/automate-browser/scripts/screenshot.js --url file:///home/phamvanhung/projects/nestjs-tutorial/plans/260910-0930-medium-clone-backend/evidence/phase-05c/list-comments-response.json --output plans/260910-0930-medium-clone-backend/evidence/phase-05c/list-comments-response.png --full-page true --headless true",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Captured a screenshot of the JSON returned by the real HTTP GET request."
+    }
+  ]
+}

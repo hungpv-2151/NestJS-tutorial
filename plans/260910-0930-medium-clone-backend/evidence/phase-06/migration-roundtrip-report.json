@@ -1,0 +1,40 @@
+{
+  "scope": "Phase 06 PostgreSQL migration roundtrip integration",
+  "pullRequest": "https://github.com/hungpv-2151/NestJS-tutorial/pull/68",
+  "base": "phase-06-test-database-isolation (#67)",
+  "checks": [
+    {
+      "command": "pnpm test:migrations",
+      "exitCode": 0,
+      "status": "pass",
+      "result": "1 migration roundtrip test passed"
+    },
+    {
+      "command": "pnpm exec vitest run test/article-list-query.integration.spec.ts",
+      "exitCode": 0,
+      "status": "pass",
+      "result": "1 PostgreSQL integration test passed after migration rollback"
+    },
+    {
+      "command": "pnpm test",
+      "exitCode": 0,
+      "status": "pass",
+      "result": "49 files passed, 1 skipped; 218 tests passed, 1 skipped"
+    },
+    { "command": "pnpm build", "exitCode": 0, "status": "pass" },
+    {
+      "command": "pnpm lint",
+      "exitCode": 0,
+      "status": "pass",
+      "result": "0 errors, 301 warnings"
+    },
+    {
+      "command": "pnpm exec prettier --check package.json vitest.config.migrations.ts test/migrations-roundtrip.migration-test.ts plans/260910-0930-medium-clone-backend/phase-06-unit-e2e-c2-testing.md",
+      "exitCode": 0,
+      "status": "pass"
+    },
+    { "command": "git diff --check", "exitCode": 0, "status": "pass" }
+  ],
+  "isolation": "Every registered migration is applied, reverted, and reapplied in a unique schema inside a transaction. The connection search_path is set back to public before the temporary schema is selected; rollback removes all test DDL.",
+  "visualEvidence": "migration-roundtrip-results.png"
+}

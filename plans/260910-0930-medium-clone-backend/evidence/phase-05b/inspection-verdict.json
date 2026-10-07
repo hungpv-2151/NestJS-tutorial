@@ -1,0 +1,20 @@
+{
+  "score": 9,
+  "criticalCount": 0,
+  "decision": "SEALED",
+  "acceptanceCovered": [
+    "Authenticated POST /api/articles/:slug/comments stores a trimmed, non-whitespace body of at most 10,000 characters, assigns the token user as author, and returns HTTP 201 with the { comment } envelope serialized using the shared comment serializer.",
+    "Requests without a valid token return 401; unknown article slugs return 404; blank, whitespace-only, oversized, and client-supplied authorId input are rejected without creating a comment.",
+    "Generated Swagger and static OpenAPI document the POST request, maxLength 10000, auth and response/error contracts; this PR adds no comment GET or DELETE route."
+  ],
+  "regressionChecked": [
+    "Static POST responses document 201, 401, 404, 422, and 500.",
+    "The 500 response schema and example match the controller's persistence error response.",
+    "Generated Swagger has no comment GET or DELETE route."
+  ],
+  "contractStatus": "OK",
+  "refuted": [],
+  "unproven": [],
+  "reachableRegressions": [],
+  "findings": []
+}
