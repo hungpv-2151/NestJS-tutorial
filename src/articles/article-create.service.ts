@@ -8,7 +8,7 @@ import {
   type ArticleSerializationInput,
 } from './article.serializer.js';
 import { createArticleSlug } from './article-create-slug.js';
-import type { NewArticleDto } from './article-create.dto.js';
+import type { NewArticleDto } from '../common/dto/article-create.dto.js';
 import { persistArticleTags } from './article-tag-persistence.js';
 
 export { ArticleTagPersistenceError } from './article-tag-persistence.js';

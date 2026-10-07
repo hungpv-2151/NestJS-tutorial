@@ -17,7 +17,7 @@ import {
 } from '@nestjs/swagger';
 
 import { TOKEN_AUTH_SECURITY_SCHEME } from '../auth/auth.swagger.js';
-import { COMMENT_BODY_MAX_LENGTH } from './comment-create.dto.js';
+import { COMMENT_BODY_MAX_LENGTH } from '../common/dto/comment-create.dto.js';
 
 class CommentAuthorResponse {
   @ApiProperty({ nullable: true, type: String })
