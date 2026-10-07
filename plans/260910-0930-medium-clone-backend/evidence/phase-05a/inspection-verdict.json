@@ -1,0 +1,21 @@
+{
+  "score": 9,
+  "criticalCount": 0,
+  "decision": "SEALED",
+  "acceptanceCovered": [
+    "The reversible comments migration and TypeORM entity use an integer identity ID, required body/article/author fields, cascading article and author foreign keys, timestamps, and an index ordered by article_id, created_at, and id.",
+    "The shared comment serializer returns only the OpenAPI comment fields and public author profile fields, with author following state supplied separately.",
+    "Phase 5A adds no comment HTTP API route; the migration applies and reverts cleanly on TEST_DATABASE_URL."
+  ],
+  "regressionChecked": [
+    "Data-source entity and migration registration",
+    "Existing article and user entities and migration conventions",
+    "No comment route or controller added",
+    "Serializer excludes private author fields"
+  ],
+  "contractStatus": "OK",
+  "refuted": [],
+  "unproven": [],
+  "reachableRegressions": [],
+  "findings": []
+}

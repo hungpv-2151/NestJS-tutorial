@@ -6,7 +6,7 @@
 
 ## Overview
 
-- Priority: P1 · Status: Pending · Effort: 10h · Blocked by: Phase 04 PR 4K
+- Priority: P1 · Status: In progress · Effort: 10h · Blocked by: Phase 04 PR 4K
 - Comment create/list/delete là ba APIs và ba PRs; migration/shared serializer là foundation riêng.
 
 ## Key Insights
@@ -29,6 +29,13 @@
 | 5C | `GET /api/articles/:slug/comments` only | 5B | anonymous/auth/order/no-N+1 result |
 | 5D | `DELETE /api/articles/:slug/comments/:id` only | 5C | owner/403/404/persistence screenshot |
 
+### Phase 5A — Comment Schema Foundation
+
+- [Detailed phase record](./phase-05a-comment-schema.md)
+- Status: implementation, migration verification, tests, build, lint, and independent review passed; PR submission pending.
+- Scope: comment schema/shared serializer only; `Public API change: none`.
+- Evidence: [5A hard-gate artifacts](./evidence/phase-05a/), including the migration apply/revert screenshot; verdict `SEALED`.
+
 ## Data Flow
 
 `slug → article lookup → comment service → TypeORM → serializer`; delete uses article scope plus conditional owner delete.
@@ -50,7 +57,7 @@
 
 - [ ] PRs 5A–5D rebased, one-API scoped and within line limit.
 - [ ] Create/list/delete status, envelope and failed-mutation persistence proven.
-- [ ] Evidence URLs: 5A `pending`; 5B `pending`; 5C `pending`; 5D `pending`.
+- [ ] Evidence URLs: 5A `pending PR submission`; 5B `pending`; 5C `pending`; 5D `pending`.
 
 ## Success Criteria
 

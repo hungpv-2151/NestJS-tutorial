@@ -1,0 +1,46 @@
+{
+  "commands": [
+    {
+      "command": "pnpm test",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Full unit suite passed: 45 files passed, 1 skipped; 197 tests passed, 1 skipped."
+    },
+    {
+      "command": "pnpm test:e2e",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Full E2E suite passed: 25 files and 98 tests."
+    },
+    {
+      "command": "pnpm build",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Nest build passed."
+    },
+    {
+      "command": "pnpm lint",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Lint passed with 268 warnings and 0 errors; one S012 warning is a false positive on fixed CREATE INDEX SQL, with no credentials in the literal."
+    },
+    {
+      "command": "pnpm db:migration:show (child DATABASE_URL set to TEST_DATABASE_URL)",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "CreateComments1710000005000 was the only pending migration before apply."
+    },
+    {
+      "command": "pnpm db:migration:apply (child DATABASE_URL set to TEST_DATABASE_URL)",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "Migration applied; PostgreSQL inspection confirmed integer identity ID, required columns, both cascading foreign keys, and idx_comments_article_created_id."
+    },
+    {
+      "command": "pnpm db:migration:revert (child DATABASE_URL set to TEST_DATABASE_URL)",
+      "exitCode": 0,
+      "status": "pass",
+      "summary": "CreateComments1710000005000 reverted successfully; regular DATABASE_URL and .env were unchanged."
+    }
+  ]
+}
