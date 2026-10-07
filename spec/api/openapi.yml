@@ -519,7 +519,7 @@ paths:
                 example:
                   errors:
                     body:
-                      - request failed
+                      - internal server error
       security:
         - Token: [ ]
     delete:
@@ -544,6 +544,16 @@ paths:
           $ref: '#/components/responses/NotFound'
         '422':
           $ref: '#/components/responses/GenericError'
+        '500':
+          description: Favorite could not be deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  errors:
+                    body:
+                      - internal server error
       security:
         - Token: [ ]
   /tags:
