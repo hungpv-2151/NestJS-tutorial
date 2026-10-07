@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { serializeProfile } from '../../../src/profiles/profile.serializer.js';
+import { serializeProfile } from '../../../src/common/serializers/profile.serializer.js';
 
 describe('serializeProfile', () => {
   it('returns only public profile fields', () => {

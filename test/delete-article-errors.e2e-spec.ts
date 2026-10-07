@@ -7,7 +7,7 @@ import { DataSource } from 'typeorm';
 import {
   ArticleDeletePersistenceError,
   ArticleDeleteService,
-} from '../src/articles/article-delete.service.js';
+} from '../src/articles/article.service.js';
 import { AuthService } from '../src/auth/auth.service.js';
 import { createApp } from '../src/create-app.js';
 import {

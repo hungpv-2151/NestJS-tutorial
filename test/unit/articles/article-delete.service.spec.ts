@@ -8,7 +8,7 @@ import {
   ArticleDeletePersistenceError,
   ArticleDeleteService,
   ArticleDeleteUserNotFoundError,
-} from '../../../src/articles/article-delete.service.js';
+} from '../../../src/articles/article.service.js';
 
 function createHarness(options?: {
   user?: { id: string } | null;

@@ -7,7 +7,7 @@ import { Article } from '../src/articles/article.entity.js';
 import {
   ArticleCreatePersistenceError,
   ArticleCreateService,
-} from '../src/articles/article-create.service.js';
+} from '../src/articles/article.service.js';
 import { Tag } from '../src/tags/tag.entity.js';
 import { User } from '../src/users/user.entity.js';
 

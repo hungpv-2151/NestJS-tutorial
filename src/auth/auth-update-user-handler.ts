@@ -13,7 +13,7 @@ import type { AuthConfig } from '../config/auth-config.js';
 import {
   serializeUser,
   type SerializedUser,
-} from '../users/user.serializer.js';
+} from '../common/serializers/user.serializer.js';
 import { UserService } from '../users/user.service.js';
 import type { AuthenticatedRequest } from './auth-token.guard.js';
 import { issueToken } from './auth-token-issuer.js';

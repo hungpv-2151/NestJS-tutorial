@@ -5,13 +5,13 @@ import { describe, expect, it } from 'vitest';
 import {
   ArticleUpdateRequestDto,
   ArticleUpdateDto,
-} from '../../../src/common/dto/article-update.dto.js';
+} from '../../../src/common/dto/article.dto.js';
 import {
   ArticleUpdateArticleNotFoundError,
   ArticleUpdateForbiddenError,
   ArticleUpdatePersistenceError,
   ArticleUpdateUserNotFoundError,
-} from '../../../src/articles/article-update.service.js';
+} from '../../../src/articles/article.service.js';
 
 describe('ArticleUpdateRequestDto', () => {
   it.each([

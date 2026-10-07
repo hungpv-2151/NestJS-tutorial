@@ -8,29 +8,23 @@ import { ArticleFavorite } from './article-favorite.entity.js';
 import { ArticleTag } from './article-tag.entity.js';
 import { Article } from './article.entity.js';
 import { ArticlesController } from './articles.controller.js';
-import { ArticleDeleteController } from './article-delete.controller.js';
-import { ArticleCreateService } from './article-create.service.js';
-import { ArticleDeleteService } from './article-delete.service.js';
-import { ArticleFavoriteController } from './article-favorite.controller.js';
-import { ArticleFavoriteService } from './article-favorite.service.js';
-import { ArticleFeedController } from './article-feed.controller.js';
-import { ArticleListController } from './article-list.controller.js';
+import {
+  ArticleCreateService,
+  ArticleDeleteService,
+  ArticleFavoriteService,
+  ArticleListService,
+  ArticleReadService,
+  ArticleUpdateService,
+} from './article.service.js';
+
 import { ArticleListHydrator } from './article-list-hydrator.js';
 import { ArticleListQueryService } from './article-list-query.service.js';
-import { ArticleListService } from './article-list.service.js';
-import { ArticleReadService } from './article-read.service.js';
-import { ArticleUpdateService } from './article-update.service.js';
+
 import { Tag } from '../tags/tag.entity.js';
 import { CommentsModule } from '../comments/comments.module.js';
 
 @Module({
-  controllers: [
-    ArticleFeedController,
-    ArticleFavoriteController,
-    ArticlesController,
-    ArticleDeleteController,
-    ArticleListController,
-  ],
+  controllers: [ArticlesController],
   imports: [
     AuthModule,
     CommentsModule,
@@ -44,11 +38,11 @@ import { CommentsModule } from '../comments/comments.module.js';
   ],
   providers: [
     ArticleCreateService,
-    ArticleDeleteService,
     ArticleFavoriteService,
+    ArticleDeleteService,
     ArticleListHydrator,
-    ArticleListQueryService,
     ArticleListService,
+    ArticleListQueryService,
     ArticleReadService,
     ArticleUpdateService,
     OptionalAuthTokenGuard,

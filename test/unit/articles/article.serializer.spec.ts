@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   serializeArticleDetail,
   serializeArticleList,
-} from '../../../src/articles/article.serializer.js';
+} from '../../../src/common/serializers/article.serializer.js';
 import { User } from '../../../src/users/user.entity.js';
 
 const article = {

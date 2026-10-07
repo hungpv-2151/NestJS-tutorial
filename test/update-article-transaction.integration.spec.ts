@@ -8,7 +8,7 @@ import { ArticleFavorite } from '../src/articles/article-favorite.entity.js';
 import {
   ArticleUpdatePersistenceError,
   ArticleUpdateService,
-} from '../src/articles/article-update.service.js';
+} from '../src/articles/article.service.js';
 import { Tag } from '../src/tags/tag.entity.js';
 import { User } from '../src/users/user.entity.js';
 import { UserFollow } from '../src/profiles/user-follow.entity.js';

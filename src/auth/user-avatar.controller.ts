@@ -9,8 +9,11 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
-import type { SerializedUser } from '../users/user.serializer.js';
-import { AuthTokenGuard, type AuthenticatedRequest } from './auth-token.guard.js';
+import type { SerializedUser } from '../common/serializers/user.serializer.js';
+import {
+  AuthTokenGuard,
+  type AuthenticatedRequest,
+} from './auth-token.guard.js';
 import { UserAvatarSwagger } from './auth.swagger.js';
 import { UserAvatarHandler } from './user-avatar-handler.js';
 import { UserAvatarUploadInterceptor } from './user-avatar-upload.interceptor.js';

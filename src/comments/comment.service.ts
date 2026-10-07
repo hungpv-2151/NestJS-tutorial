@@ -15,7 +15,7 @@ import { Comment } from './comment.entity.js';
 import {
   serializeComment,
   type SerializedComment,
-} from './comment.serializer.js';
+} from '../common/serializers/comment.serializer.js';
 
 export class CommentUserNotFoundError extends UnauthorizedException {
   constructor() {

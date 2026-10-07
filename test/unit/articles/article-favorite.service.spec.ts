@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   ArticleFavoriteArticleNotFoundError,
   ArticleFavoriteUserNotFoundError,
-} from '../../../src/articles/article-favorite.service.js';
+} from '../../../src/articles/article.service.js';
 
 describe('ArticleFavoriteService errors', () => {
   it.each([

@@ -18,7 +18,10 @@ import {
   type AuthenticatedRequest,
 } from '../auth/auth-token.guard.js';
 import { UserService } from '../users/user.service.js';
-import { serializeProfile, type SerializedProfile } from './profile.serializer.js';
+import {
+  serializeProfile,
+  type SerializedProfile,
+} from '../common/serializers/profile.serializer.js';
 import {
   ProfileNotFoundError,
   ProfileService,

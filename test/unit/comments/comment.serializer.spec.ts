@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { serializeComment } from '../../../src/comments/comment.serializer.js';
+import { serializeComment } from '../../../src/common/serializers/comment.serializer.js';
 
 describe('serializeComment', () => {
   it('returns only the comment contract and public author profile fields', () => {

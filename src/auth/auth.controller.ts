@@ -28,7 +28,7 @@ import {
 import {
   serializeUser,
   type SerializedUser,
-} from '../users/user.serializer.js';
+} from '../common/serializers/user.serializer.js';
 import type { AuthConfig } from '../config/auth-config.js';
 import { createRequestFailureLog } from '../common/logging/request-failure-log.js';
 import { AUTH_CONFIG } from './auth.constants.js';
