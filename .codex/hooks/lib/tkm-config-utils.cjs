@@ -17,11 +17,11 @@ const { execFileSync } = require('child_process');
 // Config file paths
 // ---------------------------------------------------------------------------
 
-const LOCAL_CONFIG_PATH  = '.claude/.tkm.json';
+const LOCAL_CONFIG_PATH  = '.codex/.tkm.json';
 const GLOBAL_CONFIG_PATH = path.join(os.homedir(), '.claude', '.tkm.json');
 
 // Legacy .sk.json paths — read-only fallback; existing user configs keep working
-const LEGACY_LOCAL_CONFIG_PATH  = '.claude/.sk.json';
+const LEGACY_LOCAL_CONFIG_PATH  = '.codex/.sk.json';
 const LEGACY_GLOBAL_CONFIG_PATH = path.join(os.homedir(), '.claude', '.sk.json');
 
 // Backward-compat alias — callers that imported CONFIG_PATH still work
@@ -77,7 +77,7 @@ const DEFAULT_CONFIG = {
     // SDD (Spec-Driven Development) mode for the takumi pipeline / tkm-plan spec gate.
     // 'ask' = unset → prompt the user on first takumi run, then persist their choice here.
     // 'on'  = Stage 1.5 (spec authoring) runs. 'off' = spec stage skipped project-wide.
-    // Persisted to project-scope .claude/.tkm.json so a team shares one decision.
+    // Persisted to project-scope .codex/.tkm.json so a team shares one decision.
     sddMode: 'ask'
   },
   project: {
@@ -93,7 +93,7 @@ const DEFAULT_CONFIG = {
   skillExtensions: {
     // Path to a git-tracked dir of team-shared skill extensions, laid out
     // per-skill: <sharedDir>/<skill-dir>/*.md. Empty = shared extensions off
-    // (only local .claude/skills/<dir>/extensions/ loads). Relative paths
+    // (only local .codex/skills/<dir>/extensions/ loads). Relative paths
     // resolve against the project root and must stay inside it; a sibling repo
     // in a multi-repo layout must use an absolute path.
     sharedDir: ''
@@ -460,8 +460,8 @@ function _buildDefaultConfig(inclProject, inclAssertions, inclLocale) {
  *
  * Priority (each layer wins over the previous):
  *   1. DEFAULT_CONFIG
- *   2. ~/.claude/.tkm.json  (falls back to .sk.json)
- *   3. ./.claude/.tkm.json  (falls back to .sk.json)
+ *   2. ~/.codex/.tkm.json  (falls back to .sk.json)
+ *   3. ./.codex/.tkm.json  (falls back to .sk.json)
  */
 function loadConfig(opts = {}) {
   const {

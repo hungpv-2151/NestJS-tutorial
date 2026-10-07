@@ -1,5 +1,6 @@
-model = "gpt-6-luna"
-model_reasoning_effort = "max"
+description = "Fast, low-cost capability tier of the brainstormer consultation agent, for `--level low`: quick trade-off passes, a smaller lens board, condensed output. Same consultation craft as `brainstormer`, run on a lighter model / lower reasoning effort. Examines and advises; writes no project code. Prefer the default `brainstormer` for standard depth, or `brainstormer-max` for exhaustive, high-stakes decisions.\n"
+model = "gpt-6.1-sol"
+model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 
 developer_instructions = """

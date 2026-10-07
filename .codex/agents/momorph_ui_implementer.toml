@@ -1,5 +1,6 @@
-model = "gpt-6-luna"
-model_reasoning_effort = "max"
+description = "Coordinates or implements MoMorph/Figma UI work under an explicit screen, section, or polish mode. A Takumi screen task activates tkm:momorph-implement-design in screen mode; that workflow delegates bounded section/polish work back to this agent. Every task requires fileKey, screenId, file ownership, and a declared visual-contract or e2e-red-first policy."
+model = "gpt-6.1-sol"
+model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 
 developer_instructions = """

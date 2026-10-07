@@ -2,6 +2,20 @@
   "hooks": {
     "PreToolUse": [
       {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/home/phamvanhung/projects/nestjs-tutorial/.codex/hooks/b7a8eb44-iac-routing-guard.cjs\""
+          },
+          {
+            "type": "command",
+            "command": "tkm hook-exec --hook extension.skill --event pre-tool-use -a codex",
+            "timeout": 10
+          }
+        ]
+      },
+      {
         "matcher": "Bash|Glob|Grep|Read|Edit|Write",
         "hooks": [
           {
@@ -32,21 +46,6 @@
         ]
       },
       {
-        "matcher": "Skill",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "tkm hook-exec --hook extension.skill --event pre-tool-use -a codex",
-            "timeout": 10
-          },
-          {
-            "type": "command",
-            "command": "tkm hook-exec --eval \"/home/phamvanhung/projects/nestjs-tutorial/.codex/hooks/iac-routing-guard.cjs\" --project --event pre-tool-use -a codex",
-            "timeout": 10
-          }
-        ]
-      },
-      {
         "hooks": [
           {
             "type": "command",
@@ -56,11 +55,16 @@
         ]
       },
       {
-        "matcher": "Workflow",
+        "matcher": "Bash",
         "hooks": [
           {
             "type": "command",
-            "command": "tkm hook-exec --eval \"/home/phamvanhung/projects/nestjs-tutorial/.codex/hooks/workflow-opt-in-guard.cjs\" --project --event pre-tool-use -a codex",
+            "command": "tkm hook-exec --eval \"/home/phamvanhung/projects/nestjs-tutorial/.codex/hooks/destructive-command-guard.cjs\" --project --event pre-tool-use -a codex",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "tkm hook-exec --eval \"/home/phamvanhung/projects/nestjs-tutorial/.codex/hooks/evidence-gate-guard.cjs\" --project --event pre-tool-use -a codex",
             "timeout": 10
           }
         ]
@@ -76,16 +80,11 @@
         ]
       },
       {
-        "matcher": "Bash",
+        "matcher": "Workflow",
         "hooks": [
           {
             "type": "command",
-            "command": "tkm hook-exec --eval \"/home/phamvanhung/projects/nestjs-tutorial/.codex/hooks/evidence-gate-guard.cjs\" --project --event pre-tool-use -a codex",
-            "timeout": 10
-          },
-          {
-            "type": "command",
-            "command": "tkm hook-exec --eval \"/home/phamvanhung/projects/nestjs-tutorial/.codex/hooks/destructive-command-guard.cjs\" --project --event pre-tool-use -a codex",
+            "command": "tkm hook-exec --eval \"/home/phamvanhung/projects/nestjs-tutorial/.codex/hooks/workflow-opt-in-guard.cjs\" --project --event pre-tool-use -a codex",
             "timeout": 10
           }
         ]
@@ -107,12 +106,7 @@
           },
           {
             "type": "command",
-            "command": "tkm hook-exec --eval \"/home/phamvanhung/projects/nestjs-tutorial/.codex/hooks/takumi-bootstrap.cjs\" --project --event session-start -a codex",
-            "timeout": 10
-          },
-          {
-            "type": "command",
-            "command": "tkm hook-exec --eval \"/home/phamvanhung/projects/nestjs-tutorial/.codex/hooks/session-state.cjs\" --project --event session-start -a codex",
+            "command": "tkm hook-exec --eval \"/home/phamvanhung/projects/nestjs-tutorial/.codex/hooks/graph-reindex-sync.cjs\" --project --event session-start -a codex",
             "timeout": 10
           },
           {
@@ -122,7 +116,12 @@
           },
           {
             "type": "command",
-            "command": "tkm hook-exec --eval \"/home/phamvanhung/projects/nestjs-tutorial/.codex/hooks/graph-reindex-sync.cjs\" --project --event session-start -a codex",
+            "command": "tkm hook-exec --eval \"/home/phamvanhung/projects/nestjs-tutorial/.codex/hooks/session-state.cjs\" --project --event session-start -a codex",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "tkm hook-exec --eval \"/home/phamvanhung/projects/nestjs-tutorial/.codex/hooks/takumi-bootstrap.cjs\" --project --event session-start -a codex",
             "timeout": 10
           }
         ]
@@ -165,6 +164,11 @@
           },
           {
             "type": "command",
+            "command": "tkm hook-exec --eval \"/home/phamvanhung/projects/nestjs-tutorial/.codex/hooks/plan-format-kanban.cjs\" --project --event post-tool-use -a codex",
+            "timeout": 10
+          },
+          {
+            "type": "command",
             "command": "tkm hook-exec --eval \"/home/phamvanhung/projects/nestjs-tutorial/.codex/hooks/post-edit-simplify-reminder.cjs\" --project --event post-tool-use -a codex",
             "timeout": 10
           }
@@ -186,16 +190,6 @@
             "type": "command",
             "command": "tkm hook-exec --hook session.activity --event post-tool-use -a codex",
             "timeout": 15
-          }
-        ]
-      },
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "tkm hook-exec --eval \"/home/phamvanhung/projects/nestjs-tutorial/.codex/hooks/plan-format-kanban.cjs\" --project --event post-tool-use -a codex",
-            "timeout": 10
           }
         ]
       }
@@ -246,13 +240,13 @@
           },
           {
             "type": "command",
-            "command": "tkm hook-exec --eval \"/home/phamvanhung/projects/nestjs-tutorial/.codex/hooks/session-state.cjs\" --project --event stop -a codex",
-            "timeout": 10
+            "command": "tkm hook-exec --eval \"/home/phamvanhung/projects/nestjs-tutorial/.codex/hooks/memory-graph-queue.cjs\" --project --event stop -a codex",
+            "timeout": 15
           },
           {
             "type": "command",
-            "command": "tkm hook-exec --eval \"/home/phamvanhung/projects/nestjs-tutorial/.codex/hooks/memory-graph-queue.cjs\" --project --event stop -a codex",
-            "timeout": 15
+            "command": "tkm hook-exec --eval \"/home/phamvanhung/projects/nestjs-tutorial/.codex/hooks/session-state.cjs\" --project --event stop -a codex",
+            "timeout": 10
           }
         ]
       }

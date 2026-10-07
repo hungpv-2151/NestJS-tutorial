@@ -1,4 +1,5 @@
-model = "gpt-6-sol"
+description = "Turns a fuzzy or risky piece of work into a sealed, phased blueprint written to\nplans/ — data flows, dependency order, per-phase risk with countermeasures, a\ncompatibility and migration path, the test matrix, rollback, file ownership so\nparallel phases never collide, and observable done criteria. Reach for it for\narchitecture decisions, multi-phase features, cross-repo or breaking changes,\nrefactors that need a staged path, and anything a team will execute in parallel.\nIt researches and designs;"
+model = "gpt-6.1-sol"
 model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"
 
@@ -138,4 +139,12 @@ While working inside a guild:
 5. On finishing: `TaskUpdate(status: "completed")`, then `SendMessage` a blueprint summary to the lead
 6. On a `shutdown_request`: grant it via `SendMessage(type: "shutdown_response")` unless a critical operation is still in the fire
 7. Reach teammates through `SendMessage(type: "message")` when something needs coordinating
+## Consult athena on a genuine fork
+
+You run on a model below `fable`. At a **genuine fork** — two or more paths with real trade-offs
+you cannot settle from the evidence — or when **stuck after two attempts**, spawn `athena` once
+for one-shot counsel before you commit: `Task(athena)` with the task, the evidence you gathered,
+what you already tried, and the exact question. She advises; you still decide and act. Never call
+her on an ordinary step — only a real fork or a repeated failure. Single source:
+`../rules/orchestration-protocol.md` → "Advisory Escalation".
 """

@@ -1,7 +1,7 @@
 /**
  * Session-state manager — preserves Forge progress between sessions.
  *
- * State lands in ~/.claude/session-states/{hash}/ (global, never pollutes project dirs).
+ * State lands in ~/.codex/session-states/{hash}/ (global, never pollutes project dirs).
  * Guarantees: zero external deps, fail-open on every I/O error, atomic writes, 7-day expiry.
  *
  * @module session-state-manager
@@ -13,9 +13,6 @@ const path = require('path');
 const os = require('os');
 const crypto = require('crypto');
 const { execFileSync } = require('child_process');
-const { parseTranscript } = require('./transcript-parser.cjs');
-const { readSessionState, updateSessionState } = require('./tkm-config-utils.cjs');
-const { createEmptyActivitySnapshot, sanitizeActivitySnapshot } = require('./statusline-session-cache.cjs');
 
 const MAX_ARCHIVES = 5;
 const EXPIRY_DAYS = 7;
@@ -123,162 +120,6 @@ function archiveState(stateDir) {
   } catch { /* fail-open */ }
 }
 
-/** Refresh the statusline activity cache from transcript JSONL (never called on startup path). */
-async function refreshStatuslineSnapshot(stdinData) {
-  try {
-    const sessionId = stdinData.session_id || process.env.TKM_SESSION_ID || '';
-    if (!sessionId) return { success: false, reason: 'missing-session-id' };
-
-    const now = new Date().toISOString();
-    const existingState = readSessionState(sessionId) || {};
-    const transcriptPath = resolveTranscriptPath(stdinData, existingState);
-
-    if (!transcriptPath) {
-      const success = updateSessionState(sessionId, (state) => {
-        const currentSnapshot = state.statusline || createEmptyActivitySnapshot();
-        return {
-          ...state,
-          statusline: sanitizeActivitySnapshot(applyStatuslineEvent(currentSnapshot, stdinData, now))
-        };
-      });
-
-      return success
-        ? { success: true, warmed: Boolean(existingState.statusline?.warmed) }
-        : { success: false, reason: 'write-failed' };
-    }
-
-    const transcript = await parseTranscript(transcriptPath);
-    const success = updateSessionState(sessionId, (state) => {
-      const currentSnapshot = state.statusline || createEmptyActivitySnapshot();
-      const parsedSnapshot = applyStatuslineEvent({
-        sessionStart: transcript.sessionStart
-          ? new Date(transcript.sessionStart).toISOString()
-          : currentSnapshot.sessionStart || now,
-        updatedAt: now,
-        warmed: true,
-        agents: transcript.agents || [],
-        todos: transcript.todos || []
-      }, stdinData, now);
-      const preserveCurrent = shouldPreserveExistingSnapshot(currentSnapshot, parsedSnapshot, transcript);
-      const nextSnapshot = preserveCurrent
-        ? applyStatuslineEvent(currentSnapshot, stdinData, now)
-        : parsedSnapshot;
-      const currentTranscriptPath = typeof state.lastTranscriptPath === 'string'
-        ? state.lastTranscriptPath
-        : '';
-
-      return {
-        ...state,
-        statusline: sanitizeActivitySnapshot(nextSnapshot),
-        lastTranscriptPath: preserveCurrent && currentTranscriptPath
-          ? currentTranscriptPath
-          : transcriptPath
-      };
-    });
-
-    if (!success) {
-      return { success: false, reason: 'write-failed' };
-    }
-
-    return { success: true, warmed: true };
-  } catch {
-    return { success: false, reason: 'snapshot-refresh-failed' };
-  }
-}
-
-function resolveTranscriptPath(stdinData, existingState) {
-  const directPath = typeof stdinData.transcript_path === 'string'
-    ? stdinData.transcript_path
-    : '';
-  if (directPath && fs.existsSync(directPath)) return directPath;
-
-  const cachedPath = typeof existingState.lastTranscriptPath === 'string'
-    ? existingState.lastTranscriptPath
-    : '';
-  if (cachedPath && fs.existsSync(cachedPath)) return cachedPath;
-
-  return '';
-}
-
-function applyStatuslineEvent(snapshot, stdinData, now) {
-  const eventType = stdinData.hook_event_name || null;
-  const normalized = sanitizeActivitySnapshot({
-    ...snapshot,
-    updatedAt: now
-  });
-
-  if (eventType !== 'SubagentStop') {
-    return normalized;
-  }
-
-  const agentId = stdinData.agent_id != null ? String(stdinData.agent_id) : null;
-  const agentType = typeof stdinData.agent_type === 'string' ? stdinData.agent_type : null;
-  if (!agentId && !agentType) {
-    return normalized;
-  }
-
-  const agents = normalized.agents.map(agent => ({ ...agent }));
-  let matched = false;
-
-  if (agentId) {
-    matched = markMatchingAgentCompleted(agents, agent => agent.id === agentId, now);
-  }
-
-  if (!matched && agentType) {
-    matched = markMatchingAgentCompleted(
-      agents,
-      agent => agent.status === 'running' && agent.type === agentType,
-      now
-    );
-  }
-
-  return matched
-    ? { ...normalized, agents, updatedAt: now }
-    : normalized;
-}
-
-function shouldPreserveExistingSnapshot(existingSnapshot, parsedSnapshot, transcript) {
-  if (!hasSnapshotActivity(existingSnapshot)) return false;
-  if (!existingSnapshot || existingSnapshot.warmed !== true) return false;
-  const existingUpdatedAt = Date.parse(existingSnapshot.updatedAt || '');
-  const transcriptUpdatedAt = Date.parse(transcript?.lastActivityAt || transcript?.lastValidEntryAt || '');
-
-  if (Number.isFinite(existingUpdatedAt) && Number.isFinite(transcriptUpdatedAt) && existingUpdatedAt >= transcriptUpdatedAt) {
-    return true;
-  }
-
-  const transcriptIsIncomplete = Boolean(transcript && transcript.invalidLineCount > 0);
-
-  if (!transcriptIsIncomplete) {
-    if (hasSnapshotActivity(parsedSnapshot)) return false;
-    return !transcript || transcript.statuslineActivityCount === 0;
-  }
-
-  if (!Number.isFinite(existingUpdatedAt) || !Number.isFinite(transcriptUpdatedAt)) {
-    return true;
-  }
-
-  return existingUpdatedAt >= transcriptUpdatedAt;
-}
-
-function hasSnapshotActivity(snapshot) {
-  if (!snapshot || typeof snapshot !== 'object') return false;
-  return (
-    (Array.isArray(snapshot.agents) && snapshot.agents.length > 0) ||
-    (Array.isArray(snapshot.todos) && snapshot.todos.length > 0)
-  );
-}
-
-function markMatchingAgentCompleted(agents, predicate, now) {
-  for (let index = agents.length - 1; index >= 0; index -= 1) {
-    if (!predicate(agents[index])) continue;
-    agents[index].status = 'completed';
-    agents[index].endTime = agents[index].endTime || now;
-    return true;
-  }
-  return false;
-}
-
 /** Extract session data (todos, modified files, plan, branch) from transcript and env. */
 function extractSessionData(stdinData) {
   const data = {
@@ -287,13 +128,8 @@ function extractSessionData(stdinData) {
     plan: process.env.TKM_ACTIVE_PLAN || '',
     todos: [], modifiedFiles: []
   };
-  const sessionId = stdinData.session_id || process.env.TKM_SESSION_ID || '';
-  const cachedSnapshot = sessionId ? readSessionState(sessionId)?.statusline : null;
-  if (cachedSnapshot && Array.isArray(cachedSnapshot.todos) && cachedSnapshot.todos.length > 0) {
-    data.todos = cachedSnapshot.todos;
-  }
   // Walk transcript JSONL for the last TodoWrite block
-  if (data.todos.length === 0 && stdinData.transcript_path) {
+  if (stdinData.transcript_path) {
     try {
       const lines = fs.readFileSync(stdinData.transcript_path, 'utf8').split('\n').filter(Boolean);
       const latest = [];
@@ -372,7 +208,6 @@ module.exports = {
   loadState,
   persistState,
   archiveState,
-  refreshStatuslineSnapshot,
   extractSessionData,
   buildStateContent,
   buildAgentSection,

@@ -1,4 +1,5 @@
-model = "gpt-6-sol"
+description = "Refines just-written code for clarity and consistency with zero change to behavior — flattens nesting into guard clauses, retires duplication and abstractions that earn nothing, renames for intent, and brings the code in line with the project's own conventions. Verifies with whatever the repo provides (typecheck, lint, tests) and stops short of clever compression. Reach for it after a feature lands and before review.\n<example>\nContext: A batch of edits just landed in the portable reconciler and "
+model = "gpt-6.1-sol"
 model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"
 

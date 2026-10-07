@@ -37,7 +37,14 @@
  * the base kit's opt-in guard, which fails closed because it protects an
  * expensive tool.
  *
- * Emits on stdout, exit 0. No dependencies beyond Node's stdlib.
+ * EVAL HOOK
+ *
+ * Exports `run(input)` + `meta` so the CLI discovers and registers it
+ * (`tkm hook-exec --eval`) for both Claude Code and Codex — there is no
+ * settings.json registration. All I/O lives behind `require.main === module`,
+ * so importing the file to read `meta` has no side effects. Self-contained on
+ * purpose: the installer imports it from THIS kit's own tree, where base-kit
+ * hook libs do not exist. No dependencies beyond Node's stdlib.
  */
 
 const fs = require('fs');
@@ -75,56 +82,73 @@ function buildReason(skill) {
   );
 }
 
-function emitAsk(reason) {
-  process.stdout.write(
-    JSON.stringify({
-      hookSpecificOutput: {
-        hookEventName: 'PreToolUse',
-        permissionDecision: 'ask',
-        permissionDecisionReason: reason,
-      },
-    }),
-  );
+/**
+ * Pure decision: `ask` with the routing reason, or `ok` (allow). Every error
+ * path allows — a routing nudge must never be the reason work stops.
+ */
+function run(data) {
+  try {
+    if (!data || typeof data !== 'object') return { status: 'ok' }; // unreadable payload → allow
+    if (data.tool_name && data.tool_name !== 'Skill') return { status: 'ok' };
+
+    const raw = (data.tool_input && data.tool_input.skill) || '';
+    // Strip any plugin namespace the payload may carry, matching how the base
+    // kit's Skill hook resolves a skill name. Comparing the raw string means a
+    // plugin-qualified payload silently never matches — a failure with no signal.
+    const skill = raw.includes('/') ? raw.slice(raw.lastIndexOf('/') + 1) : raw;
+
+    // hasOwnProperty, not `REPLACEMENTS[skill]`: the skill name is model-supplied,
+    // and a bare lookup matches inherited keys — `constructor`, `toString`,
+    // `__proto__` — firing a spurious prompt with an empty replacement list.
+    if (!Object.prototype.hasOwnProperty.call(REPLACEMENTS, skill)) return { status: 'ok' };
+
+    const cwd = data.cwd || process.cwd();
+    if (isDisabled(cwd)) return { status: 'ok' };
+
+    let defaults;
+    try {
+      defaults = readLayoutDefaults(cwd);
+    } catch (_) {
+      return { status: 'ok' }; // unreadable contract → allow
+    }
+    if (!defaults) return { status: 'ok' }; // family not installed → nothing to route to
+
+    if (!looksLikeAiddLayout(cwd, defaults)) return { status: 'ok' }; // ordinary repo → allow, silently
+
+    return { status: 'ask', askReason: buildReason(skill) };
+  } catch (_) {
+    return { status: 'ok' };
+  }
 }
 
-try {
-  let data;
+module.exports.run = run;
+module.exports.meta = {
+  events: ['PreToolUse'],
+  matchers: { PreToolUse: 'Skill' },
+  timeout: 10,
+};
+
+// Standalone execution (`node iac-routing-guard.cjs`, e.g. a registration left
+// by an older install): read the payload from stdin, emit the same PreToolUse
+// permission JSON, exit 0.
+if (require.main === module) {
+  let data = null;
   try {
     data = JSON.parse(fs.readFileSync(0, 'utf-8'));
   } catch (_) {
     process.exit(0); // unreadable payload → allow
   }
-
-  if (data.tool_name && data.tool_name !== 'Skill') process.exit(0);
-
-  const raw = (data.tool_input && data.tool_input.skill) || '';
-  // Strip any plugin namespace the payload may carry, matching how the base
-  // kit's Skill hook resolves a skill name. Comparing the raw string means a
-  // plugin-qualified payload silently never matches — a failure with no signal.
-  const skill = raw.includes('/') ? raw.slice(raw.lastIndexOf('/') + 1) : raw;
-
-  // hasOwnProperty, not `REPLACEMENTS[skill]`: the skill name is model-supplied,
-  // and a bare lookup matches inherited keys — `constructor`, `toString`,
-  // `__proto__` — firing a spurious prompt with an empty replacement list.
-  if (!Object.prototype.hasOwnProperty.call(REPLACEMENTS, skill)) process.exit(0);
-
-  const cwd = data.cwd || process.cwd();
-
-  if (isDisabled(cwd)) process.exit(0);
-
-  let defaults;
-  try {
-    defaults = readLayoutDefaults(cwd);
-  } catch (_) {
-    process.exit(0); // unreadable contract → allow
+  const result = run(data);
+  if (result.status === 'ask') {
+    process.stdout.write(
+      JSON.stringify({
+        hookSpecificOutput: {
+          hookEventName: 'PreToolUse',
+          permissionDecision: 'ask',
+          permissionDecisionReason: result.askReason,
+        },
+      }),
+    );
   }
-  if (!defaults) process.exit(0); // family not installed → nothing to route to
-
-  if (!looksLikeAiddLayout(cwd, defaults)) process.exit(0); // ordinary repo → allow, silently
-
-  emitAsk(buildReason(skill));
-  process.exit(0);
-} catch (_) {
-  // Fail-open. A routing nudge must never be the reason work stops.
   process.exit(0);
 }

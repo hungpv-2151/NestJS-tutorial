@@ -70,7 +70,7 @@ function buildDenyReason(evidenceDir, result) {
   return (
     `Ship blocked: evidence at "${evidenceDir}" is not SEALED (${result.blocking.length} issue(s)):\n` +
     `${top}${more}\n` +
-    `Reproduce: node claude/skills/_shared/lib/evidence-gate.cjs --evidence-dir "${evidenceDir}" --stage hard\n` +
+    `Reproduce: node .codex/skills/_shared/lib/evidence-gate.cjs --evidence-dir "${evidenceDir}" --stage hard\n` +
     `Bypass: disable via .tkm.json -> hooks."evidence-gate-guard": false, or include ` +
     `"--skip-tests"/"--skip-review" in your request to downgrade this check to advisory.`
   );

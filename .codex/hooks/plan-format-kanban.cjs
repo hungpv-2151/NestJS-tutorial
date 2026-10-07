@@ -78,7 +78,7 @@ function run(input, _ctx) {
 module.exports.run = run;
 module.exports.meta = {
   events: ['PostToolUse'],
-  matchers: { PostToolUse: 'Edit|Write|MultiEdit' },
+  matchers: { PostToolUse: 'Edit|Write' },
   timeout: 10,
 };
 
