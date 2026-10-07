@@ -14,10 +14,12 @@ describe('AppModule database configuration', () => {
 
     const { AppModule } = await import('./app.module.js');
     const { ArticlesModule } = await import('./articles/articles.module.js');
+    const { TagsModule } = await import('./tags/tags.module.js');
 
     const imports = Reflect.getMetadata('imports', AppModule);
-    expect(imports).toHaveLength(6);
+    expect(imports).toHaveLength(7);
     expect(imports).toContain(ArticlesModule);
+    expect(imports).toContain(TagsModule);
   });
 
   it.each([

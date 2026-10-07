@@ -1,0 +1,28 @@
+{
+  "task": "Deliver public GET /api/tags as one API PR stacked above PR #58.",
+  "mode": "code",
+  "acceptanceCriteria": [
+    "Unauthenticated GET /api/tags returns the { tags: string[] } envelope with all stored tag names in stable ascending order.",
+    "Generated Swagger documents the required tags array of strings and does not require authentication.",
+    "The feature adds only GET /api/tags and does not change tag or article persistence behavior."
+  ],
+  "touchpoints": [
+    "src/app.module.ts",
+    "src/tags/tags.controller.ts",
+    "src/tags/tags.module.ts",
+    "src/tags/tags.service.ts",
+    "src/tags/tags.swagger.ts",
+    "test/get-tags.e2e-spec.ts",
+    "src/app.module.spec.ts",
+    "spec/api/openapi.yml"
+  ],
+  "blastRadius": [
+    "public tags listing",
+    "Nest module registration and generated Swagger"
+  ],
+  "contracts": [
+    "GET /api/tags is public and returns { tags: string[] }",
+    "tag names are returned in ascending alphabetical order",
+    "one API per PR, based on PR #58 in stack #34"
+  ]
+}

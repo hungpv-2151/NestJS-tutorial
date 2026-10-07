@@ -1,0 +1,26 @@
+{
+  "score": 9,
+  "criticalCount": 0,
+  "decision": "SEALED",
+  "acceptanceCovered": [
+    "Unauthenticated GET /api/tags returns the { tags: string[] } envelope with all stored tag names in stable ascending order.",
+    "Generated Swagger documents the required tags array of strings and does not require authentication.",
+    "The feature adds only GET /api/tags and does not change tag or article persistence behavior.",
+    "Anonymous GET /api/tags returns the { tags: string[] } envelope; TagsService selects every stored tag name and orders by name ascending.",
+    "Generated Swagger documents a required tags array of strings and has no operation-level authentication requirement; the E2E test checks /docs-json.",
+    "Only GET /api/tags is added. Tag and article persistence code, entities, and migrations are unchanged.",
+    "All production TypeScript files are under 200 lines; the production change is 73 added lines, below the 400-line limit."
+  ],
+  "regressionChecked": [
+    "phase-04j-unfavorite-article-api is the current HEAD and ancestor of the uncommitted phase-04k-tags-api branch.",
+    "TagsModule is registered in AppModule and TypeORM root registration remains available through AuthModule.",
+    "No global authentication guard applies; the endpoint has no route guard and the E2E request sends no token.",
+    "The existing tag-name unique index supports the ordered name query; only the name column is selected.",
+    "The global exception filter converts unknown persistence errors to a generic 500 response without returning internal details.",
+    "The existing static OpenAPI TagsResponse schema matches the runtime { tags: string[] } contract."
+  ],
+  "contractStatus": "OK",
+  "refuted": [],
+  "unproven": [],
+  "reachableRegressions": []
+}
