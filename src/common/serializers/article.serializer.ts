@@ -1,4 +1,4 @@
-import type { User } from '../users/user.entity.js';
+import type { User } from '../../users/user.entity.js';
 
 export interface ArticleSerializationContext {
   tags: string[];
@@ -56,7 +56,9 @@ export function serializeArticleList(
   };
 }
 
-function toArticleFields(article: ArticleListSerializationInput): ArticleFields {
+function toArticleFields(
+  article: ArticleListSerializationInput,
+): ArticleFields {
   return {
     slug: article.slug,
     title: article.title,

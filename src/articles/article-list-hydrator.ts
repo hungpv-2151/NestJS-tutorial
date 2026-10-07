@@ -5,7 +5,7 @@ import { UserFollow } from '../profiles/user-follow.entity.js';
 import { ArticleFavorite } from './article-favorite.entity.js';
 import { ArticleTag } from './article-tag.entity.js';
 import type { ArticleListQueryArticle } from './article-list-query.service.js';
-import type { ArticleListSerializationInput } from './article.serializer.js';
+import type { ArticleListSerializationInput } from '../common/serializers/article.serializer.js';
 
 @Injectable()
 export class ArticleListHydrator {

@@ -11,7 +11,7 @@ import {
   ArticleNotFoundError,
   ArticleReadService,
   ArticleViewerNotFoundError,
-} from '../../../src/articles/article-read.service.js';
+} from '../../../src/articles/article.service.js';
 
 describe('ArticleReadService', () => {
   it('serializes a guest detail from ordered tags and an aggregate favorite count', async () => {

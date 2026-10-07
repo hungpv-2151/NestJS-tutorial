@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { serializeUser } from '../../../src/users/user.serializer.js';
+import { serializeUser } from '../../../src/common/serializers/user.serializer.js';
 
 describe('serializeUser', () => {
   it('returns the RealWorld user representation without the password hash', () => {

@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { DataSource } from 'typeorm';
 
 import { ArticleFavorite } from '../src/articles/article-favorite.entity.js';
-import { ArticleReadService } from '../src/articles/article-read.service.js';
+import { ArticleReadService } from '../src/articles/article.service.js';
 import { AuthService } from '../src/auth/auth.service.js';
 import { createApp } from '../src/create-app.js';
 import {

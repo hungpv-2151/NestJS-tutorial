@@ -3,7 +3,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import {
   serializeUser,
   type SerializedUser,
-} from '../users/user.serializer.js';
+} from '../common/serializers/user.serializer.js';
 import type { AuthenticatedRequest } from './auth-token.guard.js';
 import { AuthInvalidTokenError, AuthService } from './auth.service.js';
 

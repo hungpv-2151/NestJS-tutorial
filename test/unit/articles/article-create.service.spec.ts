@@ -9,7 +9,7 @@ import {
   ArticleCreatePersistenceError,
   ArticleCreateService,
   ArticleSlugConflictError,
-} from '../../../src/articles/article-create.service.js';
+} from '../../../src/articles/article.service.js';
 import { Tag } from '../../../src/tags/tag.entity.js';
 
 const author = Object.assign(new User(), {

@@ -1,4 +1,4 @@
-import type { User } from '../users/user.entity.js';
+import type { User } from '../../users/user.entity.js';
 
 export interface CommentSerializationInput {
   id: number;

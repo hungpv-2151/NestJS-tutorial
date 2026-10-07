@@ -3,9 +3,11 @@ import {
   ApiBody,
   ApiCreatedResponse,
   ApiExtraModels,
+  ApiForbiddenResponse,
   ApiHeader,
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
+  ApiNoContentResponse,
   ApiOperation,
   ApiOkResponse,
   ApiParam,
@@ -184,6 +186,86 @@ export function GetArticleCommentsSwagger(): MethodDecorator {
     ApiInternalServerErrorResponse({
       description: 'Comments could not be loaded.',
       schema: PERSISTENCE_ERROR_SCHEMA,
+    }),
+  );
+}
+
+const DELETE_TOKEN_ERROR_SCHEMA = {
+  example: { errors: { token: ['is missing'] } },
+  type: 'object',
+};
+const DELETE_COMMENT_FORBIDDEN_SCHEMA = {
+  example: { errors: { comment: ['forbidden'] } },
+  type: 'object',
+};
+const DELETE_NOT_FOUND_SCHEMA = {
+  anyOf: [
+    {
+      example: { errors: { article: ['not found'] } },
+      type: 'object',
+    },
+    {
+      example: { errors: { comment: ['not found'] } },
+      type: 'object',
+    },
+  ],
+};
+const DELETE_INVALID_ID_SCHEMA = {
+  example: { errors: { id: ['must be an integer'] } },
+  type: 'object',
+};
+const DELETE_PERSISTENCE_ERROR_SCHEMA = {
+  example: { errors: { body: ['request failed'] } },
+  type: 'object',
+};
+
+export function DeleteArticleCommentSwagger(): MethodDecorator {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Delete a comment for an article',
+      description: 'Deletes a comment owned by the authenticated user.',
+    }),
+    ApiParam({
+      description: 'Slug of the article containing the comment.',
+      name: 'slug',
+      required: true,
+      type: String,
+    }),
+    ApiParam({
+      description: 'Integer ID of the comment to delete.',
+      name: 'id',
+      required: true,
+      type: Number,
+    }),
+    ApiHeader({
+      description: 'JWT presented as Token <jwt>.',
+      example: 'Token <jwt>',
+      name: 'Authorization',
+      required: true,
+    }),
+    ApiSecurity(TOKEN_AUTH_SECURITY_SCHEME),
+    ApiNoContentResponse({
+      description: 'Comment deleted; response is empty.',
+    }),
+    ApiUnauthorizedResponse({
+      description: 'Token is missing or invalid.',
+      schema: DELETE_TOKEN_ERROR_SCHEMA,
+    }),
+    ApiForbiddenResponse({
+      description: 'The authenticated user does not own this comment.',
+      schema: DELETE_COMMENT_FORBIDDEN_SCHEMA,
+    }),
+    ApiNotFoundResponse({
+      description: 'Article or comment was not found in this article.',
+      schema: DELETE_NOT_FOUND_SCHEMA,
+    }),
+    ApiUnprocessableEntityResponse({
+      description: 'Comment ID must be an integer.',
+      schema: DELETE_INVALID_ID_SCHEMA,
+    }),
+    ApiInternalServerErrorResponse({
+      description: 'Comment deletion failed.',
+      schema: DELETE_PERSISTENCE_ERROR_SCHEMA,
     }),
   );
 }

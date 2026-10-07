@@ -4,7 +4,10 @@ import request from 'supertest';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { DataSource } from 'typeorm';
 
-import { AuthInvalidTokenError, AuthService } from '../src/auth/auth.service.js';
+import {
+  AuthInvalidTokenError,
+  AuthService,
+} from '../src/auth/auth.service.js';
 import { createApp } from '../src/create-app.js';
 import {
   cleanArticleFixture,
@@ -18,7 +21,8 @@ describe('GET /api/articles errors and contract', () => {
 
   afterEach(async () => {
     try {
-      if (app && fixture) await cleanArticleFixture(app.get(DataSource), fixture);
+      if (app && fixture)
+        await cleanArticleFixture(app.get(DataSource), fixture);
     } finally {
       await app?.close();
       fixture = undefined;
@@ -83,8 +87,12 @@ describe('GET /api/articles errors and contract', () => {
     app = await createApp({ ...process.env, NODE_ENV: 'test' });
     fixture = await createArticleFixture(app.get(DataSource));
     vi.spyOn(app.get(AuthService), 'authenticate').mockResolvedValue({
-      aud: 'test', exp: 2_000_000_000, iat: 1_900_000_000,
-      iss: 'test', jti: randomUUID(), sub: `deleted-${randomUUID()}`,
+      aud: 'test',
+      exp: 2_000_000_000,
+      iat: 1_900_000_000,
+      iss: 'test',
+      jti: randomUUID(),
+      sub: `deleted-${randomUUID()}`,
     });
 
     await request(app.getHttpServer())
@@ -97,9 +105,8 @@ describe('GET /api/articles errors and contract', () => {
   it('maps list persistence failures to a generic 500 without leaking internals', async () => {
     app = await createApp({ ...process.env, NODE_ENV: 'test' });
     fixture = await createArticleFixture(app.get(DataSource));
-    const { ArticleListService, ArticleListPersistenceError } = await import(
-      '../src/articles/article-list.service.js'
-    );
+    const { ArticleListService, ArticleListPersistenceError } =
+      await import('../src/articles/article.service.js');
     vi.spyOn(app.get(ArticleListService), 'list').mockRejectedValue(
       new ArticleListPersistenceError(new Error('secret database detail')),
     );
@@ -108,6 +115,8 @@ describe('GET /api/articles errors and contract', () => {
       .get('/api/articles')
       .expect(500)
       .expect({ errors: { body: ['request failed'] } });
-    expect(JSON.stringify(response.body)).not.toContain('secret database detail');
+    expect(JSON.stringify(response.body)).not.toContain(
+      'secret database detail',
+    );
   });
 });

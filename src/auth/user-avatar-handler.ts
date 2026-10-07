@@ -12,7 +12,7 @@ import { PrivateAttachmentStorage } from '../attachments/private-attachment-stor
 import {
   serializeUser,
   type SerializedUser,
-} from '../users/user.serializer.js';
+} from '../common/serializers/user.serializer.js';
 import { User } from '../users/user.entity.js';
 
 const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
@@ -72,10 +72,11 @@ export class UserAvatarHandler {
           }
           cleanupOwnerId = currentUser.id;
 
-          const staleAttachments = (await attachments.findBy({
-            ownerId: currentUser.id,
-          }))
-            .map(({ id, storageKey }) => ({ id, storageKey }));
+          const staleAttachments = (
+            await attachments.findBy({
+              ownerId: currentUser.id,
+            })
+          ).map(({ id, storageKey }) => ({ id, storageKey }));
 
           // The key is unique per upload, so cleanup is safe even if write leaves
           // a partial file before rejecting.
@@ -104,7 +105,10 @@ export class UserAvatarHandler {
           removedAttachmentIds.push(avatarToRemove.id);
         } catch (cleanupError) {
           // Keep failed cleanup rows so the next avatar upload can retry them.
-          this.logCleanupFailure(cleanupError, 'previous_avatar_cleanup_failed');
+          this.logCleanupFailure(
+            cleanupError,
+            'previous_avatar_cleanup_failed',
+          );
         }
       }
 
@@ -145,7 +149,10 @@ export class UserAvatarHandler {
                 );
               });
             } catch (markerError) {
-              this.logCleanupFailure(markerError, 'avatar_cleanup_marker_failed');
+              this.logCleanupFailure(
+                markerError,
+                'avatar_cleanup_marker_failed',
+              );
             }
           }
         }
@@ -165,9 +172,7 @@ export class UserAvatarHandler {
 }
 
 type AvatarMediaType =
-  | typeof JPEG_MEDIA_TYPE
-  | typeof PNG_MEDIA_TYPE
-  | typeof WEBP_MEDIA_TYPE;
+  typeof JPEG_MEDIA_TYPE | typeof PNG_MEDIA_TYPE | typeof WEBP_MEDIA_TYPE;
 
 const MEDIA_TYPE_EXTENSION: Record<AvatarMediaType, string> = {
   [JPEG_MEDIA_TYPE]: 'jpg',

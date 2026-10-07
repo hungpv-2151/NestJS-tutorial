@@ -9,7 +9,10 @@ export interface SerializedUser {
   user: UserToSerialize & { token: string };
 }
 
-export function serializeUser(user: UserToSerialize, token: string): SerializedUser {
+export function serializeUser(
+  user: UserToSerialize,
+  token: string,
+): SerializedUser {
   return {
     user: {
       bio: user.bio,

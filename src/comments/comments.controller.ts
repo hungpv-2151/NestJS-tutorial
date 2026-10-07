@@ -25,7 +25,7 @@ import {
 } from '../auth/optional-auth-token.guard.js';
 import { CreateCommentRequestDto } from '../common/dto/comment-create.dto.js';
 import { CommentService } from './comment.service.js';
-import { DeleteArticleCommentSwagger } from './comments-delete.swagger.js';
+import { DeleteArticleCommentSwagger } from './comments.swagger.js';
 import {
   CreateArticleCommentSwagger,
   GetArticleCommentsSwagger,
