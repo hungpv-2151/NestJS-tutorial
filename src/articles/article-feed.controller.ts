@@ -15,7 +15,7 @@ import {
   AuthTokenGuard,
   type AuthenticatedRequest,
 } from '../auth/auth-token.guard.js';
-import { ArticlePaginationDto } from './article-pagination.dto.js';
+import { ArticlePaginationDto } from '../common/dto/article-pagination.dto.js';
 import {
   ArticleListPersistenceError,
   ArticleListService,

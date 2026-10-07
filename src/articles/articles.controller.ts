@@ -24,7 +24,7 @@ import {
   OptionalAuthTokenGuard,
   type OptionalAuthenticatedRequest,
 } from '../auth/optional-auth-token.guard.js';
-import { CreateArticleRequestDto } from './article-create.dto.js';
+import { CreateArticleRequestDto } from '../common/dto/article-create.dto.js';
 import {
   ArticleAuthorNotFoundError,
   ArticleCreatePersistenceError,
@@ -32,7 +32,7 @@ import {
   ArticleSlugConflictError,
 } from './article-create.service.js';
 import { ArticleReadService } from './article-read.service.js';
-import { ArticleUpdateRequestDto } from './article-update.dto.js';
+import { ArticleUpdateRequestDto } from '../common/dto/article-update.dto.js';
 import { ArticleUpdateService } from './article-update.service.js';
 import {
   CreateArticleSwagger,

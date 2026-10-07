@@ -14,7 +14,7 @@ import {
 } from '@nestjs/swagger';
 
 import { TOKEN_AUTH_SECURITY_SCHEME } from '../auth/auth.swagger.js';
-import { CreateArticleRequestDto } from './article-create.dto.js';
+import { CreateArticleRequestDto } from '../common/dto/article-create.dto.js';
 
 const AUTH_ERROR_SCHEMA = {
   example: { errors: { token: ['is missing'] } },

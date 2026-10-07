@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, StreamableFile } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { Attachment } from '../src/attachments/attachment.entity.js';
 import { AttachmentAccessPolicy } from '../src/attachments/attachment-access-policy.js';
@@ -51,13 +51,17 @@ describe('private file persistence boundary', () => {
           new AttachmentAccessPolicy(),
         );
 
-        await expect(
-          handler.execute(owner.username, attachment.id),
-        ).resolves.toEqual({
-          body,
-          byteSize: body.byteLength,
-          mediaType: 'image/png',
+        const file = await handler.execute(owner.username, attachment.id);
+        expect(file).toBeInstanceOf(StreamableFile);
+        expect(file.getHeaders()).toEqual({
+          disposition: 'inline; filename="avatar.png"',
+          length: body.byteLength,
+          type: 'image/png',
         });
+        const chunks: Buffer[] = [];
+        for await (const chunk of file.getStream())
+          chunks.push(Buffer.from(chunk));
+        expect(Buffer.concat(chunks)).toEqual(body);
         const foreignFileError = await getNotFoundError(
           handler.execute(viewer.username, attachment.id),
         );

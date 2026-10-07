@@ -15,7 +15,7 @@ import {
   OptionalAuthTokenGuard,
   type OptionalAuthenticatedRequest,
 } from '../auth/optional-auth-token.guard.js';
-import { ArticleListQueryDto } from './article-list.dto.js';
+import { ArticleListQueryDto } from '../common/dto/article-list.dto.js';
 import {
   ArticleListPersistenceError,
   ArticleListService,

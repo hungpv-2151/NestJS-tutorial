@@ -10,7 +10,7 @@ import { DataSource, type EntityManager } from 'typeorm';
 import { User } from '../users/user.entity.js';
 import { ArticleTag } from './article-tag.entity.js';
 import { Article } from './article.entity.js';
-import type { ArticleUpdateDto } from './article-update.dto.js';
+import type { ArticleUpdateDto } from '../common/dto/article-update.dto.js';
 import {
   replaceArticleTags,
   uniqueArticleTagNames,
