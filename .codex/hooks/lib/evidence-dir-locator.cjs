@@ -10,7 +10,7 @@ const { loadConfig, resolvePlanPath } = require('./tkm-config-utils.cjs');
  *
  *   1. explicit `explicitDir` (a caller-supplied override, e.g. a future CLI flag)
  *   2. env TKM_EVIDENCE_DIR
- *   3. `.claude/workflow-artifacts.json` pointer — `{ "evidenceDir": "..." }`
+ *   3. `.codex/workflow-artifacts.json` pointer — `{ "evidenceDir": "..." }`
  *   4. the ACTIVE plan's `evidence/` dir — resolved via tkm-config-utils'
  *      resolvePlanPath()/session-state, never by directory recency.
  *
@@ -31,7 +31,7 @@ const { loadConfig, resolvePlanPath } = require('./tkm-config-utils.cjs');
  * looking", not a crash.
  */
 
-/** Read `.claude/workflow-artifacts.json`'s evidenceDir pointer, or null. */
+/** Read `.codex/workflow-artifacts.json`'s evidenceDir pointer, or null. */
 function readPointerFile(pointerPath) {
   try {
     const raw = JSON.parse(fs.readFileSync(pointerPath, 'utf8'));

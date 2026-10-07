@@ -3,6 +3,11 @@ import { describe, expect, it } from 'vitest';
 
 const START_SCRIPTS = ['start', 'start:debug', 'start:dev', 'start:prod'];
 const ENV_FILE_FLAG = '--env-file-if-exists=.env';
+const MIGRATION_SCRIPTS = [
+  'db:migration:apply',
+  'db:migration:revert',
+  'db:migration:show',
+];
 
 describe('runtime start scripts', () => {
   it.each(START_SCRIPTS)('loads .env before running %s', async (name) => {
@@ -13,6 +18,22 @@ describe('runtime start scripts', () => {
     if (name !== 'start:prod') {
       expect(script).toContain("require.resolve('@nestjs/cli/bin/nest.js')");
     }
+  });
+});
+
+describe('database migration scripts', () => {
+  it.each(MIGRATION_SCRIPTS)('loads .env before running %s', async (name) => {
+    const packageJson = await readPackageJson();
+    const script = packageJson.scripts[name];
+
+    expect(script).toContain(`node ${ENV_FILE_FLAG}`);
+  });
+
+  it('preserves caller-only confirmation for database reset', async () => {
+    const packageJson = await readPackageJson();
+    const script = packageJson.scripts['db:migration:reset'];
+
+    expect(script).not.toContain(ENV_FILE_FLAG);
   });
 });
 

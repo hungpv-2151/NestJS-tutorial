@@ -1,3 +1,4 @@
+description = "Top-tier capability variant of the planner blueprint agent, for `--level max`: exhaustive, adversarially stress-tested blueprints for cross-repo, breaking, security-sensitive, or high-blast-radius work. Same blueprint craft and seal checklist as `planner`, run on the strongest model / highest reasoning effort — deeper failure-mode analysis, more thorough dependency and rollback design. It designs and hands back the plan path; it does not implement. Prefer the default `planner` for standard archi"
 model = "gpt-6-astra"
 model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"

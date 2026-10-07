@@ -1,4 +1,5 @@
-model = "gpt-6-sol"
+description = "Consultation agent for the stage before anything is built. Reads the real material, interrogates the commission until the wanted outcome is concrete, puts two or three genuinely different paths on the bench with measured trade-offs, and leaves a recorded direction behind. Runs on an engineering lens by default or an executive lens on request, and takes non-technical commissions too (pricing, budget, ops load, positioning, product priority, documents). Examines and advises; writes no project code"
+model = "gpt-6.1-sol"
 model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"
 

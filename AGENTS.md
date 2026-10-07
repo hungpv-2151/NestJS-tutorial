@@ -1,3 +1,4 @@
+<!-- takumi:begin core rule:development-rules -->
 ## Rule: development-rules
 
 # Development Rules
@@ -27,7 +28,7 @@
 - Favor working, readable code over rigid style policing and formatting fussiness.
 - Apply sensible quality bars — the kind that keep developers productive, not bogged down.
 - Wrap risky paths in try/catch and keep security standards in view.
-- Hand finished work to the `reviewer` agent after every implementation.
+- Hand finished work to a reviewer after every implementation — rendered from `skills/_shared/templates/reviewer-prompt-template.md`; there is no `reviewer` agent type.
 
 ## Pre-commit/Push Rules
 - Lint before you commit.
@@ -43,11 +44,39 @@
 - Account for edge cases and error paths.
 - **DO NOT** spin up new "enhanced" copies of files — edit the existing files in place.
 
-### Checks learned from auth reviews
-- Keep controllers at the HTTP boundary: accept validated input, call a service, serialize the response, and map typed errors to HTTP status codes. Put login, registration, token, and user lookup decisions in the owning service or a focused handler; do not pass the raw HTTP request into domain logic.
-- Give security-sensitive values and reused module configuration descriptive names in focused constants or interface files when that makes their purpose clearer. In particular, label a fixed dummy password hash as a timing-parity value, not as a token. Avoid extracting obvious one-off literals merely to add files.
-- For collection persistence, prefer a batched repository or manager operation over one database query per item, while preserving transaction boundaries and existing behavior.
-- Log important auth failures with enough request context to trace them, using fixed categories and redaction. Never log passwords, password hashes, JWTs, authorization headers, cookies, or raw personal identifiers. Add logs where there is a current operational need.
+## Test Scope & the Scope Contract
+Minimal test for maximum confidence — never blanket coverage. Before verifying any change,
+state a **Scope Contract** (four lines, cheap to write):
+
+- **Changed** — the files and behaviors this change actually touches.
+- **Impacted** — what could break downstream: callers of changed functions, shared contracts.
+- **Will verify** — what gets tested, at which layer, and why that layer is enough.
+- **Deliberately skipped** — what is not re-tested this run, and why it is safe to leave.
+
+For a trivially bounded change — docs-only, a copy tweak, a single cosmetic edit — verify only
+the touched surface (does the page build, does the text read right); do not drag the whole
+suite, the linter, or a coverage sweep into it. Nobody is served by testing what the change
+never reached.
+
+Two rules override the contract and are never negotiable:
+
+- **Fail open.** Unsure whether something is impacted? Test it. A selector that cannot decide
+  runs the wider set, not the narrower one — slower beats a silent miss.
+- **Safety-critical always runs in full**, whatever the contract says, whenever the change
+  touches any of: authentication / authorization / permissions / RBAC; sessions, tokens,
+  secrets, or crypto; payment or billing; database migrations, schema, or data mutations;
+  cross-service calls, API contracts, or other public interfaces; config, CI, release, or
+  deploy; and the kit's own lifecycle hooks (`claude/hooks/*.cjs`).
+
+This list is the **single source of truth** for "safety-critical" — other rules and agents
+point here rather than restating it.
+
+## Before Adding a Test
+- A test must protect observable behavior, a contract, or a credible regression — the smallest test that reliably proves it.
+- Not every change needs a new test: renames, copy, config, docs, and pure refactors usually need none. Cover the paths the change puts at risk, not every edge.
+- One owner test per contract at its strongest boundary; extend an existing case over a near-duplicate. No exports/wrappers/seams that only tests use.
+- Bug fixes: the regression test must fail on the pre-fix code for the intended reason.
+- Full procedure (four-question gate + junk patterns + keep-list): `../skills/run-tests/references/authoring-gate.md`.
 
 ## Visual Aids
 - Reach for ` --explain` when walking through an unfamiliar pattern or tangled logic.
@@ -59,8 +88,11 @@
 - With no active plan, fall back to the `plans/visuals/` directory.
 - For Mermaid diagrams, the `` skill carries the v11 syntax rules.
 - For how this folds into the larger flow, see `primary-workflow.md` → Step 6.
+<!-- takumi:end core rule:development-rules -->
+
 ---
 
+<!-- takumi:begin core rule:documentation-management -->
 ## Rule: documentation-management
 
 # Project Documentation Management
@@ -184,8 +216,11 @@ Each phase file should carry:
 **Next Steps**
 - Dependencies
 - Follow-up tasks
+<!-- takumi:end core rule:documentation-management -->
+
 ---
 
+<!-- takumi:begin core rule:grill-loop-protocol -->
 ## Rule: grill-loop-protocol
 
 # Grill Loop Protocol
@@ -282,33 +317,28 @@ One question per `AskUserQuestion` call · 2–4 options · one option tagged "(
 one-line why · "Other" free-text always available. This mirrors the option format used across
 the kit's interviews — keep it consistent with
 `../skills/create-plan/references/validate-question-framework.md`.
+<!-- takumi:end core rule:grill-loop-protocol -->
+
 ---
 
+<!-- takumi:begin core rule:momorph/momorph-awareness -->
 ## Rule: momorph/momorph-awareness
 
 # MoMorph Awareness Rules
 
-## Detecting MoMorph
+Treat a task as MoMorph when the user message, active plan, or task prompt contains a URL
+`https://momorph.ai/files/{fileKey}{screenId}`, explicit `fileKey`/`screenId` values, or
+the keyword "momorph" / "figma".
 
-Recognize MoMorph from **any** of these sources:
+When detected:
+1. Require the extras kit (`momorph-implement-design` skill + `momorph-ui-implementer` agent). If
+   either is missing, STOP and tell the user to run `tkm init --kit extras`.
+2. Never route MoMorph UI work to generic `implementer`.
+3. Before planning (`tkm:create-plan`), implementing (`tkm:takumi`), or delegating, read and follow
+   `momorph-implement-design/references/momorph-workflow.md` (extras skill) — clarification gate, test policy, Track A/B, and the delegation block every sub-agent prompt
+   must carry.
+<!-- takumi:end core rule:momorph/momorph-awareness -->
 
-- **User message**: URL `https://momorph.ai/files/{fileKey}{screenId}`, explicit `screenId`/`fileKey` values, or keyword "momorph" / "figma"
-- **Active plan**: `plan.md` or any phase file references MoMorph URL, fileKey, or screenId
-- **Task prompt**: the spawned task description contains MoMorph references
-
-## Delegation Protocol
-
-**When spawning ANY sub-agent for a MoMorph task, task description, phase plan, MUST append this block to the prompt:**
-
-```
-## MoMorph refs:
-- {screen name}: https://momorph.ai/files/{fileKey}/screens/{screenId}
-- Clarifications: {path to clarifications.md}
-- testPolicy: {visual-contract|e2e-red-first}
-```
-
-Never infer a different policy inside a sub-agent. A missing or invalid policy is
-`NEEDS_CONTEXT`; the orchestrator resolves it before delegation.
 ---
 
 ## Rule: momorph/momorph-development
@@ -393,8 +423,10 @@ As each screen agent completes:
 1. `tester` reruns the strict command GREEN when applicable, then owns visual validation for every policy.
 2. Treat any failed GREEN or material visual mismatch as incomplete; return the bounded UI fix to `momorph-ui-implementer` without weakening tests.
 3. Integrate verified UI interfaces with Track B incrementally. There is no Track A/Track B merge barrier after the shared clarification/test gate.
+
 ---
 
+<!-- takumi:begin core rule:orchestration-protocol -->
 ## Rule: orchestration-protocol
 
 # Orchestration Protocol
@@ -420,6 +452,8 @@ Plans: /path/to/project-b/plans/"
 ```
 
 **Rule:** When your CWD and the work context differ (you are editing files in another project), point at the **work context paths**, not the CWD paths.
+
+**Scope Contract:** when the delegated task includes testing or verification, the prompt also carries the Scope Contract for the change (see `development-rules.md` → "Test Scope & the Scope Contract"), so the subagent verifies the declared surface instead of re-testing the whole repo. A subagent that never sees the contract falls back to over-testing.
 
 ---
 
@@ -454,7 +488,7 @@ When a subagent wraps up, it MUST report exactly one of these statuses:
 ### Handling Rules
 
 - **Never** let BLOCKED or NEEDS_CONTEXT slide — something has to change before you retry.
-- **Never** re-run the same approach after BLOCKED — escalate the response: more context → simpler task → more capable model → escalate to user.
+- **Never** re-run the same approach after BLOCKED — escalate the response: more context → simpler task → more capable model → **`athena` counsel** (see "Advisory Escalation" below) → escalate to user.
 - **DONE_WITH_CONCERNS** about file growth or tech debt → log it for later, keep moving now.
 - **DONE_WITH_CONCERNS** about correctness → settle it before review.
 - A subagent that fails the same task 3+ times → escalate to the user; don't keep retrying blind.
@@ -470,6 +504,57 @@ Subagents should close their response with:
 ```
 
 ---
+
+## Advisory Escalation
+
+When a run needs judgment rather than another pair of hands, two advisors sit above the ordinary
+flow. They are the **single source** for how counsel enters the work; other rules and skills point
+here rather than restating it.
+
+- **`athena`** (agent) — **autonomous** counsel in one shot. Spawn her when a subagent is stuck, a
+  design fork has real trade-offs, or an approach has failed twice — she reads the evidence, reframes
+  the call, and returns a ranked recommendation with graded assumptions, without ever asking a
+  question back. She is a step in the BLOCKED escalation chain above, before escalating to the user.
+  She advises only; she never edits the code.
+- **`tkm:consult`** (skill) — **interactive** counsel. Reach for it when the requirement itself is
+  still fuzzy: it interviews the user one question at a time (via `grill-loop-protocol.md`) to
+  reframe a vague idea into exact requirements, then advises. Use it when the decision genuinely
+  needs the user in the loop.
+
+**Three advisory roles, kept distinct** — don't reach for the wrong one:
+
+| Role | Shape | Use when |
+|------|-------|----------|
+| `tkm:ask-expert` | Q&A with citations over the project's own artifacts | You need a *fact* about what exists — feature, architecture, impact |
+| `tkm:consult` | Interactive interview → reframed requirement → advice | The *requirement* is not yet clear and the user must help shape it |
+| `athena` | Autonomous one-shot strategy counsel | You're mid-task on a *hard call* and need judgment now, no user round-trip |
+
+### Auto-consult on a fork (model escalation)
+
+An agent running on a model **below `fable`** does not have to guess its way through a hard call
+alone. When it hits a **genuine fork** — two or more paths with real trade-offs it cannot settle
+from the evidence — or is **stuck after two attempts**, it spawns `athena` once for one-shot
+counsel before it commits (`Task(athena)` with the task, the evidence gathered, what was already
+tried, and the exact question). She advises; the agent still decides and acts.
+
+This is the standing rule the weaker agents carry (`planner`, `planner-lite`, `debugger`,
+`tester`, `test-planner` hold `Task(athena)` and point here). It fires **only** at
+a real fork or a repeated failure — never on an ordinary step, so a strong advisor shadows the
+weaker agents without flooding every run with spawns. The `fable`-tier agents (`athena` itself,
+`planner-max`, `brainstormer-max`) are the strong tier already and do not self-escalate.
+
+The template-dispatched `implementer` is the exception by design: it runs at a fixed model/effort
+tier and **does not spawn subagents**, so it never self-consults. When it hits an architectural
+fork it names it in a `BLOCKED`/`NEEDS_CONTEXT` report; its **controller** takes athena's counsel
+on its behalf and re-dispatches with the call resolved.
+
+### `--advice` (opt-in supervision, OFF by default)
+
+Any workflow skill may be invoked with `--advice` to run under `athena` supervision: at each phase
+or decision gate the skill pauses to take athena's counsel before continuing, and passes `--advice`
+onward across handoffs. It is **off by default** and never auto-enabled — spend it on high-stakes or
+error-prone work, where a wrong turn is expensive, not on the everyday case. It composes with any
+mode flag.
 
 ## Context Isolation Principle
 
@@ -511,8 +596,11 @@ Reports: [reports path]
 ## Agent Teams (Optional)
 
 For multi-session parallel collaboration inside a Claude Code agent team, follow `team-coordination-rules.md` (file ownership, communication, task claiming). It sits outside the default orchestration flow.
+<!-- takumi:end core rule:orchestration-protocol -->
+
 ---
 
+<!-- takumi:begin core rule:primary-workflow -->
 ## Rule: primary-workflow
 
 # Primary Workflow
@@ -531,18 +619,31 @@ For multi-session parallel collaboration inside a Claude Code agent team, follow
 - **[IMPORTANT]** After you create or change a code file, run the compile command/script to catch compile errors early.
 
 #### 2. Testing
+- **Non-trivial change → open with the `test-planner` agent.** When the change touches a
+  safety-critical path (see `development-rules.md` → "Test Scope & the Scope Contract"), spans
+  more than ~5 files, or the user passes `--plan`, have `test-planner` draw the test plan first,
+  then hand that plan to `tester`. A trivially bounded change — docs-only, a copy tweak, one
+  cosmetic edit — skips the planner: write the inline Scope Contract and verify the touched
+  surface directly. Unsure which kind you have? Run the planner (fail open).
 - Hand the **simplified code** to the `tester` agent to exercise.
-  - Write thorough unit tests.
-  - Push coverage high.
-  - Exercise the error paths.
-  - Check that performance requirements hold.
+- **Prove the change at the lowest reliable layer.** Reach for the cheapest test that can
+  actually fail on a real bug in what you changed — unit before integration, integration
+  before end-to-end. A green test that never fails on a plausible bug proves nothing.
+- **Scope the run to the change, not the repo.** Exercise the touched behavior and its error
+  paths; broaden only when a shared contract, config, or test helper moved. Widening into code
+  this change never touched buys latency and tokens, not confidence.
+- **Declare a Scope Contract** before running — see `development-rules.md` → "Test Scope & the
+  Scope Contract": what changed, what it impacts, what you verify at which layer, and what you
+  deliberately leave alone and why.
+- **When in doubt, test wider — never narrower.** Can't tell if something is impacted? Run it.
+  Anything on the safety-critical list runs in full regardless of scope.
 - Tests run against the FINAL code — the same code that gets reviewed and merged.
 - **DO NOT** look past failing tests just to make the build pass.
 - **IMPORTANT:** no fake data, mocks, cheats, tricks, or stopgaps slipped in to fake a green build or pass GitHub Actions.
 - **IMPORTANT:** When tests fail, fix them by the recommendations and send them back to the `tester` agent for another run. Only close out the session once everything passes.
 
 #### 3. Code Quality
-- Once tests pass, hand the clean, tested code to the `reviewer` agent.
+- Once tests pass, hand the clean, tested code to a reviewer, rendered from `skills/_shared/templates/reviewer-prompt-template.md`.
 - Hold to the coding standards and conventions.
 - Write code that documents itself.
 - Comment the parts where the logic is genuinely intricate.
@@ -580,6 +681,8 @@ When you need to make complex code, a protocol, or an architecture click:
 - **Markdown mode:** opens automatically in the browser via markdown-novel-viewer, Mermaid rendered.
 - **HTML mode:** opens straight in the browser — self-contained, no server.
 - For more on this, see `development-rules.md` → "Visual Aids".
+<!-- takumi:end core rule:primary-workflow -->
+
 ---
 
 ## Rule: response-style-vi
@@ -614,8 +717,10 @@ Không nên:
    phương pháp không an toàn."
 Nên:
   "Đừng để refresh token trong localStorage — dính XSS là mất sạch."
+
 ---
 
+<!-- takumi:begin core rule:team-coordination-rules -->
 ## Rule: team-coordination-rules
 
 # Team Coordination Rules
@@ -704,9 +809,11 @@ When `plan_mode_required` is set:
 
 - Read the team config at `~/.claude/teams/{team-name}/config.json` to find your teammates.
 - Always call teammates by NAME, never by agent ID.
+<!-- takumi:end core rule:team-coordination-rules -->
 
 ---
 
+<!-- takumi:begin core rule:response-style-multilingual -->
 ## Rule: response-style-multilingual
 
 # Văn phong khi trả lời người dùng bằng tiếng Việt hoặc tiếng Nhật
@@ -749,6 +856,7 @@ Khi viết văn bản tiếng Việt hoặc tiếng Nhật, không được quá
 từ gốc tiếng Anh khi thực sự cần thiết, còn không hãy dùng từ tiếng Việt hay tiếng Nhật tương ứng.
 Đối với tiếng Nhật, tận dụng cả các từ Katakana cho từ chuyên môn cao — ví dụ "Test" khi viết
 tiếng Nhật thì dùng テスト, thay vì để nguyên tiếng Anh hay dùng từ 試験.
+<!-- takumi:end core rule:response-style-multilingual -->
 
 ---
 
@@ -835,7 +943,6 @@ rules/{RULE_ID}-{slug}.md
 
 **Version**: 2.3 | **Total Rules**: 65 | **Maintainer**: Sun* Engineering Excellence
 
-
 ---
 
 <!-- SunLint Code Quality Standards - Auto-generated by sunlint init -->
@@ -921,7 +1028,6 @@ rules/{RULE_ID}-{slug}.md
 
 **Version**: 2.3 | **Total Rules**: 65 | **Maintainer**: Sun* Engineering Excellence
 
-
 ---
 
 <!-- SunLint Code Quality Standards - Auto-generated by sunlint init -->
@@ -1002,5 +1108,3 @@ rules/{RULE_ID}-{slug}.md
 **Examples:**
 - `rules/S017-parameterized-queries.md`
 - `rules/C029-catch-log-root-cause.md`
-
----

@@ -1,3 +1,4 @@
+description = "Designs and builds the surface users touch: interface and landing design,\nwireframes, design systems and tokens, typography and font pairing (including\nfull Vietnamese diacritic support), mobile-first responsive layouts,\nmicro-interactions and motion, Three.js/WebGL scenes, and accessibility to WCAG\n2.1 AA. Reach for it to create or restyle a page or component, replicate a design\nor screenshot, audit visual consistency across pages, fix contrast, focus states,\ntouch targets or reduced-motion han"
 sandbox_mode = "workspace-write"
 
 developer_instructions = """

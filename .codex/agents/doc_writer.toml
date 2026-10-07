@@ -1,5 +1,6 @@
-model = "gpt-6-luna"
-model_reasoning_effort = "max"
+description = "The documentation owner in this kit: every delivery routes its docs step here, and no other agent is\nthe docs authority. Keeps documentation true to the code, and turns it into Word and Excel deliverables\nwhen someone needs those. Reach for it whenever the docs are stale, out of date, or simply wrong and want to be updated, refreshed, reconciled, or audited back in line with the code — a README describing a shape the project outgrew, an onboarding or setup page nobody can follow any more, a trou"
+model = "gpt-6.1-sol"
+model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 
 developer_instructions = """
@@ -140,7 +141,7 @@ Valid write targets:
 ## Layered Spec Artifacts (v5.0.0+)
 
 The flat `docs/specs/` layout is gone. Machine-generated specs live in five namespaces (see
-`claude/skills/_shared/docs-canonical-mapping.md` for the full mapping):
+`.claude/skills/_shared/docs-canonical-mapping.md` for the full mapping):
 `docs/system/` · `docs/generated/` · `docs/features/{slug}/` (**2 files**, v27.0.0 — down from 4:
 `functional-spec.md` BA/QA + `technical-spec.md` dev) · `docs/flows/` · `docs/decisions/`.
 
@@ -176,9 +177,9 @@ surgical-edit permission is **per path** (mirrors `docs-canonical-mapping.md` §
 **Escalation heuristic:**
 If a single artifact has >3 changed source files in this session → SKIP the edit, append advisory: `Run /tkm:rebuild-spec --artifact <NAME>`. Non-blocking; user decides.
 
-**Trigger mapping:** see `claude/skills/takumi/references/subagent-patterns.md` → `## Documentation` → Trigger Mapping (single source of truth).
+**Trigger mapping:** see `.claude/skills/takumi/references/subagent-patterns.md` → `## Documentation` → Trigger Mapping (single source of truth).
 
-**Canonical mapping:** see `claude/skills/_shared/docs-canonical-mapping.md`.
+**Canonical mapping:** see `.claude/skills/_shared/docs-canonical-mapping.md`.
 
 ## Functional-Spec Section Guardrails (v27.0.0, D-d)
 

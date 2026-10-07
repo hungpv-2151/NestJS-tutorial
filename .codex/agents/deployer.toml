@@ -1,5 +1,6 @@
-model = "gpt-6-luna"
-model_reasoning_effort = "max"
+description = "Deployment operator -- sets up hosting, deploys, and verifies production readiness"
+model = "gpt-6.1-sol"
+model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 
 developer_instructions = """

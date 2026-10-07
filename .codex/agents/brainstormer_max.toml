@@ -1,3 +1,4 @@
+description = "Top-tier capability variant of the brainstormer consultation agent, for `--level max`: exhaustive exploration, one parallel sub-agent per lens then a synthesis pass, adversarial probing of every path. Same consultation craft as `brainstormer`, run on the strongest model / highest reasoning effort. Reach for it on high-stakes, judgment-heavy, or irreversible decisions. Examines and advises; writes no project code. Prefer the default `brainstormer` for standard depth, or `brainstormer-lite` for a "
 model = "gpt-6-astra"
 model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"

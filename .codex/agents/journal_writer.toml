@@ -1,5 +1,6 @@
+description = "Writes the dated engineering journal entry into `docs/journals/` — what broke, the error string or metric that proves it, the root cause, the decision taken, and the lesson the next reader can act on. Reach for it after a hard debugging cycle, a failed refactor, a discovered defect, or an architectural call that aged badly, when the history is worth more than a status line. It records honestly, including what was tried and did not work.\n<example>\nContext: The rebuild-spec validator only went gre"
 model = "gpt-6-luna"
-model_reasoning_effort = "low"
+model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"
 
 developer_instructions = """

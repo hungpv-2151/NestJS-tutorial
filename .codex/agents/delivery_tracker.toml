@@ -1,5 +1,6 @@
+description = "Tracks delivery against the plan of record and reports status by evidence, not by effort: which phases actually meet their done-criteria, what is blocked and who owns clearing it, where scope drifted and what it cost. Reach for it for a progress check across `plans/`, to hydrate or reconcile tasks, to write a status report, or to pick work back up after a gap between sessions.\n<example>\nContext: A plan directory is marked completed in its frontmatter but its phase files were never reconciled.\nus"
 model = "gpt-6-luna"
-model_reasoning_effort = "low"
+model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"
 
 developer_instructions = """

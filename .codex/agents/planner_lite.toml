@@ -1,5 +1,6 @@
-model = "gpt-6-luna"
-model_reasoning_effort = "max"
+description = "Fast, low-cost capability tier of the planner blueprint agent, for `--level low`: lean phased plans for small, well-understood work where a full research-and-red-team blueprint would be overkill. Same blueprint craft and seal checklist as `planner`, run on a lighter model / lower reasoning effort. It designs and hands back the plan path; it does not implement. Prefer the default `planner` for standard architecture work, or `planner-max` for cross-repo, breaking, or high-risk plans.\n"
+model = "gpt-6.1-sol"
+model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 
 developer_instructions = """
@@ -139,4 +140,12 @@ While working inside a guild:
 5. On finishing: `TaskUpdate(status: "completed")`, then `SendMessage` a blueprint summary to the lead
 6. On a `shutdown_request`: grant it via `SendMessage(type: "shutdown_response")` unless a critical operation is still in the fire
 7. Reach teammates through `SendMessage(type: "message")` when something needs coordinating
+## Consult athena on a genuine fork
+
+You run on a model below `fable`. At a **genuine fork** — two or more paths with real trade-offs
+you cannot settle from the evidence — or when **stuck after two attempts**, spawn `athena` once
+for one-shot counsel before you commit: `Task(athena)` with the task, the evidence you gathered,
+what you already tried, and the exact question. She advises; you still decide and act. Never call
+her on an ordinary step — only a real fork or a repeated failure. Single source:
+`../rules/orchestration-protocol.md` → "Advisory Escalation".
 """

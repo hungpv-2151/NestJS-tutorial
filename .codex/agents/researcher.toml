@@ -1,5 +1,6 @@
-model = "gpt-6-luna"
-model_reasoning_effort = "max"
+description = "Runs multi-source technical research and ends on a ranked recommendation, not a shelf of options. Compares libraries, frameworks, and architectural routes against the measures that matter — performance, complexity, maintenance cost, license, adoption risk — and judges fit against the stack already in the repo. Reach for it to evaluate a dependency, pull current API documentation for a pinned version, or stress-test an approach before anyone writes code.\n<example>\nContext: takumi-cli bundles to a"
+model = "gpt-6.1-sol"
+model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 
 developer_instructions = """

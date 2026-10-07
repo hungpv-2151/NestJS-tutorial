@@ -1,5 +1,6 @@
+description = "Prose-only file translator. Mirrors a source document into a target language: translates ONLY prose, copies every non-prose token (the \"skeleton\") byte-identical, one source line per output line. Runs on Haiku — translation is mechanical and gated by the caller's skeleton-identity + body-size checks, so the cheap model is the right tool. The caller supplies source/target roots, target language, the artifact list, which tokens count as skeleton, and (optionally) a contract file + validator. Use O"
 model = "gpt-6-luna"
-model_reasoning_effort = "low"
+model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"
 
 developer_instructions = """

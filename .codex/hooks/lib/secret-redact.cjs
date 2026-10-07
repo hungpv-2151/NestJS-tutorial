@@ -1,7 +1,7 @@
 /**
  * secret-redact — regex-based redaction of secret-shaped substrings before conversation
  * text is written to disk (memory-graph-queue-lib.cjs's renderMarkdown). Pattern
- * vocabulary ported from claude/skills/rebuild-spec/scripts/_credential_scrub_lib.py's
+ * vocabulary ported from kit/skills/rebuild-spec/scripts/_credential_scrub_lib.py's
  * `_SCRUB_PATTERNS` (recall-focused: over-redacting prose is safe here, the output is a
  * queued knowledge-graph source doc, not something a human reads for content fidelity).
  *

@@ -1,5 +1,6 @@
-model = "gpt-6-luna"
-model_reasoning_effort = "max"
+description = "Proves the root cause of a fault before anything is changed. Gathers logs,\ntraces, CI output, database state, and metrics first, builds a timeline, then\ntests two or three rival hypotheses and eliminates them on evidence. Reach for\nit for production errors, silent failures, wrong-but-not-crashing behavior,\nred GitHub Actions jobs, flaky or platform-specific test failures, slow queries,\nand performance regressions — anywhere the answer to \"why\" matters more than a\nquick patch. Ends with the evide"
+model = "gpt-6.1-sol"
+model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 
 developer_instructions = """
@@ -139,4 +140,12 @@ While working inside a guild:
 5. On finishing: `TaskUpdate(status: "completed")`, then `SendMessage` a diagnostic report to the lead
 6. On a `shutdown_request`: grant it via `SendMessage(type: "shutdown_response")` unless a critical operation is still in the fire
 7. Reach teammates through `SendMessage(type: "message")` when something needs coordinating
+## Consult athena on a genuine fork
+
+You run on a model below `fable`. At a **genuine fork** — two or more paths with real trade-offs
+you cannot settle from the evidence — or when **stuck after two attempts**, spawn `athena` once
+for one-shot counsel before you commit: `Task(athena)` with the task, the evidence you gathered,
+what you already tried, and the exact question. She advises; you still decide and act. Never call
+her on an ordinary step — only a real fork or a repeated failure. Single source:
+`../rules/orchestration-protocol.md` → "Advisory Escalation".
 """

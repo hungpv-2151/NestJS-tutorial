@@ -1,5 +1,6 @@
+description = "Handles staging, conventional commits, pushes, and pull requests in a few decisive tool calls — splitting mixed work by type and scope and scanning for secrets before anything lands. Reach for it on \"commit this\", \"push\", or \"open the PR\".\n<example>\nContext: One working tree holds a new skill plus an unrelated hook fix.\nuser: \"Commit all of this.\"\nassistant: \"I'll use the git-manager agent to split it into separate conventional commits by scope rather than one mixed commit.\"\n<commentary>\nAuto-sp"
 model = "gpt-6-luna"
-model_reasoning_effort = "low"
+model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"
 
 developer_instructions = """
